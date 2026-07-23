@@ -6,6 +6,7 @@ use App\Http\Resources\ArticleResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Article;
 use App\Models\Brand;
+use App\Models\Partner;
 use App\Models\Product;
 use App\Support\Seo;
 use Inertia\Inertia;
@@ -41,6 +42,9 @@ class HomeController extends Controller
             'familiesTeko1' => $resolve($find($teko, 'kunir-asam')),
             'familiesTeko2' => $resolve($find($teko, 'jahe-serai-toples')),
             'featuredArticles' => ArticleResource::collection($featuredArticles)->resolve(),
+            'partners' => Partner::where('is_active', true)
+                ->orderBy('category')->orderBy('sort_order')->orderBy('name')
+                ->get(['name', 'category', 'logo']),
             'seo' => (new Seo(
                 title: 'CV Gama Putra Santosa — Kuicip & Putri Teko',
                 description: 'CV Gama Putra Santosa (GPS Group) adalah perusahaan makanan & minuman Yogyakarta sejak 2011. Rumah bagi Kuicip, Putri Teko, dan Ngayogyakarya.',

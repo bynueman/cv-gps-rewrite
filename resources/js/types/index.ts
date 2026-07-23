@@ -20,6 +20,12 @@ export type BrandAssets = {
 
 export type BrandKey = "kuicip" | "putri-teko";
 
+export type Partner = {
+  name: string;
+  category: "ritel" | "hotel" | "restaurant" | "oleh-oleh" | "cakery";
+  logo: string | null;
+};
+
 /** Matches the shape API Resources (BrandResource) send — nested
  * Bilingual fields, same contract as the original content.ts `brands`. */
 export type Brand = {

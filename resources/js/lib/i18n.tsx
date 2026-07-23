@@ -64,6 +64,10 @@ const id = {
     kicker: "Produk Unggulan",
     title: "Pilihan Terbaik dari Dua Dunia Rasa",
   },
+  partnersSection: {
+    kicker: "Mitra Kami",
+    title: "Dipercaya oleh mitra ritel, hotel, dan kuliner.",
+  },
   families: {
     kuicipTagline: "Renyah, berani, dan bikin nagih — keripik singkong dengan 8 varian rasa khas Nusantara.",
     kuicipCta: "Jelajahi Kuicip",
@@ -305,6 +309,10 @@ const en: typeof id = {
   featured: {
     kicker: "Featured Products",
     title: "Highlights from Our Two Flavor Worlds",
+  },
+  partnersSection: {
+    kicker: "Our Partners",
+    title: "Trusted by retail, hotel, and culinary partners.",
   },
   families: {
     kuicipTagline: "Crunchy, bold, and addictive — cassava chips in 8 distinctive Indonesian flavors.",

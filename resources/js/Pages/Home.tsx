@@ -2,13 +2,14 @@ import type { ReactElement } from "react";
 import { Head } from "@inertiajs/react";
 import { Hero } from "@/Components/sections/Hero";
 import { CompanyIntro } from "@/Components/sections/CompanyIntro";
+import { PartnersLogoWall } from "@/Components/sections/PartnersLogoWall";
 import { FeaturedProducts } from "@/Components/sections/FeaturedProducts";
 import { ProductFamilies } from "@/Components/sections/ProductFamilies";
 import { ExportPreview } from "@/Components/sections/ExportPreview";
 import { NewsPreview } from "@/Components/sections/NewsPreview";
 import { ContactCTA } from "@/Components/sections/ContactCTA";
 import SiteLayout from "@/Layouts/SiteLayout";
-import type { Article, Product } from "@/types";
+import type { Article, Partner, Product } from "@/types";
 
 type Seo = { title: string; description: string; canonical?: string };
 
@@ -23,6 +24,7 @@ function Home({
   familiesTeko1,
   familiesTeko2,
   featuredArticles,
+  partners,
 }: {
   seo: Seo;
   kuicipCount: number;
@@ -34,6 +36,7 @@ function Home({
   familiesTeko1: Product | null;
   familiesTeko2: Product | null;
   featuredArticles: Article[];
+  partners: Partner[];
 }) {
   return (
     <>
@@ -44,6 +47,7 @@ function Home({
       <div className="relative overflow-x-clip bg-homeBg text-homeInk">
         <Hero kuicipCount={kuicipCount} tekoCount={tekoCount} />
         <CompanyIntro />
+        <PartnersLogoWall partners={partners} />
         <FeaturedProducts hero={featuredHero} supporting={featuredSupporting} />
         <ProductFamilies
           kuicip1={familiesKuicip1}
