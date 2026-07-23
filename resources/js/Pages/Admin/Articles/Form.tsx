@@ -4,6 +4,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { ImageUploadField, type UploadedImage } from "@/Components/admin/ImageUploadField";
 import { RichTextEditor } from "@/Components/admin/RichTextEditor";
 import { slugify } from "@/lib/slug";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 
 const EXCERPT_MIN = 70;
 const EXCERPT_MAX = 160;
@@ -80,7 +81,7 @@ function Form({
   const [tab, setTab] = useState<"id" | "en">("id");
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
 
-  const { data, setData, post, patch, processing, errors, transform } = useForm({
+  const { data, setData, post, patch, processing, errors, transform, isDirty } = useForm({
     slug: article?.slug ?? "",
     date: article?.date ?? new Date().toISOString().slice(0, 10),
     category_slug: article?.category_slug ?? categories[0].slug,
@@ -95,6 +96,8 @@ function Form({
     published: article?.published ?? false,
     confirm_slug_change: false,
   });
+
+  const { bypassNext } = useUnsavedChangesGuard(isDirty);
 
   const effectiveSlug = useMemo(
     () => (slugTouched ? data.slug : slugify(data.title.id)),
@@ -117,6 +120,7 @@ function Form({
     e.preventDefault();
 
     transform((formData) => ({ ...formData, slug: effectiveSlug }));
+    bypassNext();
 
     if (mode === "create") {
       post(route("admin.articles.store"));
@@ -130,19 +134,11 @@ function Form({
   return (
     <>
       <Head title={mode === "create" ? "Tambah Artikel" : "Edit Artikel"} />
-      <div className="container-page py-10">
-        <nav aria-label="Breadcrumb" className="text-sm text-espresso-500">
-          <Link href={route("admin.dashboard")} className="hover:text-gold-700">
-            Admin
-          </Link>{" "}
-          / <span className="text-espresso-900">{mode === "create" ? "Tambah Blog" : "Edit Blog"}</span>
-        </nav>
+      <h1 className="font-display text-2xl font-semibold">
+        {mode === "create" ? "Tambah Blog" : "Edit Blog"}
+      </h1>
 
-        <h1 className="mt-3 font-display text-2xl font-semibold">
-          {mode === "create" ? "Tambah Blog" : "Edit Blog"}
-        </h1>
-
-        <form onSubmit={handleSubmit} className="mt-8 max-w-3xl space-y-6">
+      <form onSubmit={handleSubmit} className="mt-8 max-w-3xl space-y-6">
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
               <span className="mb-1.5 block text-sm font-semibold">Slug</span>
@@ -344,16 +340,17 @@ function Form({
             <button type="submit" disabled={processing} className="btn-primary disabled:opacity-60">
               {processing ? "Menyimpan…" : "Simpan"}
             </button>
-            <Link href={route("admin.dashboard")} className="btn-outline">
+            <Link href={route("admin.articles.index")} className="btn-outline">
               Batal
             </Link>
           </div>
         </form>
-      </div>
     </>
   );
 }
 
-Form.layout = (page: ReactElement) => <AdminLayout children={page} />;
+Form.layout = (page: ReactElement<{ mode: "create" | "edit" }>) => (
+  <AdminLayout title={page.props.mode === "create" ? "Tambah Blog" : "Edit Blog"} children={page} />
+);
 
 export default Form;

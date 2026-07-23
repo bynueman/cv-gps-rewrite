@@ -72,10 +72,17 @@ export type Article = {
 };
 
 export type SharedProps = {
-  auth: { user: { id: number; name: string; email: string } | null };
+  auth: {
+    user: { id: number; name: string; email: string; role: "superadmin" | "editor" } | null;
+  };
   site: {
     company: Company;
     brandAssets: BrandAssets;
     brands: Brand[];
   };
+  flash: {
+    status: string | null;
+    error: string | null;
+  };
+  unreadMessagesCount?: number;
 };

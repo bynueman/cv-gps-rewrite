@@ -42,7 +42,7 @@ const id = {
     kicker: "Gama Putra Santosa · Sleman, Yogyakarta",
     title: "Berpikir Global, Bertindak Lokal",
     subtitle:
-      "Kuicip yang renyah dan Putri Teko yang menghangatkan — dua dunia rasa dari CV Gama Putra Santosa, diproduksi dengan bangga di Yogyakarta.",
+      "Kuicip yang renyah dan Putri Teko yang menghangatkan adalah dua merek unggulan GPS Group, perusahaan makanan & minuman Yogyakarta sejak 2011.",
     ctaProducts: "Jelajahi Produk",
     ctaAbout: "Tentang Kami",
     heroBadgeKuicipLabel: "Varian Kuicip",
@@ -50,13 +50,14 @@ const id = {
   },
   intro: {
     kicker: "Tentang Kami",
-    title: "Perusahaan pangan dari Yogyakarta dengan dua dunia rasa.",
-    body: "CV Gama Putra Santosa adalah perusahaan produksi pangan yang berbasis di Sleman, DI Yogyakarta. Kami percaya bahan lokal — singkong dari kebun sekitar dan rempah warisan Nusantara — layak tampil dalam produk modern yang dikemas serius dan siap tumbuh ke pasar yang lebih luas.",
+    title: "Salah satu perusahaan makanan & minuman terkemuka di Yogyakarta, sejak 2011.",
+    body: "CV Gama Putra Santosa (GPS Group) berdiri sejak 2011 di Sleman, DI Yogyakarta. Kami menaungi tiga merek, yaitu Ngayogyakarya, Putri Teko, dan Kuicip, dengan lini minuman tradisional, minuman rempah botanical, dan camilan yang dipasarkan lewat jaringan retail dan modern trade di seluruh Indonesia, dengan visi tumbuh ke pasar mancanegara. Perjalanan ini kami jalani dengan integritas, semangat kewirausahaan, dan inovasi berkelanjutan, selalu berusaha menjadi yang terbaik.",
     facts: [
+      { label: "Berdiri", value: "2011" },
       { label: "Basis Produksi", value: "Sleman, DI Yogyakarta" },
-      { label: "Fokus", value: "Camilan & minuman tradisional" },
-      { label: "Keluarga Produk", value: "Kuicip · Putri Teko" },
-      { label: "Kemitraan", value: "Terbuka untuk kolaborasi" },
+      { label: "Menaungi", value: "Ngayogyakarya · Putri Teko · Kuicip" },
+      { label: "Jangkauan", value: "Retail & Modern Trade Nasional" },
+      { label: "Sertifikasi", value: "BPOM RI · P-IRT · Halal" },
     ],
   },
   featured: {
@@ -135,7 +136,7 @@ const id = {
     ctaBody: "Sampaikan kebutuhan Anda — kami siapkan materi produk dan jadwal diskusi.",
     ctaButton: "Mulai Percakapan",
     pageIntro:
-      "Halaman ini dirancang untuk mitra bisnis: distributor, peritel, dan calon buyer yang ingin mengenal portofolio kami lebih dekat. Kami tidak mengumbar klaim — kami mengundang percakapan.",
+      "CV Gama Putra Santosa telah berpengalaman di jaringan retail dan modern trade Indonesia sejak 2011, dan kini membuka percakapan ekspor ke mancanegara. Produk kami terdaftar BPOM RI, ber-P-IRT, dan bersertifikat Halal, dokumen yang siap mendukung kebutuhan pasar tujuan. Halaman ini dirancang untuk mitra bisnis: distributor, peritel, dan calon buyer yang ingin mengenal portofolio kami lebih dekat. Kami tidak mengumbar klaim. Kami mengundang percakapan.",
     processTitle: "Bagaimana percakapan dimulai",
     process: [
       { title: "Perkenalan", body: "Ceritakan pasar dan kebutuhan Anda melalui formulir atau email." },
@@ -183,7 +184,7 @@ const id = {
     kicker: "Produk Kami",
     title: "Dua keluarga produk, satu standar dapur.",
     subtitle:
-      "Kuicip dan Putri Teko lahir dari dapur produksi yang sama di Sleman — namun masing-masing membawa dunia rasanya sendiri.",
+      "Kuicip dan Putri Teko adalah dua merek unggulan GPS Group, perusahaan makanan & minuman Yogyakarta sejak 2011, lahir dari dapur produksi yang sama di Sleman dan masing-masing membawa dunia rasanya sendiri.",
     highlightsLabel: "Sorotan",
   },
   kuicipPage: {
@@ -242,7 +243,7 @@ const id = {
     shareHint: "Bagikan artikel ini",
   },
   footer: {
-    tagline: "Perusahaan produksi pangan dari Sleman, Yogyakarta — rumah bagi Kuicip dan Putri Teko.",
+    tagline: "Perusahaan makanan & minuman dari Sleman, Yogyakarta, berdiri sejak 2011. Rumah bagi Ngayogyakarya, Putri Teko, dan Kuicip.",
     linksTitle: "Navigasi",
     brandsTitle: "Keluarga Produk",
     contactTitle: "Kontak",
@@ -283,7 +284,7 @@ const en: typeof id = {
     kicker: "Gama Putra Santosa · Sleman, Yogyakarta",
     title: "Think Global, Act Local",
     subtitle:
-      "The crunch of Kuicip and the warmth of Putri Teko — two flavor worlds from CV Gama Putra Santosa, proudly produced in Yogyakarta.",
+      "The crunch of Kuicip and the warmth of Putri Teko are flagship brands of GPS Group, a Yogyakarta food & beverage company since 2011.",
     ctaProducts: "Explore Products",
     ctaAbout: "About Us",
     heroBadgeKuicipLabel: "Kuicip Variants",
@@ -291,13 +292,14 @@ const en: typeof id = {
   },
   intro: {
     kicker: "About Us",
-    title: "A Yogyakarta food company with two worlds of flavor.",
-    body: "CV Gama Putra Santosa is a food production company based in Sleman, Yogyakarta. We believe local ingredients — cassava from nearby fields and heritage Nusantara spices — deserve modern products, packaged seriously and ready to grow into wider markets.",
+    title: "One of Yogyakarta's leading food & beverage companies, since 2011.",
+    body: "CV Gama Putra Santosa (GPS Group) has been based in Sleman, Yogyakarta since 2011. We're home to three brands, namely Ngayogyakarya, Putri Teko, and Kuicip, spanning traditional beverages, botanical spice drinks, and snacks, marketed through retail and modern trade networks across Indonesia, with a growing vision toward international markets. We carry this journey with integrity, an entrepreneurial spirit, and continuous innovation, always striving to be the best at what we do.",
     facts: [
+      { label: "Founded", value: "2011" },
       { label: "Production Base", value: "Sleman, Yogyakarta" },
-      { label: "Focus", value: "Snacks & traditional beverages" },
-      { label: "Product Families", value: "Kuicip · Putri Teko" },
-      { label: "Partnership", value: "Open for collaboration" },
+      { label: "Home to", value: "Ngayogyakarya · Putri Teko · Kuicip" },
+      { label: "Reach", value: "National Retail & Modern Trade" },
+      { label: "Certification", value: "BPOM RI · P-IRT · Halal" },
     ],
   },
   featured: {
@@ -374,7 +376,7 @@ const en: typeof id = {
     ctaBody: "Tell us what you need — we'll prepare product materials and a discussion schedule.",
     ctaButton: "Start the Conversation",
     pageIntro:
-      "This page is built for business partners: distributors, retailers, and prospective buyers who want a closer look at our portfolio. We don't broadcast claims — we invite conversations.",
+      "CV Gama Putra Santosa has built experience across Indonesia's retail and modern trade networks since 2011, and is now opening conversations for export. Our products are registered with Indonesia's BPOM, hold a P-IRT number, and are Halal-certified, documentation ready to support destination-market requirements. This page is built for business partners: distributors, retailers, and prospective buyers who want a closer look at our portfolio. We don't broadcast claims. We invite conversations.",
     processTitle: "How the conversation starts",
     process: [
       { title: "Introduction", body: "Tell us about your market and needs via the form or email." },
@@ -422,7 +424,7 @@ const en: typeof id = {
     kicker: "Our Products",
     title: "Two product families, one kitchen standard.",
     subtitle:
-      "Kuicip and Putri Teko are born from the same production kitchen in Sleman — yet each carries its own world of flavor.",
+      "Kuicip and Putri Teko are flagship brands of GPS Group, a Yogyakarta food & beverage company since 2011, born from the same production kitchen in Sleman and each carrying its own world of flavor.",
     highlightsLabel: "Highlights",
   },
   kuicipPage: {
@@ -481,7 +483,7 @@ const en: typeof id = {
     shareHint: "Share this article",
   },
   footer: {
-    tagline: "A food production company from Sleman, Yogyakarta — home of Kuicip and Putri Teko.",
+    tagline: "A food & beverage company from Sleman, Yogyakarta, founded in 2011. Home to Ngayogyakarya, Putri Teko, and Kuicip.",
     linksTitle: "Navigation",
     brandsTitle: "Product Families",
     contactTitle: "Contact",

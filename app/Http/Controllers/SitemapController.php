@@ -21,6 +21,7 @@ class SitemapController extends Controller
 
         $productRoutes = Product::query()
             ->with('brand')
+            ->where('is_active', true)
             ->get()
             ->map(fn (Product $product) => [
                 'url' => url("/products/{$product->brand->key}/{$product->slug}"),

@@ -65,7 +65,7 @@ class ArticleController extends Controller
             'published' => (bool) ($data['published'] ?? false),
         ]);
 
-        return redirect()->route('admin.dashboard')->with('status', 'Artikel berhasil dibuat.');
+        return redirect()->route('admin.articles.index')->with('status', 'Artikel berhasil dibuat.');
     }
 
     public function edit(Article $article): Response
@@ -114,13 +114,13 @@ class ArticleController extends Controller
             'published' => (bool) ($data['published'] ?? false),
         ]);
 
-        return redirect()->route('admin.dashboard')->with('status', 'Artikel berhasil diperbarui.');
+        return redirect()->route('admin.articles.index')->with('status', 'Artikel berhasil diperbarui.');
     }
 
     public function destroy(Article $article): RedirectResponse
     {
         $article->delete();
 
-        return redirect()->route('admin.dashboard')->with('status', 'Artikel berhasil dihapus.');
+        return redirect()->route('admin.articles.index')->with('status', 'Artikel berhasil dihapus.');
     }
 }

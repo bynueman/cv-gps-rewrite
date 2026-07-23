@@ -18,7 +18,7 @@ class HomeController extends Controller
         $kuicip = Brand::where('key', 'kuicip')->firstOrFail();
         $teko = Brand::where('key', 'putri-teko')->firstOrFail();
 
-        $find = fn (Brand $brand, string $slug) => Product::where('brand_id', $brand->id)->where('slug', $slug)->first();
+        $find = fn (Brand $brand, string $slug) => Product::where('brand_id', $brand->id)->where('slug', $slug)->where('is_active', true)->first();
         $resolve = fn (?Product $p) => $p ? (new ProductResource($p))->resolve() : null;
 
         $heroProduct = $find($teko, 'wedang-uwuh-toples');
@@ -32,8 +32,8 @@ class HomeController extends Controller
         $featuredArticles = Article::published()->featured()->orderBy('date', 'desc')->limit(3)->get();
 
         return Inertia::render('Home', [
-            'kuicipCount' => Product::where('brand_id', $kuicip->id)->count(),
-            'tekoCount' => Product::where('brand_id', $teko->id)->count(),
+            'kuicipCount' => Product::where('brand_id', $kuicip->id)->where('is_active', true)->count(),
+            'tekoCount' => Product::where('brand_id', $teko->id)->where('is_active', true)->count(),
             'featuredHero' => $resolve($heroProduct),
             'featuredSupporting' => ProductResource::collection($supporting)->resolve(),
             'familiesKuicip1' => $resolve($find($kuicip, 'seaweed')),
@@ -43,8 +43,11 @@ class HomeController extends Controller
             'featuredArticles' => ArticleResource::collection($featuredArticles)->resolve(),
             'seo' => (new Seo(
                 title: 'CV Gama Putra Santosa — Kuicip & Putri Teko',
-                description: 'Kuicip yang renyah dan Putri Teko yang menghangatkan — dua dunia rasa dari CV Gama Putra Santosa, diproduksi dengan bangga di Yogyakarta.',
+                description: 'CV Gama Putra Santosa (GPS Group) adalah perusahaan makanan & minuman Yogyakarta sejak 2011. Rumah bagi Kuicip, Putri Teko, dan Ngayogyakarya.',
                 canonical: url('/'),
+                ogImage: url('/images/og-default.webp'),
+                ogImageWidth: 1200,
+                ogImageHeight: 630,
             ))->toArray(),
         ]);
     }

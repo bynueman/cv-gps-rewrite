@@ -16,7 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        // The app only registers `admin.login` — without this, Laravel's
+        // default Authenticate middleware falls back to route('login'),
+        // which doesn't exist, and every guest hitting a protected
+        // /admin/* route gets a 500 instead of a redirect to sign in.
+        $middleware->redirectGuestsTo(fn () => route('admin.login'));
+
+        $middleware->alias([
+            'superadmin' => \App\Http\Middleware\EnsureUserIsSuperadmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

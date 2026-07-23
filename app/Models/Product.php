@@ -13,7 +13,8 @@ class Product extends Model
         'name_id', 'name_en', 'short_id', 'short_en',
         'personality_id', 'personality_en', 'serving_id', 'serving_en',
         'description_id', 'description_en', 'highlights', 'notes',
-        'color', 'color_dark', 'image', 'featured', 'placeholder',
+        'color', 'color_dark', 'image', 'image_thumb', 'image_og',
+        'featured', 'placeholder', 'sort_order', 'is_active',
     ];
 
     protected $casts = [
@@ -21,6 +22,7 @@ class Product extends Model
         'notes' => 'array',
         'featured' => 'boolean',
         'placeholder' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function brand(): BelongsTo
@@ -39,6 +41,7 @@ class Product extends Model
         return $query
             ->where('brand_id', $product->brand_id)
             ->where('id', '!=', $product->id)
+            ->where('is_active', true)
             ->orderByRaw('packaging = ? DESC', [$product->packaging])
             ->limit($count);
     }

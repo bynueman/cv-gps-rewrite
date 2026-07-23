@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('activity_logs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('action'); // e.g. "created", "updated", "deleted"
+            $table->string('module'); // e.g. "products", "articles", "partners"
+            $table->string('item_label'); // human-readable label of the affected record
+            $table->timestamps();
+
+            $table->index(['module', 'created_at']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('activity_logs');
+    }
+};

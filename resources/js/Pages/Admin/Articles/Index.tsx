@@ -1,9 +1,10 @@
 import type { ReactElement } from "react";
 import { Head, Link } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { SignOutButton } from "@/Components/admin/SignOutButton";
 import { DeleteArticleButton } from "@/Components/admin/DeleteArticleButton";
+import { EmptyState } from "@/Components/admin/EmptyState";
 import { EyeIcon, PencilIcon } from "@/Components/admin/icons";
+import { Newspaper } from "lucide-react";
 
 type ArticleListItem = {
   id: number;
@@ -24,26 +25,26 @@ function formatDate(iso: string) {
 function Index({ articles }: { articles: ArticleListItem[] }) {
   return (
     <>
-      <Head title="Admin" />
-      <div className="container-page py-10">
-        <nav aria-label="Breadcrumb" className="text-sm text-espresso-500">
-          <span className="text-espresso-900">Admin</span> / <span className="text-espresso-900">Berita &amp; Kegiatan</span>
-        </nav>
+      <Head title="Artikel" />
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="font-display text-2xl font-semibold">Artikel</h1>
+        <Link href={route("admin.articles.create")} className="btn-primary !px-4 !py-2 text-sm">
+          + Tambah Blog
+        </Link>
+      </div>
 
-        <div className="mt-3 flex items-center justify-between gap-4">
-          <h1 className="font-display text-2xl font-semibold">Berita & Kegiatan</h1>
-          <div className="flex items-center gap-3">
-            <Link href={route("admin.articles.create")} className="btn-primary !px-4 !py-2 text-sm">
-              + Tambah Blog
-            </Link>
-            <SignOutButton />
-          </div>
+      {articles.length === 0 ? (
+        <div className="mt-8">
+          <EmptyState
+            icon={Newspaper}
+            title="Belum ada artikel"
+            description="Buat artikel pertama untuk ditampilkan di Berita & Kegiatan."
+            actionLabel="+ Tambah Blog"
+            actionHref={route("admin.articles.create")}
+          />
         </div>
-
-        {articles.length === 0 ? (
-          <p className="mt-8 text-sm text-espresso-600">Belum ada artikel. Buat artikel pertama.</p>
-        ) : (
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      ) : (
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {articles.map((a) => (
               <div key={a.id} className="overflow-hidden rounded-2xl border border-espresso-900/10 bg-cream-50 shadow-card">
                 <div className="relative aspect-[16/10] bg-espresso-800">
@@ -108,13 +109,12 @@ function Index({ articles }: { articles: ArticleListItem[] }) {
                 </div>
               </div>
             ))}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }
 
-Index.layout = (page: ReactElement) => <AdminLayout children={page} />;
+Index.layout = (page: ReactElement) => <AdminLayout title="Artikel" children={page} />;
 
 export default Index;

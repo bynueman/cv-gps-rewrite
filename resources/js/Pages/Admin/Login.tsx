@@ -1,6 +1,6 @@
 import type { FormEvent, ReactElement } from "react";
 import { Head, useForm } from "@inertiajs/react";
-import AdminLayout from "@/Layouts/AdminLayout";
+import GuestLayout from "@/Layouts/GuestLayout";
 
 function Login() {
   const { data, setData, post, processing, errors } = useForm({
@@ -68,6 +68,6 @@ function Login() {
   );
 }
 
-Login.layout = (page: ReactElement) => <AdminLayout children={page} />;
+Login.layout = (page: ReactElement) => <GuestLayout children={page} />;
 
 export default Login;

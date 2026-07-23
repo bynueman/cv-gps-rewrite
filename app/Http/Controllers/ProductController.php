@@ -17,9 +17,9 @@ class ProductController extends Controller
         $kuicip = Brand::where('key', 'kuicip')->firstOrFail();
         $teko = Brand::where('key', 'putri-teko')->firstOrFail();
 
-        $featuredKuicip = Product::where('brand_id', $kuicip->id)->where('featured', true)->get();
-        $featuredTekoRtd = Product::where('brand_id', $teko->id)->where('featured', true)->where('group', 'rtd')->get();
-        $featuredTekoBrew = Product::where('brand_id', $teko->id)->where('featured', true)->where('group', 'brew')->get();
+        $featuredKuicip = Product::where('brand_id', $kuicip->id)->where('featured', true)->where('is_active', true)->orderBy('sort_order')->get();
+        $featuredTekoRtd = Product::where('brand_id', $teko->id)->where('featured', true)->where('is_active', true)->where('group', 'rtd')->orderBy('sort_order')->get();
+        $featuredTekoBrew = Product::where('brand_id', $teko->id)->where('featured', true)->where('is_active', true)->where('group', 'brew')->orderBy('sort_order')->get();
 
         return Inertia::render('Products/Overview', [
             'featuredKuicip' => ProductResource::collection($featuredKuicip)->resolve(),
@@ -36,7 +36,7 @@ class ProductController extends Controller
     public function kuicip(): Response
     {
         $brand = Brand::where('key', 'kuicip')->firstOrFail();
-        $products = Product::where('brand_id', $brand->id)->orderBy('id')->get();
+        $products = Product::where('brand_id', $brand->id)->where('is_active', true)->orderBy('sort_order')->orderBy('id')->get();
 
         return Inertia::render('Products/KuicipCatalog', [
             'products' => ProductResource::collection($products)->resolve(),
@@ -51,7 +51,7 @@ class ProductController extends Controller
     public function kuicipShow(string $slug): Response
     {
         $brand = Brand::where('key', 'kuicip')->firstOrFail();
-        $product = Product::where('brand_id', $brand->id)->where('slug', $slug)->firstOrFail();
+        $product = Product::where('brand_id', $brand->id)->where('slug', $slug)->where('is_active', true)->firstOrFail();
         $related = Product::query()->relatedTo($product)->get();
 
         return Inertia::render('Products/ProductDetail', [
@@ -69,7 +69,7 @@ class ProductController extends Controller
     public function teko(): Response
     {
         $brand = Brand::where('key', 'putri-teko')->firstOrFail();
-        $all = Product::where('brand_id', $brand->id)->orderBy('id')->get();
+        $all = Product::where('brand_id', $brand->id)->where('is_active', true)->orderBy('sort_order')->orderBy('id')->get();
 
         $byPackaging = [];
         foreach (TekoPackaging::displayOrder() as $packaging) {
@@ -91,7 +91,7 @@ class ProductController extends Controller
     public function tekoShow(string $slug): Response
     {
         $brand = Brand::where('key', 'putri-teko')->firstOrFail();
-        $product = Product::where('brand_id', $brand->id)->where('slug', $slug)->firstOrFail();
+        $product = Product::where('brand_id', $brand->id)->where('slug', $slug)->where('is_active', true)->firstOrFail();
         $related = Product::query()->relatedTo($product)->get();
 
         return Inertia::render('Products/ProductDetail', [
