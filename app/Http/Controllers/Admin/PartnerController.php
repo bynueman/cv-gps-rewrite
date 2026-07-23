@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StorePartnerRequest;
 use App\Http\Requests\Admin\UpdatePartnerRequest;
 use App\Models\ActivityLog;
 use App\Models\Partner;
+use App\Services\ImageProcessor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,6 +15,10 @@ use Inertia\Response;
 
 class PartnerController extends Controller
 {
+    public function __construct(private readonly ImageProcessor $imageProcessor)
+    {
+    }
+
     public function index(Request $request): Response
     {
         $query = Partner::query()->orderBy('category')->orderBy('sort_order')->orderBy('name');
@@ -52,7 +57,13 @@ class PartnerController extends Controller
 
     public function update(UpdatePartnerRequest $request, Partner $partner): RedirectResponse
     {
-        $partner->update($request->validated());
+        $data = $request->validated();
+
+        if ($partner->logo && $partner->logo !== $data['logo']) {
+            $this->imageProcessor->delete($partner->logo);
+        }
+
+        $partner->update($data);
 
         ActivityLog::record('updated', 'partners', $partner->name);
 
@@ -62,6 +73,7 @@ class PartnerController extends Controller
     public function destroy(Partner $partner): RedirectResponse
     {
         $label = $partner->name;
+        $this->imageProcessor->delete($partner->logo);
         $partner->delete();
 
         ActivityLog::record('deleted', 'partners', $label);

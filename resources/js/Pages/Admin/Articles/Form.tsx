@@ -200,7 +200,7 @@ function Form({
 
           <div>
             <span className="mb-1.5 block text-sm font-semibold">Gambar</span>
-            <ImageUploadField initial={image} onChange={handleImageChange} />
+            <ImageUploadField initial={image} onChange={handleImageChange} context="articles" />
           </div>
 
           <div className="flex gap-2 border-b border-espresso-900/10">

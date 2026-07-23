@@ -9,9 +9,15 @@ export type UploadedImage = {
 export function ImageUploadField({
   initial,
   onChange,
+  context = "articles",
+  variant = "standard",
 }: {
   initial: UploadedImage;
   onChange: (value: UploadedImage) => void;
+  /** Destination folder — matches ImageProcessor::CONTEXTS server-side. */
+  context?: "products" | "articles" | "partners" | "settings";
+  /** "standard" generates content/thumb/og; "logo" is a single ≤480px transparent-safe variant. */
+  variant?: "standard" | "logo";
 }) {
   const [value, setValue] = useState<UploadedImage>(initial);
   const [uploading, setUploading] = useState(false);
@@ -24,6 +30,8 @@ export function ImageUploadField({
     try {
       const form = new FormData();
       form.append("file", file);
+      form.append("context", context);
+      form.append("variant", variant);
       const res = await window.axios.post(route("admin.upload"), form);
       const next: UploadedImage = {
         image: res.data.image,

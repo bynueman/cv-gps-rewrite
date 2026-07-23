@@ -172,6 +172,7 @@ function Edit({ settings }: { settings: SettingsValues }) {
             <ImageUploadField
               initial={{ image: data.og_image_default || null, imageThumb: null, imageOg: data.og_image_default || null }}
               onChange={handleOgImageChange}
+              context="settings"
             />
           </div>
         </div>

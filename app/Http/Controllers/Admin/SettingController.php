@@ -6,12 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Models\ActivityLog;
 use App\Models\Setting;
+use App\Services\ImageProcessor;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SettingController extends Controller
 {
+    public function __construct(private readonly ImageProcessor $imageProcessor)
+    {
+    }
+
     private const KEYS = [
         'whatsapp', 'email_primary', 'email_secondary', 'address',
         'instagram_kuicip', 'instagram_putriteko', 'operating_hours',
@@ -29,7 +34,14 @@ class SettingController extends Controller
 
     public function update(UpdateSettingsRequest $request): RedirectResponse
     {
-        foreach ($request->validated() as $key => $value) {
+        $data = $request->validated();
+
+        $oldOgImage = Setting::get('og_image_default');
+        if ($oldOgImage && $oldOgImage !== ($data['og_image_default'] ?? null)) {
+            $this->imageProcessor->delete($oldOgImage);
+        }
+
+        foreach ($data as $key => $value) {
             Setting::set($key, $value);
         }
 

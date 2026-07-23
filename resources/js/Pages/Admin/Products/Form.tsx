@@ -340,7 +340,7 @@ function Form({
 
         <div>
           <label className={labelClass}>Gambar Produk</label>
-          <ImageUploadField initial={image} onChange={handleImageChange} />
+          <ImageUploadField initial={image} onChange={handleImageChange} context="products" />
         </div>
 
         <div>

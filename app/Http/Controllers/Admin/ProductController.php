@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\ActivityLog;
 use App\Models\Brand;
 use App\Models\Product;
+use App\Services\ImageProcessor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -16,6 +17,10 @@ use Inertia\Response;
 
 class ProductController extends Controller
 {
+    public function __construct(private readonly ImageProcessor $imageProcessor)
+    {
+    }
+
     public function index(Request $request): Response
     {
         $query = Product::query()->with('brand')->orderBy('brand_id')->orderBy('sort_order')->orderBy('name_id');
@@ -115,6 +120,10 @@ class ProductController extends Controller
     {
         $data = $this->prepareData($request->validated());
 
+        if ($product->image && $product->image !== $data['image']) {
+            $this->imageProcessor->delete($product->image);
+        }
+
         $product->update($data);
 
         ActivityLog::record('updated', 'products', $product->name_id);
@@ -125,6 +134,7 @@ class ProductController extends Controller
     public function destroy(Product $product): RedirectResponse
     {
         $label = $product->name_id;
+        $this->imageProcessor->delete($product->image);
         $product->delete();
 
         ActivityLog::record('deleted', 'products', $label);
@@ -141,8 +151,8 @@ class ProductController extends Controller
         return [
             'brand_id' => $data['brand_id'],
             'slug' => Str::slug($data['slug']),
-            'group' => $data['group'] ?: null,
-            'packaging' => $data['packaging'] ?: null,
+            'group' => $data['group'] ?? null ?: null,
+            'packaging' => $data['packaging'] ?? null ?: null,
             'name_id' => $data['name']['id'],
             'name_en' => $data['name']['en'],
             'short_id' => $data['short']['id'],

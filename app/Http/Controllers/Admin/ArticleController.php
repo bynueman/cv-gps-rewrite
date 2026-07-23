@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreArticleRequest;
 use App\Http\Requests\Admin\UpdateArticleRequest;
 use App\Models\Article;
+use App\Services\ImageProcessor;
 use App\Support\ArticleCategory;
 use App\Support\ArticleHtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
@@ -15,6 +16,10 @@ use Inertia\Response;
 
 class ArticleController extends Controller
 {
+    public function __construct(private readonly ImageProcessor $imageProcessor)
+    {
+    }
+
     public function index(): Response
     {
         $articles = Article::query()->orderBy('date', 'desc')->get();
@@ -95,6 +100,10 @@ class ArticleController extends Controller
     {
         $data = $request->validated();
 
+        if ($article->image && $article->image !== ($data['image'] ?? null)) {
+            $this->imageProcessor->delete($article->image);
+        }
+
         $article->update([
             'slug' => Str::slug($data['slug'] ?: $data['title']['id']),
             'date' => $data['date'],
@@ -119,6 +128,7 @@ class ArticleController extends Controller
 
     public function destroy(Article $article): RedirectResponse
     {
+        $this->imageProcessor->delete($article->image);
         $article->delete();
 
         return redirect()->route('admin.articles.index')->with('status', 'Artikel berhasil dihapus.');

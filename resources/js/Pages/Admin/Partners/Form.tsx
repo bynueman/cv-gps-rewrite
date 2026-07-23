@@ -68,7 +68,12 @@ function Form({ mode, partner }: { mode: "create" | "edit"; partner?: PartnerFor
 
         <div>
           <label className={labelClass}>Logo</label>
-          <ImageUploadField initial={{ image: data.logo, imageThumb: null, imageOg: null }} onChange={handleLogoChange} />
+          <ImageUploadField
+            initial={{ image: data.logo, imageThumb: null, imageOg: null }}
+            onChange={handleLogoChange}
+            context="partners"
+            variant="logo"
+          />
         </div>
 
         <div>
