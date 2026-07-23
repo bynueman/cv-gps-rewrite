@@ -76,6 +76,21 @@
         @inertiaHead
     </head>
     <body class="bg-cream-100 text-espresso-900 font-sans antialiased">
-        @inertia
+        <div id="app" data-page="{{ json_encode($page) }}">
+            {{-- Non-JS fallback: React replaces this the instant it mounts
+                 (client-only createRoot render, not hydration — see app.tsx),
+                 so this markup is only ever seen by crawlers/tools that don't
+                 execute JS. Keeps the page's core topic (H1 + description)
+                 readable without depending on Inertia SSR. --}}
+            <noscript>
+                <main style="max-width: 42rem; margin: 4rem auto; padding: 0 1.5rem; font-family: sans-serif;">
+                    <h1>{{ $title }}</h1>
+                    @if ($description)
+                        <p>{{ $description }}</p>
+                    @endif
+                    <p><a href="/">{{ config('company.name') }}</a> — JavaScript diperlukan untuk pengalaman penuh situs ini.</p>
+                </main>
+            </noscript>
+        </div>
     </body>
 </html>

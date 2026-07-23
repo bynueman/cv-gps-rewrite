@@ -62,6 +62,7 @@ class ProductController extends Controller
                 description: $product->short_id,
                 canonical: url("/products/kuicip/{$product->slug}"),
                 ogImage: $product->image ? url($product->image) : null,
+                jsonLd: $this->productJsonLd($product, 'Kuicip', "/products/kuicip/{$product->slug}"),
             ))->toArray(),
         ]);
     }
@@ -102,7 +103,37 @@ class ProductController extends Controller
                 description: $product->short_id,
                 canonical: url("/products/putri-teko/{$product->slug}"),
                 ogImage: $product->image ? url($product->image) : null,
+                jsonLd: $this->productJsonLd($product, 'Putri Teko', "/products/putri-teko/{$product->slug}"),
             ))->toArray(),
         ]);
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function productJsonLd(Product $product, string $brandName, string $path): array
+    {
+        $productUrl = url($path);
+
+        $productJsonLd = array_filter([
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $product->name_id,
+            'description' => $product->description_id,
+            'image' => $product->image ? [url($product->image)] : null,
+            'brand' => ['@type' => 'Brand', 'name' => $brandName],
+            'url' => $productUrl,
+        ]);
+
+        $breadcrumbJsonLd = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                ['@type' => 'ListItem', 'position' => 1, 'name' => 'Beranda', 'item' => url('/')],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => 'Produk Kami', 'item' => url('/products')],
+                ['@type' => 'ListItem', 'position' => 3, 'name' => $brandName, 'item' => url('/products/'.($brandName === 'Kuicip' ? 'kuicip' : 'putri-teko'))],
+                ['@type' => 'ListItem', 'position' => 4, 'name' => $product->name_id, 'item' => $productUrl],
+            ],
+        ];
+
+        return [$productJsonLd, $breadcrumbJsonLd];
     }
 }

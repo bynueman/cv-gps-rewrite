@@ -8,6 +8,7 @@ use App\Models\Article;
 use App\Models\Brand;
 use App\Models\Partner;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Support\Seo;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -46,13 +47,37 @@ class HomeController extends Controller
                 ->orderBy('category')->orderBy('sort_order')->orderBy('name')
                 ->get(['name', 'category', 'logo']),
             'seo' => (new Seo(
-                title: 'CV Gama Putra Santosa — Kuicip & Putri Teko',
+                title: 'Kuicip & Putri Teko',
                 description: 'CV Gama Putra Santosa (GPS Group) adalah perusahaan makanan & minuman Yogyakarta sejak 2011. Rumah bagi Kuicip, Putri Teko, dan Ngayogyakarya.',
                 canonical: url('/'),
-                ogImage: url('/images/og-default.webp'),
-                ogImageWidth: 1200,
-                ogImageHeight: 630,
+                jsonLd: [$this->organizationJsonLd()],
             ))->toArray(),
+        ]);
+    }
+
+    /** @return array<string, mixed> */
+    private function organizationJsonLd(): array
+    {
+        return array_filter([
+            '@context' => 'https://schema.org',
+            '@type' => 'Organization',
+            'name' => config('company.name'),
+            'url' => url('/'),
+            'logo' => url('/images/logo/gps.webp'),
+            'foundingDate' => '2011',
+            'address' => [
+                '@type' => 'PostalAddress',
+                'streetAddress' => Setting::get('address', config('company.address')),
+                'addressLocality' => 'Sleman',
+                'addressRegion' => 'DI Yogyakarta',
+                'addressCountry' => 'ID',
+            ],
+            'contactPoint' => [
+                '@type' => 'ContactPoint',
+                'telephone' => Setting::get('whatsapp', config('company.whatsapp')),
+                'email' => Setting::get('email_primary', config('company.email')),
+                'contactType' => 'customer service',
+            ],
         ]);
     }
 }

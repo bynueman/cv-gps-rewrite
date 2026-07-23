@@ -8,7 +8,11 @@ import { createRoot } from "react-dom/client";
 const appName = import.meta.env.VITE_APP_NAME || "CV Gama Putra Santosa";
 
 createInertiaApp({
-  title: (title) => (title ? `${title} — ${appName}` : appName),
+  // The " — CV Gama Putra Santosa" suffix is applied once, server-side,
+  // by App\Support\Seo — every page's <Head title={seo.title}> already
+  // arrives fully formatted, so this must pass it through unchanged
+  // (templating again here would double the suffix).
+  title: (title) => title || appName,
   resolve: (name) =>
     resolvePageComponent(
       `./Pages/${name}.tsx`,
