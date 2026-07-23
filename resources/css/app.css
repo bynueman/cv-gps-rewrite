@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Self-hosted fonts — no next/font/local equivalent here, so this is a
+   hand-written stand-in: subsetting/preload injection that next/font did
+   automatically must be handled manually (see the <link rel="preload">
+   tags in resources/views/app.blade.php). */
+@font-face {
+  font-family: "Lilita One";
+  src: url("/fonts/lilita-one-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Comic Neue";
+  src: url("/fonts/comic-neue-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Comic Neue";
+  src: url("/fonts/comic-neue-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-display: "Lilita One";
+  --font-sans: "Comic Neue";
+  scroll-padding-top: 5.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  @apply bg-cream-100 text-espresso-900 font-sans antialiased;
+}
+
+::selection {
+  @apply bg-gold-400/60 text-espresso-950;
+}
+
+a:focus-visible,
+button:focus-visible {
+  @apply outline-none ring-2 ring-gold-500 ring-offset-2 ring-offset-cream-100;
+}
+
+[data-reveal] {
+  will-change: transform, opacity;
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-page px-5 sm:px-8 lg:px-12;
+  }
+  .kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.22em] text-gold-600;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream-100;
+  }
+  .btn-primary {
+    @apply btn bg-gold-500 text-espresso-950 hover:bg-gold-400;
+  }
+  .btn-outline {
+    @apply btn border border-espresso-900/25 text-espresso-900 hover:border-espresso-900 hover:bg-espresso-900 hover:text-cream-100;
+  }
+  .btn-dark {
+    @apply btn bg-espresso-900 text-cream-100 hover:bg-espresso-800 focus-visible:ring-offset-espresso-900;
+  }
+}
+
+.prose-article {
+  @apply text-base leading-[1.85] text-espresso-700;
+}
+.prose-article > * + * {
+  @apply mt-5;
+}
+.prose-article h2 {
+  @apply font-display text-2xl font-semibold leading-snug text-espresso-950;
+}
+.prose-article h3 {
+  @apply font-display text-xl font-semibold leading-snug text-espresso-950;
+}
+.prose-article a {
+  @apply font-semibold text-gold-700 underline decoration-gold-400 underline-offset-2 hover:text-gold-600;
+}
+.prose-article strong {
+  @apply font-semibold text-espresso-900;
+}
+.prose-article ul {
+  @apply list-disc space-y-2 pl-6;
+}
+.prose-article ol {
+  @apply list-decimal space-y-2 pl-6;
+}
+.prose-article blockquote {
+  @apply border-l-4 border-gold-400 pl-5 italic text-espresso-600;
+}
+.prose-article img {
+  @apply rounded-2xl;
+}

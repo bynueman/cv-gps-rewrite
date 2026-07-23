@@ -1,0 +1,465 @@
+[
+  {
+    "brand": "kuicip", "slug": "original", "group": null, "packaging": null,
+    "name_id": "Original", "name_en": "Original",
+    "short_id": "Gurih asin klasik yang membiarkan rasa singkong bicara.",
+    "short_en": "Classic savory-salty that lets the cassava speak.",
+    "personality_id": "Jujur & membumi", "personality_en": "Honest & grounded",
+    "serving_id": null, "serving_en": null,
+    "description_id": "Varian pembuka dari keluarga Kuicip: singkong pilihan yang diiris tipis dan digoreng hingga renyah, dibumbui garam gurih secukupnya. Sederhana, tapi justru di situ ujiannya — tidak ada rasa yang bisa disembunyikan.",
+    "description_en": "The opening act of the Kuicip family: selected cassava sliced thin and fried until crisp, seasoned with just enough savory salt. Simple — which is exactly the test, because nothing can hide.",
+    "highlights": [
+      {"id": "Singkong lokal pilihan", "en": "Selected local cassava"},
+      {"id": "Kemasan ziplock 70 gr", "en": "70 gr ziplock packaging"},
+      {"id": "Diiris tipis, digoreng renyah", "en": "Sliced thin, fried crisp"}
+    ],
+    "notes": [
+      {"id": "Gurih asin, ringan", "en": "Savory-salty, light"},
+      {"id": "Cocok untuk semua umur", "en": "Crowd-pleaser for all ages"}
+    ],
+    "color": "#F2B234", "color_dark": "#9C6508",
+    "image": "/images/kuicip/kuicip-ori.webp", "featured": true, "placeholder": false
+  },
+  {
+    "brand": "kuicip", "slug": "balado", "group": null, "packaging": null,
+    "name_id": "Balado", "name_en": "Balado",
+    "short_id": "Pedas manis khas balado yang nempel di jari.",
+    "short_en": "Sweet-spicy balado that stays on your fingers.",
+    "personality_id": "Ramai & nagih", "personality_en": "Loud & addictive",
+    "serving_id": null, "serving_en": null,
+    "description_id": "Bumbu balado bergaya Minang — cabai, bawang, dan sedikit manis — membalut tiap keping singkong renyah. Varian yang paling sering habis duluan.",
+    "description_en": "Minang-style balado seasoning — chili, shallot, and a touch of sweetness — coats every crisp of cassava. The variant that runs out first.",
+    "highlights": [
+      {"id": "Singkong lokal pilihan", "en": "Selected local cassava"},
+      {"id": "Kemasan ziplock 70 gr", "en": "70 gr ziplock packaging"},
+      {"id": "Diiris tipis, digoreng renyah", "en": "Sliced thin, fried crisp"}
+    ],
+    "notes": [
+      {"id": "Pedas manis, aroma cabai", "en": "Sweet heat, chili aroma"},
+      {"id": "Level pedas: sedang", "en": "Heat level: medium"}
+    ],
+    "color": "#D9442E", "color_dark": "#8E2718",
+    "image": "/images/kuicip/kuicip-balado.webp", "featured": true, "placeholder": false
+  },
+  {
+    "brand": "kuicip", "slug": "barbeque", "group": null, "packaging": null,
+    "name_id": "Barbeque", "name_en": "Barbeque",
+    "short_id": "Manis smoky ala panggangan, renyah sampai akhir.",
+    "short_en": "Smoky-sweet grill character, crunchy to the end.",
+    "personality_id": "Santai & smoky", "personality_en": "Laid-back & smoky",
+    "serving_id": null, "serving_en": null,
+    "description_id": "Bumbu barbeque dengan karakter smoky-manis yang akrab di lidah — versi singkong dari rasa favorit lintas generasi.",
+    "description_en": "Barbeque seasoning with a familiar smoky-sweet character — the cassava take on a cross-generation favorite.",
+    "highlights": [
+      {"id": "Singkong lokal pilihan", "en": "Selected local cassava"},
+      {"id": "Kemasan ziplock 70 gr", "en": "70 gr ziplock packaging"},
+      {"id": "Diiris tipis, digoreng renyah", "en": "Sliced thin, fried crisp"}
+    ],
+    "notes": [
+      {"id": "Smoky manis, sedikit paprika", "en": "Smoky-sweet with a paprika note"},
+      {"id": "Level pedas: rendah", "en": "Heat level: low"}
+    ],
+    "color": "#C05A2E", "color_dark": "#7A3418",
+    "image": "/images/kuicip/kuicip-barbeque.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "kuicip", "slug": "rendang", "group": null, "packaging": null,
+    "name_id": "Rendang", "name_en": "Rendang",
+    "short_id": "Rempah rendang yang dalam dan gurih di tiap keping.",
+    "short_en": "Deep, savory rendang spice in every crisp.",
+    "personality_id": "Kaya & berkarakter", "personality_en": "Rich & full of character",
+    "serving_id": null, "serving_en": null,
+    "description_id": "Terinspirasi masakan paling terkenal dari Sumatra Barat: lengkuas, serai, santan, dan cabai dalam bumbu kering yang gurihnya berlapis.",
+    "description_en": "Inspired by West Sumatra's most famous dish: galangal, lemongrass, coconut, and chili in a dry seasoning with layered savoriness.",
+    "highlights": [
+      {"id": "Singkong lokal pilihan", "en": "Selected local cassava"},
+      {"id": "Kemasan ziplock 70 gr", "en": "70 gr ziplock packaging"},
+      {"id": "Diiris tipis, digoreng renyah", "en": "Sliced thin, fried crisp"}
+    ],
+    "notes": [
+      {"id": "Gurih rempah, aroma santan", "en": "Spiced savory, coconut aroma"},
+      {"id": "Level pedas: sedang", "en": "Heat level: medium"}
+    ],
+    "color": "#7E3020", "color_dark": "#4A1B11",
+    "image": "/images/kuicip/kuicip-rendang.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "kuicip", "slug": "spicy-mala", "group": null, "packaging": null,
+    "name_id": "Spicy Mala", "name_en": "Spicy Mala",
+    "short_id": "Pedas menggigit dengan sensasi mala yang menggetarkan.",
+    "short_en": "Biting heat with that tingling mala buzz.",
+    "personality_id": "Berani & bergetar", "personality_en": "Bold & tingling",
+    "serving_id": null, "serving_en": null,
+    "description_id": "Untuk pemburu pedas: bumbu mala dengan sensasi kebas khas andaliman-szechuan yang perlahan menjalar. Bukan untuk yang setengah-setengah.",
+    "description_en": "For heat hunters: mala seasoning with the slow-spreading szechuan-pepper tingle. Not for the half-hearted.",
+    "highlights": [
+      {"id": "Singkong lokal pilihan", "en": "Selected local cassava"},
+      {"id": "Kemasan ziplock 70 gr", "en": "70 gr ziplock packaging"},
+      {"id": "Diiris tipis, digoreng renyah", "en": "Sliced thin, fried crisp"}
+    ],
+    "notes": [
+      {"id": "Pedas kebas khas mala", "en": "Numbing-spicy mala character"},
+      {"id": "Level pedas: tinggi", "en": "Heat level: high"}
+    ],
+    "color": "#B3232E", "color_dark": "#6D0F16",
+    "image": "/images/kuicip/kuicip-spicymala.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "kuicip", "slug": "seaweed", "group": null, "packaging": null,
+    "name_id": "Seaweed", "name_en": "Seaweed",
+    "short_id": "Umami rumput laut yang gurihnya tenang tapi dalam.",
+    "short_en": "Seaweed umami — quiet on top, deep underneath.",
+    "personality_id": "Tenang & umami", "personality_en": "Calm & umami",
+    "serving_id": null, "serving_en": null,
+    "description_id": "Bubuk rumput laut membalut keping singkong dengan gurih umami yang bersih — varian favorit penikmat rasa asin non-pedas.",
+    "description_en": "Seaweed powder coats each crisp with clean umami savoriness — the favorite for non-spicy savory fans.",
+    "highlights": [
+      {"id": "Singkong lokal pilihan", "en": "Selected local cassava"},
+      {"id": "Kemasan ziplock 70 gr", "en": "70 gr ziplock packaging"},
+      {"id": "Diiris tipis, digoreng renyah", "en": "Sliced thin, fried crisp"}
+    ],
+    "notes": [
+      {"id": "Umami gurih, aroma nori", "en": "Savory umami, nori aroma"},
+      {"id": "Tanpa pedas", "en": "No heat"}
+    ],
+    "color": "#3E8E52", "color_dark": "#1F5230",
+    "image": "/images/kuicip/kuicip-seaweed.webp", "featured": true, "placeholder": false
+  },
+  {
+    "brand": "kuicip", "slug": "truffle", "group": null, "packaging": null,
+    "name_id": "Truffle", "name_en": "Truffle",
+    "short_id": "Aroma truffle yang mewah di atas singkong lokal.",
+    "short_en": "Luxurious truffle aroma over humble local cassava.",
+    "personality_id": "Elegan & tak terduga", "personality_en": "Elegant & unexpected",
+    "serving_id": null, "serving_en": null,
+    "description_id": "Perpaduan yang tidak biasa: aroma truffle yang earthy-mewah bertemu keping singkong Sleman. Bukti bahwa bahan lokal bisa tampil di panggung mana pun.",
+    "description_en": "An unlikely pairing: earthy, luxurious truffle aroma meets Sleman cassava crisps. Proof that local ingredients belong on any stage.",
+    "highlights": [
+      {"id": "Singkong lokal pilihan", "en": "Selected local cassava"},
+      {"id": "Kemasan ziplock 70 gr", "en": "70 gr ziplock packaging"},
+      {"id": "Diiris tipis, digoreng renyah", "en": "Sliced thin, fried crisp"}
+    ],
+    "notes": [
+      {"id": "Earthy, buttery, aromatik", "en": "Earthy, buttery, aromatic"},
+      {"id": "Tanpa pedas", "en": "No heat"}
+    ],
+    "color": "#33302B", "color_dark": "#191713",
+    "image": "/images/kuicip/kuicip-truffle.webp", "featured": true, "placeholder": false
+  },
+  {
+    "brand": "kuicip", "slug": "chili-lime", "group": null, "packaging": null,
+    "name_id": "Chili Lime", "name_en": "Chili Lime",
+    "short_id": "Pedas segar dengan kecutan jeruk yang membangunkan.",
+    "short_en": "Fresh heat with a wake-up squeeze of lime.",
+    "personality_id": "Segar & nakal", "personality_en": "Zesty & mischievous",
+    "serving_id": null, "serving_en": null,
+    "description_id": "Cabai bertemu jeruk limau: pedas yang datang duluan, disusul asam segar yang membuat tangan kembali ke kemasan.",
+    "description_en": "Chili meets lime: heat arrives first, followed by a fresh tang that sends your hand back into the bag.",
+    "highlights": [
+      {"id": "Singkong lokal pilihan", "en": "Selected local cassava"},
+      {"id": "Kemasan ziplock 70 gr", "en": "70 gr ziplock packaging"},
+      {"id": "Diiris tipis, digoreng renyah", "en": "Sliced thin, fried crisp"}
+    ],
+    "notes": [
+      {"id": "Pedas asam segar", "en": "Fresh sour heat"},
+      {"id": "Level pedas: sedang", "en": "Heat level: medium"}
+    ],
+    "color": "#8FAE3A", "color_dark": "#4E6318",
+    "image": "/images/kuicip/kuicip-chililime.webp", "featured": false, "placeholder": false
+  },
+
+  {
+    "brand": "putri-teko", "slug": "beras-kencur", "group": "rtd", "packaging": "botol",
+    "name_id": "Beras Kencur", "name_en": "Beras Kencur",
+    "short_id": "Manis lembut beras dan hangat kencur dalam satu botol.",
+    "short_en": "Gentle rice sweetness and warm kencur in one bottle.",
+    "personality_id": "Lembut & memulihkan", "personality_en": "Gentle & restoring",
+    "serving_id": "Siap minum · nikmat hangat atau dingin", "serving_en": "Ready to drink · best warm or chilled",
+    "description_id": "Jamu klasik Jawa yang paling ramah di lidah: beras yang disangrai halus bertemu kencur yang hangat, diseduh menjadi minuman lembut berwarna susu — kini siap minum dalam botol praktis.",
+    "description_en": "The friendliest of classic Javanese jamu: finely toasted rice meets warming kencur in a smooth, milky drink — now ready to drink in a practical bottle.",
+    "highlights": [
+      {"id": "Resep jamu klasik Jawa", "en": "A classic Javanese jamu recipe"},
+      {"id": "Diseduh dari bahan asli", "en": "Brewed from real ingredients"},
+      {"id": "Botol siap minum", "en": "Ready-to-drink bottle"}
+    ],
+    "notes": [
+      {"id": "Beras sangrai, kencur, gula", "en": "Toasted rice, kencur, sugar"},
+      {"id": "Kocok dahulu, simpan dingin", "en": "Shake first, keep chilled"}
+    ],
+    "color": "#CBA35C", "color_dark": "#7A5A25",
+    "image": "/images/putri-teko/boto-beraskencur.webp", "featured": true, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "gula-asam", "group": "rtd", "packaging": "botol",
+    "name_id": "Gula Asam", "name_en": "Gula Asam",
+    "short_id": "Asam jawa dan gula aren — segar, manis, membangunkan.",
+    "short_en": "Tamarind and palm sugar — fresh, sweet, awakening.",
+    "personality_id": "Segar & klasik", "personality_en": "Fresh & classic",
+    "serving_id": "Siap minum · nikmat hangat atau dingin", "serving_en": "Ready to drink · best warm or chilled",
+    "description_id": "Perpaduan asam jawa dan gula aren yang turun-temurun jadi pelepas dahaga: kecut yang segar disusul manis karamel yang dalam. Paling nikmat disajikan dingin di siang hari.",
+    "description_en": "The time-honored thirst-quencher of tamarind and palm sugar: a fresh tang followed by deep caramel sweetness. At its best served cold on a warm afternoon.",
+    "highlights": [
+      {"id": "Asam jawa asli", "en": "Real tamarind"},
+      {"id": "Manis alami gula aren", "en": "Naturally sweetened with palm sugar"},
+      {"id": "Botol siap minum", "en": "Ready-to-drink bottle"}
+    ],
+    "notes": [
+      {"id": "Asam jawa, gula aren", "en": "Tamarind, palm sugar"},
+      {"id": "Paling segar disajikan dingin", "en": "At its best served cold"}
+    ],
+    "color": "#8A4A26", "color_dark": "#502713",
+    "image": "/images/putri-teko/botol-gulaasam.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "kunir-asam", "group": "rtd", "packaging": "botol",
+    "name_id": "Kunir Asam", "name_en": "Kunir Asam",
+    "short_id": "Kunyit segar bertemu asam jawa yang menyegarkan.",
+    "short_en": "Fresh turmeric meets bright, refreshing tamarind.",
+    "personality_id": "Segar & membumi", "personality_en": "Fresh & grounding",
+    "serving_id": "Siap minum · nikmat hangat atau dingin", "serving_en": "Ready to drink · best warm or chilled",
+    "description_id": "Kunir asam — pasangan kunyit dan asam jawa yang dinikmati lintas generasi sebagai penyegar harian — diseduh dari bahan asli tanpa pewarna, dengan warna keemasan alami dari kunyitnya sendiri.",
+    "description_en": "Kunir asam — the turmeric-and-tamarind pairing enjoyed across generations as a daily refresher — brewed from real ingredients with no coloring, its golden hue coming from the turmeric itself.",
+    "highlights": [
+      {"id": "Kunyit segar, asam jawa asli", "en": "Fresh turmeric, real tamarind"},
+      {"id": "Warna kuning alami", "en": "Naturally golden color"},
+      {"id": "Botol siap minum", "en": "Ready-to-drink bottle"}
+    ],
+    "notes": [
+      {"id": "Kunyit, asam jawa, gula", "en": "Turmeric, tamarind, sugar"},
+      {"id": "Paling segar disajikan dingin", "en": "At its best served cold"}
+    ],
+    "color": "#D98E23", "color_dark": "#8A5510",
+    "image": "/images/putri-teko/botol-kuniasam.webp", "featured": true, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "jahe-coklat", "group": "brew", "packaging": "kotak",
+    "name_id": "Jahe Cokelat", "name_en": "Ginger Chocolate",
+    "short_id": "Hangat jahe berpadu coklat — kombinasi yang menenangkan.",
+    "short_en": "Ginger warmth meets chocolate — a soothing pairing.",
+    "personality_id": "Hangat & manja", "personality_en": "Warm & comforting",
+    "serving_id": "Kotak isi sachet · tinggal seduh", "serving_en": "Sachet box · just steep",
+    "description_id": "Perpaduan yang tidak terduga tapi langsung masuk akal di seduhan pertama: pedas hangat jahe dilembutkan coklat yang creamy. Sachet praktis dalam kotak batik khas Putri Teko.",
+    "description_en": "An unexpected pairing that makes sense from the first sip: warm ginger heat softened by creamy chocolate. Practical sachets in Putri Teko's signature batik box.",
+    "highlights": [
+      {"id": "Jahe asli + coklat", "en": "Real ginger + chocolate"},
+      {"id": "Sachet sekali seduh", "en": "Single-steep sachets"},
+      {"id": "Kotak batik khas", "en": "Signature batik box"}
+    ],
+    "notes": [
+      {"id": "Seduh dengan air panas 200 ml", "en": "Steep in 200 ml hot water"},
+      {"id": "Nikmat juga dengan susu", "en": "Also great with milk"}
+    ],
+    "color": "#6B4226", "color_dark": "#3E2413",
+    "image": "/images/putri-teko/kotak-jahecoklat.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "jahe-merah-kotak", "group": "brew", "packaging": "kotak",
+    "name_id": "Jahe Merah", "name_en": "Red Ginger",
+    "short_id": "Jahe merah pilihan untuk seduhan yang lebih berani.",
+    "short_en": "Selected red ginger for a bolder cup.",
+    "personality_id": "Kuat & menghangatkan", "personality_en": "Strong & warming",
+    "serving_id": "Kotak isi sachet · tinggal seduh", "serving_en": "Sachet box · just steep",
+    "description_id": "Jahe merah dikenal lebih pedas dan hangat daripada jahe biasa. Dalam sachet praktis, seduhan berani ini siap menemani begadang dan musim hujan — tinggal tuang air panas.",
+    "description_en": "Red ginger runs spicier and warmer than common ginger. In practical sachets, this bold brew is ready for late nights and rainy seasons — just add hot water.",
+    "highlights": [
+      {"id": "Jahe merah, karakter lebih kuat", "en": "Red ginger, stronger character"},
+      {"id": "Sachet sekali seduh", "en": "Single-steep sachets"},
+      {"id": "Kotak batik khas", "en": "Signature batik box"}
+    ],
+    "notes": [
+      {"id": "Seduh dengan air panas 200 ml", "en": "Steep in 200 ml hot water"},
+      {"id": "Nikmat dengan madu", "en": "Great with honey"}
+    ],
+    "color": "#A63A2A", "color_dark": "#64190F",
+    "image": "/images/putri-teko/kotak-jahemerah.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "jahe-serai", "group": "brew", "packaging": "kotak",
+    "name_id": "Jahe Serai", "name_en": "Ginger Lemongrass",
+    "short_id": "Jahe hangat dengan aroma serai yang bersih dan segar.",
+    "short_en": "Warm ginger lifted by clean, fresh lemongrass.",
+    "personality_id": "Segar & harum", "personality_en": "Fresh & fragrant",
+    "serving_id": "Kotak isi sachet · tinggal seduh", "serving_en": "Sachet box · just steep",
+    "description_id": "Serai memberi aroma segar yang mengangkat hangatnya jahe — kombinasi klasik dapur Jawa dalam sachet yang praktis diseduh kapan saja.",
+    "description_en": "Lemongrass adds a fresh aroma that lifts the ginger's warmth — a classic Javanese kitchen pairing in sachets ready to steep any time.",
+    "highlights": [
+      {"id": "Jahe + serai asli", "en": "Real ginger + lemongrass"},
+      {"id": "Sachet sekali seduh", "en": "Single-steep sachets"},
+      {"id": "Kotak batik khas", "en": "Signature batik box"}
+    ],
+    "notes": [
+      {"id": "Seduh dengan air panas 200 ml", "en": "Steep in 200 ml hot water"},
+      {"id": "Aromanya paling keluar saat hangat", "en": "Aroma peaks while warm"}
+    ],
+    "color": "#5F7A3D", "color_dark": "#354A1E",
+    "image": "/images/putri-teko/kotak-jaheserai.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "susu-jahe", "group": "brew", "packaging": "kotak",
+    "name_id": "Susu Jahe", "name_en": "Ginger Milk",
+    "short_id": "Susu creamy bertemu hangatnya jahe — penutup hari yang menenangkan.",
+    "short_en": "Creamy milk meets ginger's warmth — a soothing way to end the day.",
+    "personality_id": "Lembut & menenangkan", "personality_en": "Gentle & soothing",
+    "serving_id": "Kotak isi sachet · tinggal seduh", "serving_en": "Sachet box · just steep",
+    "description_id": "Perpaduan susu yang lembut dan jahe yang menghangatkan — resep sederhana yang biasa jadi penutup hari di rumah-rumah Jawa. Sachet praktis dalam kotak batik khas Putri Teko, tinggal diseduh sebelum tidur.",
+    "description_en": "Gentle milk meets warming ginger — a simple recipe that often closes the day in Javanese homes. Practical sachets in Putri Teko's signature batik box, ready to steep before bed.",
+    "highlights": [
+      {"id": "Susu creamy + jahe asli", "en": "Creamy milk + real ginger"},
+      {"id": "Sachet sekali seduh", "en": "Single-steep sachets"},
+      {"id": "Kotak batik khas", "en": "Signature batik box"}
+    ],
+    "notes": [
+      {"id": "Seduh dengan air panas 200 ml", "en": "Steep in 200 ml hot water"},
+      {"id": "Nikmat diminum hangat sebelum tidur", "en": "Best enjoyed warm before bed"}
+    ],
+    "color": "#8A6240", "color_dark": "#4A3018",
+    "image": "/images/putri-teko/kotak-susujahe.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "wedang-uwuh-kotak", "group": "brew", "packaging": "kotak",
+    "name_id": "Wedang Uwuh", "name_en": "Wedang Uwuh",
+    "short_id": "Racikan rempah khas Imogiri dengan warna merah secang.",
+    "short_en": "The Imogiri spice blend with its signature secang red.",
+    "personality_id": "Klasik & beraroma", "personality_en": "Classic & aromatic",
+    "serving_id": "Kotak 5 sachet × 25 g · tinggal seduh", "serving_en": "Box of 5 × 25 g sachets · just steep",
+    "description_id": "Wedang uwuh — 'minuman dari dedaunan' khas Yogyakarta — memadukan secang, jahe, cengkih, dan kayu manis menjadi minuman merah hangat yang wanginya memenuhi ruangan. Lima sachet takaran pas dalam satu kotak batik.",
+    "description_en": "Wedang Uwuh — Yogyakarta's famous 'drink of leaves' — combines secang wood, ginger, clove, and cinnamon into a warm red drink whose aroma fills the room. Five measured sachets in one batik box.",
+    "highlights": [
+      {"id": "Resep khas Yogyakarta", "en": "A Yogyakarta signature recipe"},
+      {"id": "Warna merah alami dari secang", "en": "Natural red from secang wood"},
+      {"id": "5 sachet × 25 g per kotak", "en": "5 × 25 g sachets per box"}
+    ],
+    "notes": [
+      {"id": "Secang, jahe, cengkih, kayu manis", "en": "Secang, ginger, clove, cinnamon"},
+      {"id": "Seduh 5–7 menit dengan air panas", "en": "Steep 5–7 minutes in hot water"}
+    ],
+    "color": "#C98A1B", "color_dark": "#7A5208",
+    "image": "/images/putri-teko/kotak-wedanguwuh.webp", "featured": true, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "gula-batu-kristal", "group": "brew", "packaging": "toples",
+    "name_id": "Gula Batu Kristal", "name_en": "Rock Sugar Crystals",
+    "short_id": "Gula batu kristal — pemanis jernih pendamping wedang.",
+    "short_en": "Clear rock sugar crystals — the wedang's companion.",
+    "personality_id": "Jernih & serbaguna", "personality_en": "Clean & versatile",
+    "serving_id": "Toples racikan · seduh sesuai selera", "serving_en": "Jar blend · steep to taste",
+    "description_id": "Pemanis klasik untuk minuman tradisional: gula batu kristal yang larut perlahan dan memberi manis bersih tanpa menutupi aroma rempah. Pasangan wajib wedang uwuh dan teh nasgitel.",
+    "description_en": "The classic sweetener for traditional drinks: rock sugar crystals that dissolve slowly with a clean sweetness that never masks the spices. The essential partner for Wedang Uwuh and strong tea.",
+    "highlights": [
+      {"id": "Manis bersih, larut perlahan", "en": "Clean sweetness, slow-dissolving"},
+      {"id": "Pendamping semua wedang", "en": "Pairs with every wedang"},
+      {"id": "Toples praktis ditakar", "en": "Easy-to-measure jar"}
+    ],
+    "notes": [
+      {"id": "Tambahkan sesuai selera", "en": "Add to taste"},
+      {"id": "Simpan tertutup rapat", "en": "Keep tightly sealed"}
+    ],
+    "color": "#B99C55", "color_dark": "#6E5A2A",
+    "image": "/images/putri-teko/toples-gulabatukristal.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "jahe-merah-toples", "group": "brew", "packaging": "toples",
+    "name_id": "Jahe Merah Gula Batu", "name_en": "Red Ginger & Rock Sugar",
+    "short_id": "Racikan jahe merah dan gula batu siap seduh dari toples.",
+    "short_en": "Red ginger and rock sugar, ready to spoon and steep.",
+    "personality_id": "Hangat & praktis", "personality_en": "Warming & practical",
+    "serving_id": "Toples 150 g · 2 sdt per cangkir", "serving_en": "150 g jar · 2 tsp per cup",
+    "description_id": "Racikan jahe merah, gula batu, dan rempah pendamping dalam toples 150 g — tinggal ambil dua sendok teh, tuang air panas, aduk, dan nikmati hangatnya kapan saja.",
+    "description_en": "A blend of red ginger, rock sugar, and companion spices in a 150 g jar — just spoon out two teaspoons, add hot water, stir, and enjoy the warmth any time.",
+    "highlights": [
+      {"id": "Racikan siap seduh", "en": "Ready-to-steep blend"},
+      {"id": "Toples 150 g", "en": "150 g jar"},
+      {"id": "Takaran fleksibel sesuai selera", "en": "Flexible dosing to taste"}
+    ],
+    "notes": [
+      {"id": "Jahe merah, gula batu, serai, kayu manis", "en": "Red ginger, rock sugar, lemongrass, cinnamon"},
+      {"id": "2 sdt per 200 ml air panas", "en": "2 tsp per 200 ml hot water"}
+    ],
+    "color": "#B3362B", "color_dark": "#6D1812",
+    "image": "/images/putri-teko/toples-jahemerah.webp", "featured": true, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "jahe-serai-toples", "group": "brew", "packaging": "toples",
+    "name_id": "Jahe Serai", "name_en": "Ginger Lemongrass",
+    "short_id": "Racikan jahe serai dalam toples — segar setiap sendoknya.",
+    "short_en": "The ginger-lemongrass blend by the spoonful.",
+    "personality_id": "Segar & harum", "personality_en": "Fresh & fragrant",
+    "serving_id": "Toples racikan · seduh sesuai selera", "serving_en": "Jar blend · steep to taste",
+    "description_id": "Versi toples dari pasangan jahe dan serai: racikan siap seduh untuk stok dapur, dengan takaran yang bisa diatur seencer atau sepekat yang diinginkan.",
+    "description_en": "The jar edition of the ginger-lemongrass pairing: a ready-to-steep pantry blend, dosed as light or as strong as you like.",
+    "highlights": [
+      {"id": "Racikan siap seduh", "en": "Ready-to-steep blend"},
+      {"id": "Stok dapur praktis", "en": "Practical pantry stock"},
+      {"id": "Takaran fleksibel", "en": "Flexible dosing"}
+    ],
+    "notes": [
+      {"id": "Jahe, serai, gula", "en": "Ginger, lemongrass, sugar"},
+      {"id": "Seduh dengan air panas, aduk rata", "en": "Steep in hot water, stir well"}
+    ],
+    "color": "#6E8A3D", "color_dark": "#3F5220",
+    "image": "/images/putri-teko/toples-jaheserai.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "wedang-uwuh-toples", "group": "brew", "packaging": "toples",
+    "name_id": "Wedang Uwuh", "name_en": "Wedang Uwuh",
+    "short_id": "Rempah wedang uwuh dalam toples untuk penikmat rutin.",
+    "short_en": "Wedang Uwuh spices by the jar, for the regulars.",
+    "personality_id": "Klasik & hemat", "personality_en": "Classic & generous",
+    "serving_id": "Toples racikan · seduh sesuai selera", "serving_en": "Jar blend · steep to taste",
+    "description_id": "Untuk yang menyeduh wedang uwuh hampir setiap hari: rempah kering dalam toples yang praktis ditakar — secang, jahe, cengkih, dan kayu manis siap diracik dari dapur sendiri.",
+    "description_en": "For those who brew Wedang Uwuh almost daily: dried spices in an easy-to-measure jar — secang, ginger, clove, and cinnamon, ready to blend from your own kitchen.",
+    "highlights": [
+      {"id": "Rempah wedang uwuh lengkap", "en": "The complete Wedang Uwuh spices"},
+      {"id": "Toples praktis ditakar", "en": "Easy-to-measure jar"},
+      {"id": "Bisa diseduh ulang", "en": "Good for a second steep"}
+    ],
+    "notes": [
+      {"id": "Secang, jahe, cengkih, kayu manis", "en": "Secang, ginger, clove, cinnamon"},
+      {"id": "Tambahkan gula batu sesuai selera", "en": "Add rock sugar to taste"}
+    ],
+    "color": "#C06B2D", "color_dark": "#7A3E14",
+    "image": "/images/putri-teko/toples-wedanguwuh.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "racikan-original", "group": "brew", "packaging": "kemasan",
+    "name_id": "Racikan Original", "name_en": "Original Blend",
+    "short_id": "Satu kemasan berisi racikan rempah lengkap siap seduh.",
+    "short_en": "One pack, the complete spice bundle, ready to steep.",
+    "personality_id": "Lengkap & bersahaja", "personality_en": "Complete & humble",
+    "serving_id": "Kemasan praktis · 1 racikan lengkap", "serving_en": "Practical pack · 1 complete blend",
+    "description_id": "Racikan original dalam kemasan praktis: rempah kering pilihan bersama gula batu dalam satu paket transparan — tinggal seduh dengan air panas dan nikmati ritual wedang yang sesungguhnya.",
+    "description_en": "The original blend in a practical pack: selected dried spices with rock sugar in one clear pouch — just steep in hot water and enjoy the real wedang ritual.",
+    "highlights": [
+      {"id": "Rempah utuh, bukan bubuk", "en": "Whole spices, not powder"},
+      {"id": "Gula batu sudah termasuk", "en": "Rock sugar included"},
+      {"id": "Kemasan praktis dibawa", "en": "Easy-to-carry pack"}
+    ],
+    "notes": [
+      {"id": "Seduh 5–7 menit dengan air panas", "en": "Steep 5–7 minutes in hot water"},
+      {"id": "Bisa diseduh ulang", "en": "Good for a second steep"}
+    ],
+    "color": "#CDA02F", "color_dark": "#77590E",
+    "image": "/images/putri-teko/kemasan-ori.webp", "featured": false, "placeholder": false
+  },
+  {
+    "brand": "putri-teko", "slug": "wedang-uwuh-besek", "group": "brew", "packaging": "besek",
+    "name_id": "Wedang Uwuh Besek", "name_en": "Wedang Uwuh Gift Basket",
+    "short_id": "Wedang uwuh dalam besek anyaman — oleh-oleh yang unik dan berkesan.",
+    "short_en": "Wedang Uwuh in a hand-woven bamboo basket — a unique, memorable souvenir.",
+    "personality_id": "Khas & berkesan", "personality_en": "Distinctive & memorable",
+    "serving_id": "Besek anyaman · oleh-oleh unik", "serving_en": "Woven basket · a unique souvenir",
+    "description_id": "Racikan wedang uwuh yang sama, dikemas dalam besek anyaman bambu — bentuk oleh-oleh yang jarang ditemui, cocok dibawa pulang sebagai buah tangan khas Yogyakarta.",
+    "description_en": "The same Wedang Uwuh blend, packaged in a hand-woven bamboo basket — an uncommon gift form, perfect to bring home as a distinctly Yogyakarta souvenir.",
+    "highlights": [
+      {"id": "Besek anyaman bambu asli", "en": "Genuine woven bamboo basket"},
+      {"id": "Cocok untuk oleh-oleh", "en": "Great as a souvenir or gift"},
+      {"id": "Racikan wedang uwuh lengkap", "en": "Complete Wedang Uwuh blend"}
+    ],
+    "notes": [
+      {"id": "Seduh 5–7 menit dengan air panas", "en": "Steep 5–7 minutes in hot water"},
+      {"id": "Besek bisa dipakai ulang", "en": "Basket is reusable"}
+    ],
+    "color": "#B8935A", "color_dark": "#6B4F2A",
+    "image": "/images/putri-teko/besek-wedanguwuh.webp", "featured": false, "placeholder": false
+  }
+]
