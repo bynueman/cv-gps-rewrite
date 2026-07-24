@@ -29,9 +29,13 @@ class SeoTest extends TestCase
         $response->assertDontSee('CV Gama Putra Santosa — CV Gama Putra Santosa');
     }
 
-    public function test_homepage_title_follows_the_template(): void
+    public function test_homepage_title_is_just_the_company_name(): void
     {
-        $this->get('/')->assertSee('<title inertia>Kuicip &amp; Putri Teko — CV Gama Putra Santosa</title>', false);
+        $response = $this->get('/');
+        $response->assertSee('<title inertia>CV Gama Putra Santosa</title>', false);
+        // Guard against the double-suffix regression once more, specifically
+        // for the case where the page title already equals the site name.
+        $response->assertDontSee('CV Gama Putra Santosa — CV Gama Putra Santosa');
     }
 
     public function test_homepage_has_organization_json_ld(): void

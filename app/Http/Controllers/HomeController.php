@@ -49,7 +49,11 @@ class HomeController extends Controller
                 ->orderBy('category')->orderBy('sort_order')->orderBy('name')
                 ->get(['name', 'category', 'logo']),
             'seo' => (new Seo(
-                title: 'Kuicip & Putri Teko',
+                // No "— CV Gama Putra Santosa" suffix here on purpose: the
+                // Seo class skips appending it when the title already ends
+                // with the site name, so passing the bare name keeps the
+                // homepage tab title exactly "CV Gama Putra Santosa".
+                title: config('company.name'),
                 description: 'CV Gama Putra Santosa (GPS Group) adalah perusahaan makanan & minuman Yogyakarta sejak 2011. Rumah bagi Kuicip, Putri Teko, dan Ngayogyakarya.',
                 canonical: url('/'),
                 jsonLd: [$this->organizationJsonLd()],
