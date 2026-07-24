@@ -9,13 +9,13 @@ const PX_PER_SECOND = 45;
 
 function LogoItem({ partner }: { partner: Partner }) {
   return (
-    <span className="flex h-14 w-32 shrink-0 items-center justify-center opacity-70 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0">
+    <span className="flex h-14 w-32 shrink-0 items-center justify-center transition-transform duration-300 hover:scale-110">
       {partner.logo ? (
         <img
           src={partner.logo}
           alt={partner.name}
           draggable={false}
-          className="max-h-full max-w-full select-none object-contain"
+          className="max-h-full max-w-full select-none object-contain transition-[filter] duration-300 hover:[filter:drop-shadow(0_10px_18px_oklch(27%_0.045_50_/_0.35))]"
         />
       ) : (
         <span className="font-display text-sm font-semibold text-homeInk2">{partner.name}</span>
