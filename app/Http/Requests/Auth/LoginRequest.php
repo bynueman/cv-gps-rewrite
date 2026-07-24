@@ -42,7 +42,7 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey(), 900);
+            RateLimiter::hit($this->throttleKey(), 180);
 
             throw ValidationException::withMessages([
                 'email' => 'Email atau password salah.',
@@ -55,8 +55,7 @@ class LoginRequest extends FormRequest
     /**
      * Ensure the login request is not rate limited.
      *
-     * 5 attempts per 15 minutes per IP — matches the original app's
-     * hand-rolled in-memory limiter, but backed by Laravel's cache so it
+     * 5 attempts per 3 minutes per IP, backed by Laravel's cache so it
      * survives process restarts.
      *
      * @throws ValidationException

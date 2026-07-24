@@ -52,6 +52,15 @@ class AdminNavigationTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->component('Admin/Profile'));
     }
 
+    public function test_visiting_login_while_already_authenticated_goes_to_dashboard(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('admin.login'))
+            ->assertRedirect(route('admin.dashboard'));
+    }
+
     public function test_login_redirects_to_dashboard(): void
     {
         $user = User::factory()->create([

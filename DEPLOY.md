@@ -148,7 +148,7 @@ rsync -a ~/gsp-laravel/public/uploads/ ~/backups/uploads/
 ## Security notes specific to this app
 
 - **Login rate limiting** is handled in `app/Http/Requests/Auth/LoginRequest.php`
-  (5 attempts / 15 minutes / IP, via Laravel's `RateLimiter`) — not a route
+  (5 attempts / 3 minutes / IP, via Laravel's `RateLimiter`) — not a route
   `throttle` middleware. If you ever add a second login entry point, route
   through `LoginRequest::ensureIsNotRateLimited()` rather than bypassing it.
 - **Admin is `noindex`**: every `/admin/*` response (including `/admin/login`

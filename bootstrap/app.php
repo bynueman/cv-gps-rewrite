@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // which doesn't exist, and every guest hitting a protected
         // /admin/* route gets a 500 instead of a redirect to sign in.
         $middleware->redirectGuestsTo(fn () => route('admin.login'));
+        // Without this, an already-authenticated admin hitting /admin/login
+        // (the `guest` middleware) bounces to the public homepage instead
+        // of the dashboard — Laravel's default guest-redirect target.
+        $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
 
         $middleware->alias([
             'superadmin' => \App\Http\Middleware\EnsureUserIsSuperadmin::class,
