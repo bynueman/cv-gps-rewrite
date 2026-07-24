@@ -13,6 +13,7 @@ type Partner = {
   logo: string | null;
   sort_order: number;
   is_active: boolean;
+  featured: boolean;
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -21,6 +22,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   restaurant: "Restoran",
   "oleh-oleh": "Oleh-Oleh",
   cakery: "Cakery",
+  institusi: "Institusi",
 };
 
 const selectClass =
@@ -78,13 +80,20 @@ function Index({ partners, filters }: { partners: Partner[]; filters: { category
                   <p className="truncate font-semibold text-espresso-950">{p.name}</p>
                   <p className="text-xs text-espresso-500">{CATEGORY_LABELS[p.category] ?? p.category}</p>
                 </div>
-                <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                    p.is_active ? "bg-green-100 text-green-800" : "bg-cream-200 text-espresso-600"
-                  }`}
-                >
-                  {p.is_active ? "Aktif" : "Nonaktif"}
-                </span>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      p.is_active ? "bg-green-100 text-green-800" : "bg-cream-200 text-espresso-600"
+                    }`}
+                  >
+                    {p.is_active ? "Aktif" : "Nonaktif"}
+                  </span>
+                  {p.featured ? (
+                    <span className="rounded-full bg-gold-500/20 px-2.5 py-1 text-xs font-semibold text-gold-700">
+                      Beranda
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <div className="mt-3 flex items-center justify-end gap-4 border-t border-espresso-900/10 pt-3">
                 <Link

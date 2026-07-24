@@ -15,6 +15,7 @@ type PartnerFormValues = {
   logo: string | null;
   sort_order: number;
   is_active: boolean;
+  featured: boolean;
 };
 
 function Form({ mode, partner }: { mode: "create" | "edit"; partner?: PartnerFormValues }) {
@@ -24,6 +25,7 @@ function Form({ mode, partner }: { mode: "create" | "edit"; partner?: PartnerFor
     logo: partner?.logo ?? (null as string | null),
     sort_order: partner?.sort_order ?? 0,
     is_active: partner?.is_active ?? true,
+    featured: partner?.featured ?? false,
   });
 
   const { bypassNext } = useUnsavedChangesGuard(isDirty);
@@ -62,6 +64,7 @@ function Form({ mode, partner }: { mode: "create" | "edit"; partner?: PartnerFor
             <option value="restaurant">Restoran</option>
             <option value="oleh-oleh">Oleh-Oleh</option>
             <option value="cakery">Cakery</option>
+            <option value="institusi">Institusi</option>
           </select>
           {errors.category ? <p className="mt-1.5 text-sm text-red-700">{errors.category}</p> : null}
         </div>
@@ -86,10 +89,20 @@ function Form({ mode, partner }: { mode: "create" | "edit"; partner?: PartnerFor
           />
         </div>
 
-        <label className="flex items-center gap-2 text-sm font-semibold">
-          <input type="checkbox" checked={data.is_active} onChange={(e) => setData("is_active", e.target.checked)} />
-          Aktif (tampil di situs)
-        </label>
+        <div className="flex flex-wrap gap-6">
+          <label className="flex items-center gap-2 text-sm font-semibold">
+            <input type="checkbox" checked={data.is_active} onChange={(e) => setData("is_active", e.target.checked)} />
+            Aktif (tampil di situs)
+          </label>
+          <label className="flex items-center gap-2 text-sm font-semibold">
+            <input type="checkbox" checked={data.featured} onChange={(e) => setData("featured", e.target.checked)} />
+            Tampilkan di beranda
+          </label>
+        </div>
+        <p className="-mt-3 text-xs text-espresso-500">
+          Semua mitra aktif tetap tampil di halaman /mitra lengkap — centang ini hanya untuk memilih yang tampil
+          di logo wall beranda.
+        </p>
 
         <div className="flex items-center gap-4 pt-2">
           <button type="submit" disabled={processing} className="btn-primary disabled:opacity-60">

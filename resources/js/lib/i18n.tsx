@@ -17,6 +17,7 @@ const id = {
     news: "Berita & Kegiatan",
     contact: "Hubungi Kami",
     inquiry: "Hubungi Kami",
+    partners: "Mitra",
   },
   common: {
     seeAll: "Lihat semua",
@@ -67,6 +68,21 @@ const id = {
   partnersSection: {
     kicker: "Mitra Kami",
     title: "Dipercaya oleh mitra ritel, hotel, dan kuliner.",
+  },
+  partnersPage: {
+    kicker: "Mitra",
+    title: "Jaringan mitra kami di seluruh Indonesia.",
+    subtitle: "Dari ritel nasional hingga institusi pemerintah — berikut mitra yang telah mempercayai produk kami.",
+    all: "Semua",
+    categories: {
+      ritel: "Ritel",
+      hotel: "Hotel",
+      restaurant: "Restoran",
+      "oleh-oleh": "Oleh-Oleh",
+      cakery: "Cakery",
+      institusi: "Institusi",
+    },
+    empty: "Belum ada mitra di kategori ini.",
   },
   families: {
     kuicipTagline: "Renyah, berani, dan bikin nagih — keripik singkong dengan 8 varian rasa khas Nusantara.",
@@ -264,6 +280,7 @@ const en: typeof id = {
     news: "News & Activities",
     contact: "Contact Us",
     inquiry: "Contact Us",
+    partners: "Partners",
   },
   common: {
     seeAll: "See all",
@@ -313,6 +330,21 @@ const en: typeof id = {
   partnersSection: {
     kicker: "Our Partners",
     title: "Trusted by retail, hotel, and culinary partners.",
+  },
+  partnersPage: {
+    kicker: "Partners",
+    title: "Our partner network across Indonesia.",
+    subtitle: "From national retail chains to government institutions — here are the partners who trust our products.",
+    all: "All",
+    categories: {
+      ritel: "Retail",
+      hotel: "Hotel",
+      restaurant: "Restaurant",
+      "oleh-oleh": "Souvenir Shops",
+      cakery: "Cakery",
+      institusi: "Institutions",
+    },
+    empty: "No partners in this category yet.",
   },
   families: {
     kuicipTagline: "Crunchy, bold, and addictive — cassava chips in 8 distinctive Indonesian flavors.",

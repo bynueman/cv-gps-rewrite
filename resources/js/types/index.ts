@@ -22,7 +22,7 @@ export type BrandKey = "kuicip" | "putri-teko";
 
 export type Partner = {
   name: string;
-  category: "ritel" | "hotel" | "restaurant" | "oleh-oleh" | "cakery";
+  category: "ritel" | "hotel" | "restaurant" | "oleh-oleh" | "cakery" | "institusi";
   logo: string | null;
 };
 

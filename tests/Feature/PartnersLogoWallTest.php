@@ -17,11 +17,12 @@ class PartnersLogoWallTest extends TestCase
         $this->seed(BrandSeeder::class);
     }
 
-    public function test_homepage_lists_only_active_partners_in_order(): void
+    public function test_homepage_lists_only_active_featured_partners_in_order(): void
     {
-        Partner::create(['name' => 'Aktif Z', 'category' => 'ritel', 'sort_order' => 1, 'is_active' => true]);
-        Partner::create(['name' => 'Aktif A', 'category' => 'ritel', 'sort_order' => 0, 'is_active' => true]);
-        Partner::create(['name' => 'Nonaktif', 'category' => 'ritel', 'sort_order' => 0, 'is_active' => false]);
+        Partner::create(['name' => 'Aktif Z', 'category' => 'ritel', 'sort_order' => 1, 'is_active' => true, 'featured' => true]);
+        Partner::create(['name' => 'Aktif A', 'category' => 'ritel', 'sort_order' => 0, 'is_active' => true, 'featured' => true]);
+        Partner::create(['name' => 'Nonaktif', 'category' => 'ritel', 'sort_order' => 0, 'is_active' => false, 'featured' => true]);
+        Partner::create(['name' => 'Tidak Featured', 'category' => 'ritel', 'sort_order' => 0, 'is_active' => true, 'featured' => false]);
 
         $this->get('/')
             ->assertOk()

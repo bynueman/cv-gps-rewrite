@@ -13,7 +13,7 @@ class SitemapController extends Controller
         $now = now();
 
         $staticRoutes = collect([
-            '', 'products', 'products/kuicip', 'products/putri-teko', 'export', 'news', 'contact',
+            '', 'products', 'products/kuicip', 'products/putri-teko', 'mitra', 'export', 'news', 'contact',
         ])->map(fn (string $path) => [
             'url' => url('/'.$path),
             'lastModified' => $now,

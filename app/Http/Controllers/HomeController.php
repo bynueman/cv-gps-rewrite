@@ -43,7 +43,9 @@ class HomeController extends Controller
             'familiesTeko1' => $resolve($find($teko, 'kunir-asam')),
             'familiesTeko2' => $resolve($find($teko, 'jahe-serai-toples')),
             'featuredArticles' => ArticleResource::collection($featuredArticles)->resolve(),
-            'partners' => Partner::where('is_active', true)
+            // Curated subset for the homepage trust wall — the full
+            // directory (every active partner) lives at /mitra.
+            'partners' => Partner::where('is_active', true)->where('featured', true)
                 ->orderBy('category')->orderBy('sort_order')->orderBy('name')
                 ->get(['name', 'category', 'logo']),
             'seo' => (new Seo(

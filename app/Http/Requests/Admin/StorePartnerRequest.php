@@ -19,10 +19,11 @@ class StorePartnerRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', Rule::in(['ritel', 'hotel', 'restaurant', 'oleh-oleh', 'cakery'])],
+            'category' => ['required', 'string', Rule::in(['ritel', 'hotel', 'restaurant', 'oleh-oleh', 'cakery', 'institusi'])],
             'logo' => ['nullable', 'string'],
             'sort_order' => ['integer'],
             'is_active' => ['boolean'],
+            'featured' => ['boolean'],
         ];
     }
 }

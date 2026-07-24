@@ -1,3 +1,4 @@
+import { Link } from "@inertiajs/react";
 import { useLang } from "@/lib/i18n";
 import { useReveal } from "@/hooks/useReveal";
 import type { Partner } from "@/types";
@@ -39,6 +40,12 @@ export function PartnersLogoWall({ partners }: { partners: Partner[] }) {
             )}
           </span>
         ))}
+      </div>
+
+      <div data-reveal className="mt-10 text-center">
+        <Link href="/mitra" className="text-sm font-semibold text-homeTerracotta hover:underline">
+          {t.common.seeAll} →
+        </Link>
       </div>
     </section>
   );
