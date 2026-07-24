@@ -20,6 +20,7 @@
 /storage/pail
 /vendor
 %LOCALAPPDATA%/
+/logo-mitra
 Homestead.json
 Homestead.yaml
 Thumbs.db
