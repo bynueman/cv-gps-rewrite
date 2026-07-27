@@ -69,7 +69,10 @@ class HomeController extends Controller
             '@type' => 'Organization',
             'name' => config('company.name'),
             'url' => url('/'),
-            'logo' => url('/images/logo/gps.webp'),
+            // Google's Organization "logo" guidance wants a square image —
+            // gps.webp is the wide lockup (1200x675); the favicon mark is
+            // already a square crop of the same brand icon.
+            'logo' => url('/favicons/android-chrome-512x512.png'),
             'foundingDate' => '2011',
             'address' => [
                 '@type' => 'PostalAddress',
