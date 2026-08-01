@@ -18,4 +18,15 @@ class ExportController extends Controller
             ))->toArray(),
         ]);
     }
+
+    public function legality(): Response
+    {
+        return Inertia::render('ExportLegality', [
+            'seo' => (new Seo(
+                title: 'Legalitas & Sertifikasi',
+                description: 'Dokumen legalitas usaha dan sertifikasi produk CV Gama Putra Santosa.',
+                canonical: url('/export/legalitas-sertifikasi'),
+            ))->toArray(),
+        ]);
+    }
 }

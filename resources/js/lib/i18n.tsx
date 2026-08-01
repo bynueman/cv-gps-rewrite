@@ -14,6 +14,7 @@ const id = {
     home: "Beranda",
     products: "Produk Kami",
     export: "Ekspor",
+    exportLegality: "Legalitas & Sertifikasi",
     news: "Berita & Kegiatan",
     contact: "Hubungi Kami",
     inquiry: "Hubungi Kami",
@@ -165,6 +166,18 @@ const id = {
       { title: "Kemitraan", body: "Kesepakatan dirancang bersama, bertumbuh secara bertahap." },
     ],
   },
+  exportLegalitySection: {
+    kicker: "Legalitas & Sertifikasi",
+    title: "Legalitas & Sertifikasi",
+    subtitle:
+      "Dokumen legalitas usaha dan sertifikasi produk kami, disusun untuk mendukung kebutuhan due diligence mitra dan buyer.",
+    emptyTitle: "Halaman ini sedang disiapkan",
+    emptyBody:
+      "Kami sedang menyusun daftar dokumen legalitas dan sertifikasi produk secara lengkap untuk ditampilkan di sini. Sementara itu, dokumen yang Anda butuhkan dapat kami sampaikan langsung.",
+    ctaTitle: "Butuh salinan dokumen legalitas atau sertifikasi kami?",
+    ctaBody: "Sampaikan kebutuhan Anda — kami kirimkan dokumen yang relevan untuk proses due diligence.",
+    ctaButton: "Hubungi Kami",
+  },
   newsSection: {
     kicker: "Berita & Kegiatan",
     title: "Cerita dari dapur dan lapangan.",
@@ -278,6 +291,7 @@ const en: typeof id = {
     home: "Home",
     products: "Our Products",
     export: "Export",
+    exportLegality: "Legal & Certifications",
     news: "News & Activities",
     contact: "Contact Us",
     inquiry: "Contact Us",
@@ -425,6 +439,18 @@ const en: typeof id = {
       { title: "Samples & Discussion", body: "Sample exploration and discussion of a suitable partnership scheme." },
       { title: "Partnership", body: "Agreements designed together, growing step by step." },
     ],
+  },
+  exportLegalitySection: {
+    kicker: "Legal & Certifications",
+    title: "Legal & Certifications",
+    subtitle:
+      "Our business legal documents and product certifications, prepared to support our partners' and buyers' due diligence needs.",
+    emptyTitle: "This page is being prepared",
+    emptyBody:
+      "We're compiling the full list of legal documents and product certifications to show here. In the meantime, we're happy to send the documents you need directly.",
+    ctaTitle: "Need a copy of our legal documents or certifications?",
+    ctaBody: "Tell us what you need — we'll send the relevant documents for your due diligence process.",
+    ctaButton: "Contact Us",
   },
   newsSection: {
     kicker: "News & Activities",

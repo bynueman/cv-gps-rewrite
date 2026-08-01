@@ -32,6 +32,7 @@ Route::get('/products/putri-teko/{slug}', [ProductController::class, 'tekoShow']
 Route::get('/contact', [ContactController::class, 'show'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
 Route::get('/export', [ExportController::class, 'show'])->name('export');
+Route::get('/export/legalitas-sertifikasi', [ExportController::class, 'legality'])->name('export.legality');
 Route::get('/mitra', [PublicPartnerController::class, 'index'])->name('partners.public');
 
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
