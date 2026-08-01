@@ -17,7 +17,14 @@ class Setting extends Model
     public static function get(string $key, ?string $default = null): ?string
     {
         return Cache::rememberForever(self::$cachePrefix.$key, function () use ($key, $default) {
-            return static::where('key', $key)->value('value') ?? $default;
+            $setting = static::where('key', $key)->first();
+
+            // A row that exists but holds NULL means an admin explicitly
+            // cleared it — that must win over the config default, or a
+            // cleared field is stuck permanently reverting to the default
+            // (#/reported: clearing "email sekunder" kept showing the old
+            // address). Only fall back when the key was never saved at all.
+            return $setting ? $setting->value : $default;
         });
     }
 

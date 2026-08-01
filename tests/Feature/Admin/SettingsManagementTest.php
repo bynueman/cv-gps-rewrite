@@ -81,4 +81,22 @@ class SettingsManagementTest extends TestCase
             ->assertOk()
             ->assertInertia(fn ($page) => $page->where('site.company.email', config('company.email')));
     }
+
+    public function test_clearing_secondary_email_removes_it_instead_of_reverting_to_config_default(): void
+    {
+        $admin = User::factory()->create(['role' => 'superadmin']);
+
+        // Set it first, then clear it — mirrors an admin blanking out a
+        // field that already had a value, not a fresh install.
+        $this->actingAs($admin)->patch(route('admin.settings.update'), $this->payload());
+        $this->actingAs($admin)->patch(route('admin.settings.update'), $this->payload([
+            'email_secondary' => '',
+        ]));
+
+        $this->assertDatabaseHas('settings', ['key' => 'email_secondary', 'value' => null]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->where('site.company.email_alt', null));
+    }
 }

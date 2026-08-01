@@ -81,11 +81,13 @@ export function Footer() {
                 {company.email}
               </a>
             </li>
-            <li>
-              <a href={`mailto:${company.email_alt}`} className="hover:text-cream-100">
-                {company.email_alt}
-              </a>
-            </li>
+            {company.email_alt && (
+              <li>
+                <a href={`mailto:${company.email_alt}`} className="hover:text-cream-100">
+                  {company.email_alt}
+                </a>
+              </li>
+            )}
             <li>
               <a href={company.whatsapp_href} className="hover:text-cream-100">
                 {company.whatsapp}
@@ -103,17 +105,17 @@ export function Footer() {
 
       {brandAssets.fostered_by.length > 0 && (
         <div className="border-t border-cream-100/10">
-          <div className="container-page flex flex-wrap items-center gap-x-6 gap-y-3 py-6">
+          <div className="container-page flex flex-col items-center gap-4 py-8 text-center">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
               {t.footer.fosteredByTitle}
             </span>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-4">
               {brandAssets.fostered_by.map((f) => (
                 <span
                   key={f.name}
-                  className="flex h-9 items-center rounded-xl bg-cream-50 px-3"
+                  className="flex h-14 items-center rounded-xl bg-cream-50 px-4"
                 >
-                  <img src={f.logo} alt={f.name} className="h-5 w-auto object-contain" />
+                  <img src={f.logo} alt={f.name} className="h-8 w-auto object-contain" />
                 </span>
               ))}
             </div>
@@ -122,11 +124,8 @@ export function Footer() {
       )}
 
       <div className="border-t border-cream-100/10">
-        <div className="container-page flex flex-col gap-1 py-5 text-xs text-cream-200/50 sm:flex-row sm:items-center sm:justify-between">
-          <span>
-            © {year} {company.name}. {t.footer.copyright}
-          </span>
-          <span>Sleman · DI Yogyakarta · Indonesia</span>
+        <div className="container-page py-5 text-center text-xs text-cream-200/50">
+          © {year} {company.name}. {t.footer.copyright}
         </div>
       </div>
     </footer>

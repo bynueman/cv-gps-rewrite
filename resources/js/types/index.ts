@@ -6,7 +6,7 @@ export type Company = {
   location: Bilingual;
   address: string;
   email: string;
-  email_alt: string;
+  email_alt: string | null;
   whatsapp: string;
   whatsapp_href: string;
   hours: Bilingual;

@@ -53,9 +53,11 @@ function Contact({ seo }: { seo: Seo }) {
                     <a href={`mailto:${company.email}`} className="block text-espresso-700 hover:text-gold-700">
                       {company.email}
                     </a>
-                    <a href={`mailto:${company.email_alt}`} className="block text-espresso-700 hover:text-gold-700">
-                      {company.email_alt}
-                    </a>
+                    {company.email_alt && (
+                      <a href={`mailto:${company.email_alt}`} className="block text-espresso-700 hover:text-gold-700">
+                        {company.email_alt}
+                      </a>
+                    )}
                   </dd>
                 </div>
                 <div>
