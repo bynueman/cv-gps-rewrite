@@ -56,6 +56,13 @@ class PartnerSeeder extends Seeder
             ['name' => 'Chicco Swalayan', 'category' => 'ritel', 'slug' => 'chicco-swalayan'],
             ['name' => 'Graha Airi', 'category' => 'ritel', 'slug' => 'graha-airi'],
             ['name' => 'Lawson', 'category' => 'ritel', 'slug' => 'lawson'],
+            ['name' => 'Indogrosir', 'category' => 'ritel', 'slug' => 'indogrosir'],
+            ['name' => 'Log Mart', 'category' => 'ritel', 'slug' => 'log-mart'],
+            ['name' => 'Mekar Mart', 'category' => 'ritel', 'slug' => 'mekar-mart'],
+            ['name' => 'Mina Swalayan', 'category' => 'ritel', 'slug' => 'mina-swalayan'],
+            ['name' => 'Progo', 'category' => 'ritel', 'slug' => 'progo'],
+            ['name' => 'Purnama Toserba & Swalayan', 'category' => 'ritel', 'slug' => 'purnama-toserba'],
+            ['name' => 'WS Toserba', 'category' => 'ritel', 'slug' => 'ws-toserba'],
 
             // Cakery
             ['name' => 'Amanda Brownies', 'category' => 'cakery', 'slug' => 'amanda-brownies'],
@@ -68,6 +75,7 @@ class PartnerSeeder extends Seeder
             ['name' => 'Bank Indonesia KPw DIY', 'category' => 'institusi', 'slug' => 'bank-indonesia-diy'],
             ['name' => 'Dinas Koperasi dan UKM DIY', 'category' => 'institusi', 'slug' => 'dinkop-ukm-diy'],
             ['name' => 'KPU Purworejo', 'category' => 'institusi', 'slug' => 'kpu-purworejo'],
+            ['name' => 'Sekolah Teladan', 'category' => 'institusi', 'slug' => 'sekolah-teladan'],
         ];
 
         foreach ($partners as $index => $partner) {
