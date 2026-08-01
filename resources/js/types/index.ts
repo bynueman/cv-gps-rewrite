@@ -16,6 +16,7 @@ export type Company = {
 export type BrandAssets = {
   logos: { gps: string; kuicip: string; "putri-teko": string };
   group_shots: { kuicip: string; "putri-teko": string };
+  fostered_by: { name: string; logo: string }[];
 };
 
 export type BrandKey = "kuicip" | "putri-teko";

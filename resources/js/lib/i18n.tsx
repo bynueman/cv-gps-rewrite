@@ -269,6 +269,7 @@ const id = {
     contactTitle: "Kontak",
     langTitle: "Bahasa",
     copyright: "Hak cipta dilindungi.",
+    fosteredByTitle: "Binaan",
   },
 };
 
@@ -529,6 +530,7 @@ const en: typeof id = {
     contactTitle: "Contact",
     langTitle: "Language",
     copyright: "All rights reserved.",
+    fosteredByTitle: "Fostered by",
   },
 };
 

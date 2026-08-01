@@ -13,4 +13,12 @@ return [
         'kuicip' => '/images/kuicip-nobg.webp',
         'putri-teko' => '/images/putriteko-nobg.webp',
     ],
+
+    // Institutions GPS Group is a fostered SME ("binaan") of — a footer
+    // credit, not a business relationship, so it's kept separate from the
+    // DB-backed Partner model used for retail/hotel/restaurant mitra.
+    'fostered_by' => [
+        ['name' => 'Bank Indonesia', 'logo' => '/images/binaan/bank-indonesia.webp'],
+        ['name' => 'Pertamina Foundation', 'logo' => '/images/binaan/pertamina-foundation.webp'],
+    ],
 ];

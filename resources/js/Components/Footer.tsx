@@ -101,6 +101,26 @@ export function Footer() {
         </div>
       </div>
 
+      {brandAssets.fostered_by.length > 0 && (
+        <div className="border-t border-cream-100/10">
+          <div className="container-page flex flex-wrap items-center gap-x-6 gap-y-3 py-6">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
+              {t.footer.fosteredByTitle}
+            </span>
+            <div className="flex flex-wrap items-center gap-3">
+              {brandAssets.fostered_by.map((f) => (
+                <span
+                  key={f.name}
+                  className="flex h-9 items-center rounded-xl bg-cream-50 px-3"
+                >
+                  <img src={f.logo} alt={f.name} className="h-5 w-auto object-contain" />
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="border-t border-cream-100/10">
         <div className="container-page flex flex-col gap-1 py-5 text-xs text-cream-200/50 sm:flex-row sm:items-center sm:justify-between">
           <span>
