@@ -67,7 +67,7 @@ export function Header() {
     >
       <div className="container-page flex h-16 items-center justify-between gap-6 sm:h-20">
         {/* Logo area */}
-        <Link href="/" className="flex items-center gap-3" aria-label={company.name}>
+        <Link href="/" className="flex items-center" aria-label={company.name}>
           <img
             src={brandAssets.logos.gps}
             alt={`Logo ${company.name}`}
@@ -75,9 +75,6 @@ export function Header() {
             height={72}
             className="h-14 w-auto sm:h-16"
           />
-          <span className="hidden font-sans text-base font-normal tracking-tight sm:inline">
-            CV Gama Putra Santosa
-          </span>
         </Link>
 
         <nav aria-label="Main" className="hidden items-center gap-7 lg:flex">
@@ -144,7 +141,7 @@ export function Header() {
 
         <div className="flex items-center gap-3">
           <LangSwitch />
-          <Link href="/contact" className="btn-primary hidden !px-5 !py-2 md:inline-flex">
+          <Link href="/contact" className="btn-primary hidden whitespace-nowrap !px-5 !py-2 md:inline-flex">
             {t.nav.inquiry}
           </Link>
           {/* Mobile menu toggle */}
