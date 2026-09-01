@@ -49,62 +49,61 @@ function CertificationCard({
     : null;
 
   return (
-    <article className="group flex flex-col rounded-2xl border border-espresso-900/10 bg-cream-50 p-5 transition-all duration-300 hover:border-espresso-900/20 hover:shadow-sm">
+    <article className="group relative flex flex-col items-center rounded-3xl border border-espresso-900/10 bg-white p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:border-gold-400/50 hover:shadow-lift">
       {/* Category badge */}
       <span
-        className={`inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${colors.bg} ${colors.text}`}
+        className={`mb-6 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest ${colors.bg} ${colors.text}`}
       >
         <span className={`h-1.5 w-1.5 rounded-full ${colors.dot}`} aria-hidden="true" />
         {categoryLabel}
       </span>
 
-      {/* Logo + name */}
-      <div className="mt-4 flex items-center gap-4">
-        <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-espresso-900/10 bg-white p-2">
-          {cert.logo ? (
-            <img
-              src={cert.logo}
-              alt={cert.name}
-              className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
-            />
-          ) : (
-            <ShieldCheck className="h-7 w-7 text-espresso-300" aria-hidden="true" />
-          )}
-        </span>
+      {/* Big Logo */}
+      <div className="mb-6 flex h-32 w-32 shrink-0 items-center justify-center rounded-2xl border border-espresso-900/5 bg-cream-50 p-4 transition-transform duration-500 group-hover:scale-105 group-hover:bg-white group-hover:shadow-sm">
+        {cert.logo ? (
+          <img
+            src={cert.logo}
+            alt={cert.name}
+            className="h-full w-full object-contain"
+          />
+        ) : (
+          <ShieldCheck className="h-12 w-12 text-espresso-300" strokeWidth={1.5} aria-hidden="true" />
+        )}
+      </div>
 
-        <div className="min-w-0 flex-1">
-          <h2 className="font-display text-base font-semibold leading-snug text-espresso-950">
-            {cert.name}
-          </h2>
-          {cert.issuer ? (
-            <p className="mt-0.5 text-sm text-espresso-500">{cert.issuer}</p>
-          ) : null}
-        </div>
+      {/* Title & Issuer */}
+      <div className="flex flex-1 flex-col items-center">
+        <h2 className="font-display text-xl font-bold leading-snug text-espresso-950">
+          {cert.name}
+        </h2>
+        {cert.issuer ? (
+          <p className="mt-2 text-sm font-medium text-espresso-500">{cert.issuer}</p>
+        ) : null}
       </div>
 
       {/* Valid until badge */}
       {formattedDate ? (
-        <div className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-lg bg-espresso-900/5 px-2.5 py-1.5 text-xs text-espresso-600">
-          <CalendarClock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        <div className="mt-5 inline-flex items-center gap-2 rounded-xl bg-cream-50 px-3 py-2 text-sm text-espresso-600 border border-espresso-900/5">
+          <CalendarClock className="h-4 w-4 shrink-0 text-espresso-400" aria-hidden="true" />
           <span>
             {validUntilLabel}:{" "}
-            <span className="font-semibold">{formattedDate}</span>
+            <strong className="font-semibold text-espresso-900">{formattedDate}</strong>
           </span>
         </div>
       ) : null}
 
-      {/* PDF CTA — pushed to bottom */}
+      {/* PDF CTA */}
       {cert.pdf_url ? (
-        <div className="mt-auto pt-4">
+        <div className="mt-8 w-full">
           <a
             href={cert.pdf_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl border border-espresso-900/15 bg-white px-4 py-2 text-sm font-semibold text-espresso-900 transition-colors hover:border-espresso-900/30 hover:bg-cream-100"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-espresso-900 px-4 py-3 text-sm font-bold text-espresso-900 transition-colors hover:bg-espresso-900 hover:text-cream-50"
           >
-            <FileText className="h-4 w-4 text-espresso-500" aria-hidden="true" />
+            <FileText className="h-4 w-4" aria-hidden="true" />
             {pdfButton}
-            <ExternalLink className="h-3.5 w-3.5 text-espresso-400" aria-hidden="true" />
+            <ExternalLink className="h-4 w-4 opacity-70" aria-hidden="true" />
           </a>
         </div>
       ) : null}
@@ -152,7 +151,13 @@ function ExportLegality({
           ) : (
             <div
               data-reveal
-              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+              className={`grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${
+                certifications.length === 1
+                  ? "mx-auto max-w-md sm:grid-cols-1 lg:grid-cols-1"
+                  : certifications.length === 2
+                    ? "mx-auto max-w-4xl lg:grid-cols-2"
+                    : ""
+              }`}
             >
               {certifications.map((cert) => (
                 <CertificationCard
