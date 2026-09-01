@@ -24,5 +24,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/graphify-out
+/public/*.zip
 
 testsprite_tests\tmp\config.json
