@@ -16,6 +16,39 @@ use Illuminate\Validation\Rule;
  */
 trait ArticleValidationRules
 {
+    protected function prepareForValidation(): void
+    {
+        $isEmptyHtml = fn ($html) => trim(strip_tags((string) $html)) === '';
+
+        $titleId = $this->input('title.id');
+        $titleEn = $this->input('title.en');
+        $excerptId = $this->input('excerpt.id');
+        $excerptEn = $this->input('excerpt.en');
+        $bodyId = $this->input('body.id');
+        $bodyEn = $this->input('body.en');
+        $tagsId = $this->input('tags.id');
+        $tagsEn = $this->input('tags.en');
+
+        $this->merge([
+            'title' => [
+                'id' => $titleId ?: $titleEn,
+                'en' => $titleEn ?: $titleId,
+            ],
+            'excerpt' => [
+                'id' => $excerptId ?: $excerptEn,
+                'en' => $excerptEn ?: $excerptId,
+            ],
+            'body' => [
+                'id' => $isEmptyHtml($bodyId) ? $bodyEn : $bodyId,
+                'en' => $isEmptyHtml($bodyEn) ? $bodyId : $bodyEn,
+            ],
+            'tags' => [
+                'id' => $tagsId ?: $tagsEn,
+                'en' => $tagsEn ?: $tagsId,
+            ],
+        ]);
+    }
+
     protected function baseRules(): array
     {
         return [
