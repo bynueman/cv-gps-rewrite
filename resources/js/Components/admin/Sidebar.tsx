@@ -5,6 +5,7 @@ import {
   Package,
   Newspaper,
   Handshake,
+  ShieldCheck,
   Mail,
   Users,
   Settings,
@@ -19,6 +20,12 @@ const NAV_ITEMS = [
   { routeName: "admin.products.index", pathPrefix: "/admin/products", label: "Produk", icon: Package },
   { routeName: "admin.articles.index", pathPrefix: "/admin/articles", label: "Artikel", icon: Newspaper },
   { routeName: "admin.partners.index", pathPrefix: "/admin/partners", label: "Mitra", icon: Handshake },
+  {
+    routeName: "admin.certifications.index",
+    pathPrefix: "/admin/certifications",
+    label: "Sertifikasi",
+    icon: ShieldCheck,
+  },
   {
     routeName: "admin.messages.index",
     pathPrefix: "/admin/messages",

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Certification;
 use App\Support\Seo;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,8 +22,14 @@ class ExportController extends Controller
 
     public function legality(): Response
     {
+        $certifications = Certification::where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['id', 'name', 'issuer', 'category', 'logo', 'pdf_url', 'valid_until']);
+
         return Inertia::render('ExportLegality', [
-            'seo' => (new Seo(
+            'certifications' => $certifications,
+            'seo'            => (new Seo(
                 title: 'Legalitas & Sertifikasi',
                 description: 'Dokumen legalitas usaha dan sertifikasi produk CV Gama Putra Santosa.',
                 canonical: url('/export/legalitas-sertifikasi'),
@@ -30,3 +37,4 @@ class ExportController extends Controller
         ]);
     }
 }
+

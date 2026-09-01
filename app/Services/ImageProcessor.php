@@ -22,7 +22,7 @@ class ImageProcessor
     ];
 
     /** Folders an upload is allowed to land in — deliberately not free-form input. */
-    public const CONTEXTS = ['products', 'articles', 'partners', 'settings'];
+    public const CONTEXTS = ['products', 'articles', 'partners', 'settings', 'certifications'];
 
     /**
      * @throws \RuntimeException if the file doesn't decode as a real image

@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\ArticleController;
+use App\Http\Controllers\Admin\CertificationController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ImageUploadController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\PartnerController;
+use App\Http\Controllers\Admin\PdfUploadController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SettingController;
@@ -66,6 +68,15 @@ Route::middleware(['auth', 'noindex'])->prefix('admin')->name('admin.')->group(f
     Route::get('/partners/{partner}/edit', [PartnerController::class, 'edit'])->name('partners.edit');
     Route::patch('/partners/{partner}', [PartnerController::class, 'update'])->name('partners.update');
     Route::delete('/partners/{partner}', [PartnerController::class, 'destroy'])->name('partners.destroy');
+
+    Route::get('/certifications', [CertificationController::class, 'index'])->name('certifications.index');
+    Route::get('/certifications/new', [CertificationController::class, 'create'])->name('certifications.create');
+    Route::post('/certifications', [CertificationController::class, 'store'])->name('certifications.store');
+    Route::get('/certifications/{certification}/edit', [CertificationController::class, 'edit'])->name('certifications.edit');
+    Route::patch('/certifications/{certification}', [CertificationController::class, 'update'])->name('certifications.update');
+    Route::delete('/certifications/{certification}', [CertificationController::class, 'destroy'])->name('certifications.destroy');
+
+    Route::post('/upload-pdf', [PdfUploadController::class, 'store'])->name('upload-pdf');
 
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');

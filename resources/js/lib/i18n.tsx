@@ -177,6 +177,15 @@ const id = {
     ctaTitle: "Butuh salinan dokumen legalitas atau sertifikasi kami?",
     ctaBody: "Sampaikan kebutuhan Anda — kami kirimkan dokumen yang relevan untuk proses due diligence.",
     ctaButton: "Hubungi Kami",
+    pdfButton: "Lihat Dokumen",
+    validUntilLabel: "Berlaku s/d",
+    categories: {
+      legal: "Legalitas Usaha",
+      halal: "Halal",
+      bpom: "BPOM",
+      pirt: "P-IRT",
+      other: "Lainnya",
+    },
   },
   newsSection: {
     kicker: "Berita & Kegiatan",
@@ -451,6 +460,15 @@ const en: typeof id = {
     ctaTitle: "Need a copy of our legal documents or certifications?",
     ctaBody: "Tell us what you need — we'll send the relevant documents for your due diligence process.",
     ctaButton: "Contact Us",
+    pdfButton: "View Document",
+    validUntilLabel: "Valid until",
+    categories: {
+      legal: "Business Legal",
+      halal: "Halal",
+      bpom: "BPOM",
+      pirt: "P-IRT",
+      other: "Other",
+    },
   },
   newsSection: {
     kicker: "News & Activities",
