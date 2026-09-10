@@ -15,8 +15,11 @@ use App\Models\Setting;
 class Seo
 {
     public string $title;
+
     public ?string $ogImage;
+
     public ?int $ogImageWidth;
+
     public ?int $ogImageHeight;
 
     /**
@@ -32,13 +35,13 @@ class Seo
         string $title,
         public string $description,
         public ?string $canonical = null,
-        public string $ogType = "website",
+        public string $ogType = 'website',
         ?string $ogImage = null,
         ?int $ogImageWidth = null,
         ?int $ogImageHeight = null,
         public ?string $publishedTime = null,
         public array $tags = [],
-        public string $twitterCard = "summary_large_image",
+        public string $twitterCard = 'summary_large_image',
         public array $jsonLd = [],
     ) {
         $siteName = config('company.name');
@@ -59,17 +62,17 @@ class Seo
     public function toArray(): array
     {
         return [
-            "title" => $this->title,
-            "description" => $this->description,
-            "canonical" => $this->canonical,
-            "ogType" => $this->ogType,
-            "ogImage" => $this->ogImage,
-            "ogImageWidth" => $this->ogImageWidth,
-            "ogImageHeight" => $this->ogImageHeight,
-            "publishedTime" => $this->publishedTime,
-            "tags" => $this->tags,
-            "twitterCard" => $this->twitterCard,
-            "jsonLd" => $this->jsonLd,
+            'title' => $this->title,
+            'description' => $this->description,
+            'canonical' => $this->canonical,
+            'ogType' => $this->ogType,
+            'ogImage' => $this->ogImage,
+            'ogImageWidth' => $this->ogImageWidth,
+            'ogImageHeight' => $this->ogImageHeight,
+            'publishedTime' => $this->publishedTime,
+            'tags' => $this->tags,
+            'twitterCard' => $this->twitterCard,
+            'jsonLd' => $this->jsonLd,
         ];
     }
 }

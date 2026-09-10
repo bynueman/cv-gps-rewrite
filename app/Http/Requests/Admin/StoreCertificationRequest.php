@@ -18,14 +18,14 @@ class StoreCertificationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => ['required', 'string', 'max:255'],
-            'issuer'      => ['nullable', 'string', 'max:255'],
-            'category'    => ['required', 'string', Rule::in(['legal', 'halal', 'bpom', 'pirt', 'other'])],
-            'logo'        => ['nullable', 'string'],
-            'pdf_url'     => ['nullable', 'string', 'max:2048'],
+            'name' => ['required', 'string', 'max:255'],
+            'issuer' => ['nullable', 'string', 'max:255'],
+            'category' => ['required', 'string', Rule::in(['legal', 'halal', 'bpom', 'pirt', 'other'])],
+            'logo' => ['nullable', 'string'],
+            'pdf_url' => ['nullable', 'string', 'max:2048'],
             'valid_until' => ['nullable', 'date'],
-            'sort_order'  => ['integer', 'min:0'],
-            'is_active'   => ['boolean'],
+            'sort_order' => ['integer', 'min:0'],
+            'is_active' => ['boolean'],
         ];
     }
 }

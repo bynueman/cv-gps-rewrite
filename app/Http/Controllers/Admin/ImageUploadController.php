@@ -19,9 +19,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class ImageUploadController extends Controller
 {
-    public function __construct(private readonly ImageProcessor $imageProcessor)
-    {
-    }
+    public function __construct(private readonly ImageProcessor $imageProcessor) {}
 
     public function store(Request $request): JsonResponse
     {

@@ -17,9 +17,7 @@ use Inertia\Response;
 
 class ProductController extends Controller
 {
-    public function __construct(private readonly ImageProcessor $imageProcessor)
-    {
-    }
+    public function __construct(private readonly ImageProcessor $imageProcessor) {}
 
     public function index(Request $request): Response
     {

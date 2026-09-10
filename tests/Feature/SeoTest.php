@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Product;
+use App\Models\Setting;
 use App\Models\User;
 use Database\Seeders\BrandSeeder;
 use Database\Seeders\ProductSeeder;
@@ -49,7 +51,7 @@ class SeoTest extends TestCase
     public function test_product_page_has_product_and_breadcrumb_json_ld(): void
     {
         $this->seed(ProductSeeder::class);
-        $product = \App\Models\Product::where('is_active', true)->first();
+        $product = Product::where('is_active', true)->first();
         $brandKey = $product->brand->key;
 
         $response = $this->get("/products/{$brandKey}/{$product->slug}");
@@ -77,7 +79,7 @@ class SeoTest extends TestCase
 
     public function test_og_image_falls_back_to_settings_default(): void
     {
-        \App\Models\Setting::set('og_image_default', '/images/custom-og.webp');
+        Setting::set('og_image_default', '/images/custom-og.webp');
 
         $response = $this->get('/contact');
         $response->assertOk();

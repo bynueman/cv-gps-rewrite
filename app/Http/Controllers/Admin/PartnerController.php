@@ -15,9 +15,7 @@ use Inertia\Response;
 
 class PartnerController extends Controller
 {
-    public function __construct(private readonly ImageProcessor $imageProcessor)
-    {
-    }
+    public function __construct(private readonly ImageProcessor $imageProcessor) {}
 
     public function index(Request $request): Response
     {

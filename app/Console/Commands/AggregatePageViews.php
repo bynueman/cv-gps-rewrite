@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\PageView;
 use App\Models\PageViewDaily;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Folds raw page_views hits into the page_view_daily rollup the

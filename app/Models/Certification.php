@@ -18,8 +18,8 @@ class Certification extends Model
     ];
 
     protected $casts = [
-        'is_active'   => 'boolean',
+        'is_active' => 'boolean',
         'valid_until' => 'date:Y-m-d',
-        'sort_order'  => 'integer',
+        'sort_order' => 'integer',
     ];
 }

@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\Brand;
+use App\Models\Product;
 use App\Models\User;
+use Database\Seeders\BrandSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -73,9 +76,9 @@ class ImageUploadTest extends TestCase
 
     public function test_replacing_a_product_image_deletes_the_old_variants(): void
     {
-        $this->seed(\Database\Seeders\BrandSeeder::class);
+        $this->seed(BrandSeeder::class);
         $admin = User::factory()->create();
-        $brand = \App\Models\Brand::query()->first();
+        $brand = Brand::query()->first();
 
         $firstUpload = $this->actingAs($admin)
             ->post(route('admin.upload'), [
@@ -86,7 +89,7 @@ class ImageUploadTest extends TestCase
         $oldContentPath = public_path(ltrim($firstUpload['image'], '/'));
         $this->assertFileExists($oldContentPath);
 
-        $product = \App\Models\Product::create([
+        $product = Product::create([
             'brand_id' => $brand->id,
             'slug' => 'produk-uji-gambar',
             'name_id' => 'Produk Uji', 'name_en' => 'Test Product',

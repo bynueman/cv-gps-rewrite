@@ -23,8 +23,8 @@ class PdfUploadController extends Controller
             'file' => ['required', 'file', 'mimes:pdf', 'max:20480'],
         ], [
             'file.required' => 'File tidak ditemukan.',
-            'file.mimes'    => 'Format harus PDF.',
-            'file.max'      => 'Ukuran file maksimal 20MB.',
+            'file.mimes' => 'Format harus PDF.',
+            'file.max' => 'Ukuran file maksimal 20MB.',
         ]);
 
         if ($validator->fails()) {
@@ -39,9 +39,9 @@ class PdfUploadController extends Controller
             return response()->json(['error' => 'File bukan PDF yang valid.'], 400);
         }
 
-        $uuid     = Str::uuid()->toString();
-        $filename = $uuid . '.pdf';
-        $destDir  = public_path('uploads/certifications');
+        $uuid = Str::uuid()->toString();
+        $filename = $uuid.'.pdf';
+        $destDir = public_path('uploads/certifications');
 
         if (! is_dir($destDir)) {
             mkdir($destDir, 0755, true);
@@ -49,7 +49,7 @@ class PdfUploadController extends Controller
 
         $file->move($destDir, $filename);
 
-        $url = '/uploads/certifications/' . $filename;
+        $url = '/uploads/certifications/'.$filename;
 
         Log::info('PDF uploaded', ['path' => $url, 'size' => filesize(public_path(ltrim($url, '/')))]);
 

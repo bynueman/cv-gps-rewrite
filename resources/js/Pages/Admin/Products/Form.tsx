@@ -98,12 +98,34 @@ function Form({
 
   const image: UploadedImage = { image: data.image, imageThumb: data.image_thumb, imageOg: data.image_og };
 
+  const idErrorKeys = ["name.id", "short.id", "personality.id", "serving.id", "description.id", "highlights.id", "notes.id"];
+  const enErrorKeys = ["name.en", "short.en", "personality.en", "serving.en", "description.en", "highlights.en", "notes.en"];
+  const hasIdErrors = idErrorKeys.some((k) => k in errors);
+  const hasEnErrors = enErrorKeys.some((k) => k in errors);
+  const hasAnyErrors = Object.keys(errors).length > 0;
+
   return (
     <>
       <Head title={mode === "create" ? "Tambah Produk" : "Edit Produk"} />
       <h1 className="font-display text-2xl font-semibold">
         {mode === "create" ? "Tambah Produk" : "Edit Produk"}
       </h1>
+
+      {hasAnyErrors ? (
+        <div className="mt-4 max-w-3xl rounded-xl border border-red-500/20 bg-red-50 p-4 text-sm text-red-800">
+          <p className="font-semibold">Terdapat kesalahan pengisian formulir:</p>
+          <p className="mt-1 text-xs text-red-700">
+            Periksa kolom yang ditandai merah
+            {hasEnErrors && !hasIdErrors
+              ? " (termasuk pada tab English)."
+              : hasIdErrors && !hasEnErrors
+              ? " (termasuk pada tab Indonesia)."
+              : hasIdErrors && hasEnErrors
+              ? " (pada tab Indonesia dan tab English)."
+              : "."}
+          </p>
+        </div>
+      ) : null}
 
       <form onSubmit={handleSubmit} className="mt-8 max-w-3xl space-y-6">
         <div className="grid gap-5 sm:grid-cols-2">
@@ -147,6 +169,7 @@ function Form({
                 <option value="rtd">RTD (Siap Minum)</option>
                 <option value="brew">Brew (Seduh Sendiri)</option>
               </select>
+              {errors.group ? <p className="mt-1.5 text-sm text-red-700">{errors.group}</p> : null}
             </div>
             <div>
               <label className={labelClass}>Kemasan</label>
@@ -162,24 +185,32 @@ function Form({
                 <option value="kemasan">Kemasan</option>
                 <option value="besek">Besek</option>
               </select>
+              {errors.packaging ? <p className="mt-1.5 text-sm text-red-700">{errors.packaging}</p> : null}
+              <p className="mt-1 text-xs text-espresso-500">Pilih salah satu kemasan agar produk tampil di katalog Putri Teko.</p>
             </div>
           </div>
         ) : null}
 
         {/* Language tabs */}
         <div className="flex gap-2 border-b border-espresso-900/10">
-          {(["id", "en"] as const).map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => setTab(l)}
-              className={`px-4 py-2 text-sm font-semibold ${
-                tab === l ? "border-b-2 border-gold-600 text-espresso-950" : "text-espresso-500"
-              }`}
-            >
-              {l === "id" ? "Indonesia" : "English"}
-            </button>
-          ))}
+          {(["id", "en"] as const).map((l) => {
+            const tabHasError = l === "id" ? hasIdErrors : hasEnErrors;
+            return (
+              <button
+                key={l}
+                type="button"
+                onClick={() => setTab(l)}
+                className={`relative flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors ${
+                  tab === l ? "border-b-2 border-gold-600 text-espresso-950" : "text-espresso-500 hover:text-espresso-800"
+                }`}
+              >
+                <span>{l === "id" ? "Indonesia" : "English"}</span>
+                {tabHasError && (
+                  <span className="h-2 w-2 rounded-full bg-red-600" title="Ada kolom yang belum lengkap" />
+                )}
+              </button>
+            );
+          })}
         </div>
 
         <div className={tab === "id" ? "space-y-5" : "hidden"}>
@@ -203,6 +234,9 @@ function Form({
               onChange={(e) => setData("short", { ...data.short, id: e.target.value })}
               className={inputClass}
             />
+            {errors["short.id" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["short.id" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Kepribadian Rasa (ID)</label>
@@ -212,6 +246,9 @@ function Form({
               onChange={(e) => setData("personality", { ...data.personality, id: e.target.value })}
               className={inputClass}
             />
+            {errors["personality.id" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["personality.id" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Penyajian (ID, opsional)</label>
@@ -221,6 +258,9 @@ function Form({
               onChange={(e) => setData("serving", { ...data.serving, id: e.target.value })}
               className={inputClass}
             />
+            {errors["serving.id" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["serving.id" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Deskripsi (ID)</label>
@@ -230,6 +270,9 @@ function Form({
               onChange={(e) => setData("description", { ...data.description, id: e.target.value })}
               className={inputClass}
             />
+            {errors["description.id" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["description.id" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Keunggulan (ID) — satu per baris</label>
@@ -239,6 +282,9 @@ function Form({
               onChange={(e) => setData("highlights", { ...data.highlights, id: e.target.value })}
               className={inputClass}
             />
+            {errors["highlights.id" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["highlights.id" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Catatan Rasa/Bahan (ID) — satu per baris</label>
@@ -248,6 +294,9 @@ function Form({
               onChange={(e) => setData("notes", { ...data.notes, id: e.target.value })}
               className={inputClass}
             />
+            {errors["notes.id" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["notes.id" as keyof typeof errors]}</p>
+            ) : null}
           </div>
         </div>
 
@@ -260,6 +309,9 @@ function Form({
               onChange={(e) => setData("name", { ...data.name, en: e.target.value })}
               className={inputClass}
             />
+            {errors["name.en" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["name.en" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Short Tagline (EN)</label>
@@ -269,6 +321,9 @@ function Form({
               onChange={(e) => setData("short", { ...data.short, en: e.target.value })}
               className={inputClass}
             />
+            {errors["short.en" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["short.en" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Flavor Personality (EN)</label>
@@ -278,6 +333,9 @@ function Form({
               onChange={(e) => setData("personality", { ...data.personality, en: e.target.value })}
               className={inputClass}
             />
+            {errors["personality.en" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["personality.en" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Serving (EN, optional)</label>
@@ -287,6 +345,9 @@ function Form({
               onChange={(e) => setData("serving", { ...data.serving, en: e.target.value })}
               className={inputClass}
             />
+            {errors["serving.en" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["serving.en" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Description (EN)</label>
@@ -296,6 +357,9 @@ function Form({
               onChange={(e) => setData("description", { ...data.description, en: e.target.value })}
               className={inputClass}
             />
+            {errors["description.en" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["description.en" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Highlights (EN) — one per line</label>
@@ -305,6 +369,9 @@ function Form({
               onChange={(e) => setData("highlights", { ...data.highlights, en: e.target.value })}
               className={inputClass}
             />
+            {errors["highlights.en" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["highlights.en" as keyof typeof errors]}</p>
+            ) : null}
           </div>
           <div>
             <label className={labelClass}>Flavor/Ingredient Notes (EN) — one per line</label>
@@ -314,6 +381,9 @@ function Form({
               onChange={(e) => setData("notes", { ...data.notes, en: e.target.value })}
               className={inputClass}
             />
+            {errors["notes.en" as keyof typeof errors] ? (
+              <p className="mt-1.5 text-sm text-red-700">{errors["notes.en" as keyof typeof errors]}</p>
+            ) : null}
           </div>
         </div>
 
@@ -326,6 +396,7 @@ function Form({
               onChange={(e) => setData("color", e.target.value)}
               className="h-11 w-full rounded-xl border border-espresso-900/15 bg-cream-50"
             />
+            {errors.color ? <p className="mt-1.5 text-sm text-red-700">{errors.color}</p> : null}
           </div>
           <div>
             <label className={labelClass}>Warna Gelap</label>
@@ -335,12 +406,14 @@ function Form({
               onChange={(e) => setData("color_dark", e.target.value)}
               className="h-11 w-full rounded-xl border border-espresso-900/15 bg-cream-50"
             />
+            {errors.color_dark ? <p className="mt-1.5 text-sm text-red-700">{errors.color_dark}</p> : null}
           </div>
         </div>
 
         <div>
           <label className={labelClass}>Gambar Produk</label>
           <ImageUploadField initial={image} onChange={handleImageChange} context="products" />
+          {errors.image ? <p className="mt-1.5 text-sm text-red-700">{errors.image}</p> : null}
         </div>
 
         <div>
@@ -351,6 +424,7 @@ function Form({
             onChange={(e) => setData("sort_order", Number(e.target.value))}
             className={`${inputClass} max-w-[10rem]`}
           />
+          {errors.sort_order ? <p className="mt-1.5 text-sm text-red-700">{errors.sort_order}</p> : null}
         </div>
 
         <div className="flex flex-wrap gap-6">

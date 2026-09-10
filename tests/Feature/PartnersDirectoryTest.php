@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Partner;
+use App\Models\User;
 use Database\Seeders\BrandSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -59,7 +60,7 @@ class PartnersDirectoryTest extends TestCase
 
     public function test_admin_can_create_an_institusi_partner(): void
     {
-        $admin = \App\Models\User::factory()->create();
+        $admin = User::factory()->create();
 
         $this->actingAs($admin)
             ->post(route('admin.partners.store'), [

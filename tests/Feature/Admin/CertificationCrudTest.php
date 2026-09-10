@@ -15,20 +15,20 @@ class CertificationCrudTest extends TestCase
     {
         $this->actingAs(User::factory()->create())
             ->post(route('admin.certifications.store'), [
-                'name'       => 'Sertifikat Halal MUI',
-                'issuer'     => 'MUI',
-                'category'   => 'halal',
-                'logo'       => null,
-                'pdf_url'    => null,
+                'name' => 'Sertifikat Halal MUI',
+                'issuer' => 'MUI',
+                'category' => 'halal',
+                'logo' => null,
+                'pdf_url' => null,
                 'sort_order' => 0,
-                'is_active'  => true,
+                'is_active' => true,
             ])
             ->assertRedirect(route('admin.certifications.index'));
 
         $this->assertDatabaseHas('certifications', [
-            'name'     => 'Sertifikat Halal MUI',
+            'name' => 'Sertifikat Halal MUI',
             'category' => 'halal',
-            'issuer'   => 'MUI',
+            'issuer' => 'MUI',
         ]);
     }
 
@@ -36,16 +36,16 @@ class CertificationCrudTest extends TestCase
     {
         $this->actingAs(User::factory()->create())
             ->post(route('admin.certifications.store'), [
-                'name'       => 'Izin BPOM',
-                'category'   => 'bpom',
-                'pdf_url'    => 'https://drive.google.com/file/d/example',
+                'name' => 'Izin BPOM',
+                'category' => 'bpom',
+                'pdf_url' => 'https://drive.google.com/file/d/example',
                 'sort_order' => 1,
-                'is_active'  => true,
+                'is_active' => true,
             ])
             ->assertRedirect(route('admin.certifications.index'));
 
         $this->assertDatabaseHas('certifications', [
-            'name'    => 'Izin BPOM',
+            'name' => 'Izin BPOM',
             'pdf_url' => 'https://drive.google.com/file/d/example',
         ]);
     }
@@ -53,25 +53,25 @@ class CertificationCrudTest extends TestCase
     public function test_admin_can_update_and_deactivate_a_certification(): void
     {
         $admin = User::factory()->create();
-        $cert  = Certification::create([
-            'name'       => 'P-IRT Kuicip',
-            'category'   => 'pirt',
+        $cert = Certification::create([
+            'name' => 'P-IRT Kuicip',
+            'category' => 'pirt',
             'sort_order' => 0,
-            'is_active'  => true,
+            'is_active' => true,
         ]);
 
         $this->actingAs($admin)
             ->patch(route('admin.certifications.update', $cert), [
-                'name'       => 'P-IRT Kuicip (Diperbarui)',
-                'category'   => 'pirt',
+                'name' => 'P-IRT Kuicip (Diperbarui)',
+                'category' => 'pirt',
                 'sort_order' => 2,
-                'is_active'  => false,
+                'is_active' => false,
             ])
             ->assertRedirect(route('admin.certifications.index'));
 
         $this->assertDatabaseHas('certifications', [
-            'id'        => $cert->id,
-            'name'      => 'P-IRT Kuicip (Diperbarui)',
+            'id' => $cert->id,
+            'name' => 'P-IRT Kuicip (Diperbarui)',
             'is_active' => false,
         ]);
     }
@@ -79,11 +79,11 @@ class CertificationCrudTest extends TestCase
     public function test_admin_can_delete_a_certification(): void
     {
         $admin = User::factory()->create();
-        $cert  = Certification::create([
-            'name'       => 'Sertifikasi Legalitas',
-            'category'   => 'legal',
+        $cert = Certification::create([
+            'name' => 'Sertifikasi Legalitas',
+            'category' => 'legal',
             'sort_order' => 0,
-            'is_active'  => true,
+            'is_active' => true,
         ]);
 
         $this->actingAs($admin)
@@ -97,10 +97,10 @@ class CertificationCrudTest extends TestCase
     {
         $this->actingAs(User::factory()->create())
             ->post(route('admin.certifications.store'), [
-                'name'       => 'Sertifikasi Palsu',
-                'category'   => 'tidak-ada-kategori',
+                'name' => 'Sertifikasi Palsu',
+                'category' => 'tidak-ada-kategori',
                 'sort_order' => 0,
-                'is_active'  => true,
+                'is_active' => true,
             ])
             ->assertSessionHasErrors('category');
     }
@@ -109,7 +109,7 @@ class CertificationCrudTest extends TestCase
     {
         $this->actingAs(User::factory()->create())
             ->post(route('admin.certifications.store'), [
-                'name'     => '',
+                'name' => '',
                 'category' => 'halal',
             ])
             ->assertSessionHasErrors('name');
@@ -118,25 +118,24 @@ class CertificationCrudTest extends TestCase
     public function test_inactive_certifications_are_excluded_from_public_page(): void
     {
         Certification::create([
-            'name'       => 'Aktif',
-            'category'   => 'halal',
+            'name' => 'Aktif',
+            'category' => 'halal',
             'sort_order' => 0,
-            'is_active'  => true,
+            'is_active' => true,
         ]);
         Certification::create([
-            'name'       => 'Nonaktif',
-            'category'   => 'legal',
+            'name' => 'Nonaktif',
+            'category' => 'legal',
             'sort_order' => 1,
-            'is_active'  => false,
+            'is_active' => false,
         ]);
 
         $response = $this->get(route('export.legality'));
         $response->assertStatus(200);
 
         // The Inertia page prop 'certifications' should only have 1 active item
-        $response->assertInertia(fn ($page) =>
-            $page->has('certifications', 1)
-                 ->where('certifications.0.name', 'Aktif')
+        $response->assertInertia(fn ($page) => $page->has('certifications', 1)
+            ->where('certifications.0.name', 'Aktif')
         );
     }
 }

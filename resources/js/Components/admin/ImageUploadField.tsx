@@ -50,12 +50,12 @@ export function ImageUploadField({
   return (
     <div>
       <div className="flex items-center gap-4">
-        <div className="relative h-24 w-32 flex-none overflow-hidden rounded-xl bg-espresso-800">
+        <div className="relative flex h-28 w-28 flex-none items-center justify-center overflow-hidden rounded-xl border border-espresso-900/10 bg-espresso-800">
           {value.imageThumb || value.image ? (
             <img
               src={(value.imageThumb || value.image)!}
               alt=""
-              className="absolute inset-0 h-full w-full object-cover"
+              className="h-full w-full object-contain p-1.5"
             />
           ) : (
             <span className="flex h-full items-center justify-center font-display text-sm text-cream-100/30">

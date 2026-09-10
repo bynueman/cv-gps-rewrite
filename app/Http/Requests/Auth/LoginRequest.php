@@ -71,7 +71,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => "Terlalu banyak percobaan. Coba lagi dalam ".ceil($seconds / 60)." menit.",
+            'email' => 'Terlalu banyak percobaan. Coba lagi dalam '.ceil($seconds / 60).' menit.',
         ]);
     }
 

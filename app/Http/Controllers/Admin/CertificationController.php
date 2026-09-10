@@ -15,9 +15,7 @@ use Inertia\Response;
 
 class CertificationController extends Controller
 {
-    public function __construct(private readonly ImageProcessor $imageProcessor)
-    {
-    }
+    public function __construct(private readonly ImageProcessor $imageProcessor) {}
 
     public function index(Request $request): Response
     {
@@ -31,7 +29,7 @@ class CertificationController extends Controller
 
         return Inertia::render('Admin/Certifications/Index', [
             'certifications' => $query->get(),
-            'filters'        => $request->only(['category']),
+            'filters' => $request->only(['category']),
         ]);
     }
 
@@ -54,7 +52,7 @@ class CertificationController extends Controller
     public function edit(Certification $certification): Response
     {
         return Inertia::render('Admin/Certifications/Form', [
-            'mode'          => 'edit',
+            'mode' => 'edit',
             'certification' => $certification,
         ]);
     }

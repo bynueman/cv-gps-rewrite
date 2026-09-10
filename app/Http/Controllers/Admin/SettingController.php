@@ -13,9 +13,7 @@ use Inertia\Response;
 
 class SettingController extends Controller
 {
-    public function __construct(private readonly ImageProcessor $imageProcessor)
-    {
-    }
+    public function __construct(private readonly ImageProcessor $imageProcessor) {}
 
     private const KEYS = [
         'whatsapp', 'email_primary', 'email_secondary', 'address',

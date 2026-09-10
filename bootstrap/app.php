@@ -1,8 +1,13 @@
 <?php
 
+use App\Http\Middleware\EnsureUserIsSuperadmin;
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\NoIndexAdmin;
+use App\Http\Middleware\TrackPageView;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,9 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
-            \App\Http\Middleware\TrackPageView::class,
+            HandleInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+            TrackPageView::class,
         ]);
 
         // The app only registers `admin.login` — without this, Laravel's
@@ -28,8 +33,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
 
         $middleware->alias([
-            'superadmin' => \App\Http\Middleware\EnsureUserIsSuperadmin::class,
-            'noindex' => \App\Http\Middleware\NoIndexAdmin::class,
+            'superadmin' => EnsureUserIsSuperadmin::class,
+            'noindex' => NoIndexAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

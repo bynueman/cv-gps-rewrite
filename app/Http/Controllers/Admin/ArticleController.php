@@ -16,9 +16,7 @@ use Inertia\Response;
 
 class ArticleController extends Controller
 {
-    public function __construct(private readonly ImageProcessor $imageProcessor)
-    {
-    }
+    public function __construct(private readonly ImageProcessor $imageProcessor) {}
 
     public function index(): Response
     {

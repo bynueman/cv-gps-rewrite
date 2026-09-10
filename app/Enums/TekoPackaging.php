@@ -9,11 +9,11 @@ namespace App\Enums;
  */
 enum TekoPackaging: string
 {
-    case Botol = "botol";
-    case Kotak = "kotak";
-    case Toples = "toples";
-    case Kemasan = "kemasan";
-    case Besek = "besek";
+    case Botol = 'botol';
+    case Kotak = 'kotak';
+    case Toples = 'toples';
+    case Kemasan = 'kemasan';
+    case Besek = 'besek';
 
     /** @return string[] */
     public static function displayOrder(): array

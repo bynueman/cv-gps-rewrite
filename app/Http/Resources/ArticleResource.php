@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\ArticleCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,8 +22,8 @@ class ArticleResource extends JsonResource
             'slug' => $this->slug,
             'date' => $this->date->toIso8601String(),
             'category' => [
-                'id' => \App\Support\ArticleCategory::label($this->category_slug, 'id'),
-                'en' => \App\Support\ArticleCategory::label($this->category_slug, 'en'),
+                'id' => ArticleCategory::label($this->category_slug, 'id'),
+                'en' => ArticleCategory::label($this->category_slug, 'en'),
             ],
             'title' => ['id' => $this->title_id, 'en' => $this->title_en],
             'excerpt' => ['id' => $this->excerpt_id, 'en' => $this->excerpt_en],
