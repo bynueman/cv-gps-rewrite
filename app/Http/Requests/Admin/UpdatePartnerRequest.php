@@ -12,6 +12,13 @@ class UpdatePartnerRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'logo' => $this->input('logo') ?: null,
+        ]);
+    }
+
     /**
      * @return array<string, array<int, mixed>>
      */

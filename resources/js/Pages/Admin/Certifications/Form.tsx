@@ -37,7 +37,7 @@ function detectPdfMode(pdfUrl: string | null): "none" | "url" | "upload" {
 }
 
 function Form({ mode, certification }: { mode: "create" | "edit"; certification?: CertificationFormValues }) {
-  const { data, setData, post, patch, processing, errors, isDirty } = useForm({
+  const { data, setData, post, patch, processing, errors, isDirty, transform } = useForm({
     name: certification?.name ?? "",
     issuer: certification?.issuer ?? "",
     category: certification?.category ?? "other",
@@ -110,11 +110,10 @@ function Form({ mode, certification }: { mode: "create" | "edit"; certification?
     e.preventDefault();
     bypassNext();
 
-    // Coerce empty strings to null for optional fields before sending
-    setData((prev) => ({
-      ...prev,
-      issuer: prev.issuer || null,
-      valid_until: prev.valid_until || null,
+    transform((formData) => ({
+      ...formData,
+      issuer: formData.issuer || null,
+      valid_until: formData.valid_until || null,
     }));
 
     if (mode === "create") {

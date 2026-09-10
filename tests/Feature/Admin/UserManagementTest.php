@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
@@ -95,5 +96,45 @@ class UserManagementTest extends TestCase
             ->assertSessionHasErrors('role');
 
         $this->assertDatabaseHas('users', ['id' => $onlySuperadmin->id, 'role' => 'superadmin']);
+    }
+
+    public function test_superadmin_can_update_user_without_changing_password(): void
+    {
+        $admin = $this->superadmin();
+        $editor = $this->editor(['name' => 'Nama Lama', 'email' => 'lama@example.com']);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.update', $editor), [
+                'name' => 'Nama Baru',
+                'email' => 'baru@example.com',
+                'role' => 'editor',
+                'password' => '',
+                'password_confirmation' => '',
+            ])
+            ->assertRedirect(route('admin.users.index'));
+
+        $this->assertDatabaseHas('users', [
+            'id' => $editor->id,
+            'name' => 'Nama Baru',
+            'email' => 'baru@example.com',
+        ]);
+    }
+
+    public function test_superadmin_can_update_user_with_new_password(): void
+    {
+        $admin = $this->superadmin();
+        $editor = $this->editor();
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.update', $editor), [
+                'name' => $editor->name,
+                'email' => $editor->email,
+                'role' => 'editor',
+                'password' => 'new-secure-password',
+                'password_confirmation' => 'new-secure-password',
+            ])
+            ->assertRedirect(route('admin.users.index'));
+
+        $this->assertTrue(Hash::check('new-secure-password', $editor->fresh()->password));
     }
 }

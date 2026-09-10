@@ -13,6 +13,16 @@ class UpdateUserRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->input('password') === '') {
+            $this->merge([
+                'password' => null,
+                'password_confirmation' => null,
+            ]);
+        }
+    }
+
     /**
      * @return array<string, array<int, mixed>>
      */

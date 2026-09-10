@@ -102,6 +102,26 @@ class ProductCrudTest extends TestCase
         ]);
     }
 
+    public function test_admin_updating_product_with_cleared_english_auto_translates(): void
+    {
+        $brand = Brand::query()->first();
+        $admin = $this->admin();
+        $this->actingAs($admin)->post(route('admin.products.store'), $this->payload($brand->id));
+        $product = Product::where('slug', 'kopi-uji')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->patch(route('admin.products.update', $product), $this->payload($brand->id, [
+                'name' => ['id' => 'Kopi Robusta Istimewa', 'en' => ''],
+                'description' => ['id' => 'Kopi hitam mantap beraroma khas.', 'en' => ''],
+            ]))
+            ->assertRedirect(route('admin.products.index'));
+
+        $product->refresh();
+        $this->assertSame('Kopi Robusta Istimewa', $product->name_id);
+        $this->assertNotEmpty($product->name_en);
+        $this->assertNotEmpty($product->description_en);
+    }
+
     public function test_admin_can_delete_a_product(): void
     {
         $brand = Brand::query()->first();
