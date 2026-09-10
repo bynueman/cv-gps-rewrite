@@ -38,6 +38,16 @@ function Form({ mode, user }: { mode: "create" | "edit"; user?: UserFormValues }
       </h1>
 
       <form onSubmit={handleSubmit} className="mt-8 max-w-md space-y-5">
+        {Object.keys(errors).length > 0 && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <p className="font-semibold">Mohon periksa kembali formulir Anda:</p>
+            <ul className="mt-1 list-disc pl-5">
+              {Object.entries(errors).map(([key, msg]) => (
+                <li key={key}>{msg}</li>
+              ))}
+            </ul>
+          </div>
+        )}
         <div>
           <label className={labelClass}>Nama</label>
           <input type="text" value={data.name} onChange={(e) => setData("name", e.target.value)} className={inputClass} />
@@ -92,6 +102,9 @@ function Form({ mode, user }: { mode: "create" | "edit"; user?: UserFormValues }
             onChange={(e) => setData("password_confirmation", e.target.value)}
             className={inputClass}
           />
+          {errors.password_confirmation ? (
+            <p className="mt-1.5 text-sm text-red-700">{errors.password_confirmation}</p>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-4 pt-2">

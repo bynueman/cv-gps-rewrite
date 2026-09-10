@@ -5,6 +5,7 @@ import { ImageUploadField, type UploadedImage } from "@/Components/admin/ImageUp
 import { RichTextEditor } from "@/Components/admin/RichTextEditor";
 import { slugify } from "@/lib/slug";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { AutoTranslateButton } from "@/Components/admin/AutoTranslateButton";
 
 const EXCERPT_MIN = 70;
 const EXCERPT_MAX = 160;
@@ -131,6 +132,11 @@ function Form({
 
   const image: UploadedImage = { image: data.image, imageThumb: data.image_thumb, imageOg: data.image_og };
 
+  const hasErrorId = Object.keys(errors).some(
+    (k) => k.endsWith(".id") || ["category_slug", "slug", "date", "image"].includes(k)
+  );
+  const hasErrorEn = Object.keys(errors).some((k) => k.endsWith(".en"));
+
   return (
     <>
       <Head title={mode === "create" ? "Tambah Artikel" : "Edit Artikel"} />
@@ -139,6 +145,16 @@ function Form({
       </h1>
 
       <form onSubmit={handleSubmit} className="mt-8 max-w-3xl space-y-6">
+        {Object.keys(errors).length > 0 && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <p className="font-semibold">Mohon periksa kembali formulir Anda:</p>
+            <ul className="mt-1 list-disc pl-5">
+              {Object.entries(errors).map(([key, msg]) => (
+                <li key={key}>{msg}</li>
+              ))}
+            </ul>
+          </div>
+        )}
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
               <span className="mb-1.5 block text-sm font-semibold">Slug</span>
@@ -203,19 +219,53 @@ function Form({
             <ImageUploadField initial={image} onChange={handleImageChange} context="articles" />
           </div>
 
-          <div className="flex gap-2 border-b border-espresso-900/10">
-            {(["id", "en"] as const).map((l) => (
-              <button
-                key={l}
-                type="button"
-                onClick={() => setTab(l)}
-                className={`px-4 py-2 text-sm font-semibold uppercase tracking-wide ${
-                  tab === l ? "border-b-2 border-gold-500 text-espresso-950" : "text-espresso-500"
-                }`}
-              >
-                {l === "id" ? "Indonesia" : "English"}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-espresso-900/10 pb-2">
+            <div className="flex gap-2">
+              {(["id", "en"] as const).map((l) => {
+                const tabHasError = l === "id" ? hasErrorId : hasErrorEn;
+                return (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setTab(l)}
+                    className={`relative flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors ${
+                      tab === l
+                        ? "border-b-2 border-gold-600 text-espresso-950"
+                        : "text-espresso-500 hover:text-espresso-800"
+                    }`}
+                  >
+                    <span>{l === "id" ? "Indonesia" : "English"}</span>
+                    {tabHasError && (
+                      <span className="h-2 w-2 rounded-full bg-red-600" title="Ada kolom yang belum lengkap" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <AutoTranslateButton
+              sourceLang={tab}
+              targetLang={tab === "id" ? "en" : "id"}
+              getFields={() => {
+                const src = tab;
+                return {
+                  title: data.title[src],
+                  excerpt: data.excerpt[src],
+                  body: data.body[src],
+                  tags: data.tags[src],
+                };
+              }}
+              onSuccess={(translated) => {
+                const tgt = tab === "id" ? "en" : "id";
+                setData((prev) => ({
+                  ...prev,
+                  title: { ...prev.title, [tgt]: translated.title || prev.title[tgt] },
+                  excerpt: { ...prev.excerpt, [tgt]: translated.excerpt || prev.excerpt[tgt] },
+                  body: { ...prev.body, [tgt]: translated.body || prev.body[tgt] },
+                  tags: { ...prev.tags, [tgt]: translated.tags || prev.tags[tgt] },
+                }));
+              }}
+            />
           </div>
 
           <div className={tab === "id" ? "space-y-5" : "hidden space-y-5"}>

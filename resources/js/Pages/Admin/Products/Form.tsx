@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent, type ReactElement } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { ImageUploadField, type UploadedImage } from "@/Components/admin/ImageUploadField";
+import { AutoTranslateButton } from "@/Components/admin/AutoTranslateButton";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { slugify } from "@/lib/slug";
 
@@ -191,26 +192,58 @@ function Form({
           </div>
         ) : null}
 
-        {/* Language tabs */}
-        <div className="flex gap-2 border-b border-espresso-900/10">
-          {(["id", "en"] as const).map((l) => {
-            const tabHasError = l === "id" ? hasIdErrors : hasEnErrors;
-            return (
-              <button
-                key={l}
-                type="button"
-                onClick={() => setTab(l)}
-                className={`relative flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors ${
-                  tab === l ? "border-b-2 border-gold-600 text-espresso-950" : "text-espresso-500 hover:text-espresso-800"
-                }`}
-              >
-                <span>{l === "id" ? "Indonesia" : "English"}</span>
-                {tabHasError && (
-                  <span className="h-2 w-2 rounded-full bg-red-600" title="Ada kolom yang belum lengkap" />
-                )}
-              </button>
-            );
-          })}
+        {/* Language tabs & Auto-Translate */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-espresso-900/10 pb-1">
+          <div className="flex gap-2">
+            {(["id", "en"] as const).map((l) => {
+              const tabHasError = l === "id" ? hasIdErrors : hasEnErrors;
+              return (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setTab(l)}
+                  className={`relative flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors ${
+                    tab === l ? "border-b-2 border-gold-600 text-espresso-950" : "text-espresso-500 hover:text-espresso-800"
+                  }`}
+                >
+                  <span>{l === "id" ? "Indonesia" : "English"}</span>
+                  {tabHasError && (
+                    <span className="h-2 w-2 rounded-full bg-red-600" title="Ada kolom yang belum lengkap" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          <AutoTranslateButton
+            sourceLang={tab}
+            targetLang={tab === "id" ? "en" : "id"}
+            getFields={() => {
+              const src = tab;
+              return {
+                name: data.name[src],
+                short: data.short[src],
+                personality: data.personality[src],
+                serving: data.serving[src],
+                description: data.description[src],
+                highlights: data.highlights[src],
+                notes: data.notes[src],
+              };
+            }}
+            onSuccess={(translated) => {
+              const tgt = tab === "id" ? "en" : "id";
+              setData((prev) => ({
+                ...prev,
+                name: { ...prev.name, [tgt]: translated.name || prev.name[tgt] },
+                short: { ...prev.short, [tgt]: translated.short || prev.short[tgt] },
+                personality: { ...prev.personality, [tgt]: translated.personality || prev.personality[tgt] },
+                serving: { ...prev.serving, [tgt]: translated.serving || prev.serving[tgt] },
+                description: { ...prev.description, [tgt]: translated.description || prev.description[tgt] },
+                highlights: { ...prev.highlights, [tgt]: translated.highlights || prev.highlights[tgt] },
+                notes: { ...prev.notes, [tgt]: translated.notes || prev.notes[tgt] },
+              }));
+            }}
+          />
         </div>
 
         <div className={tab === "id" ? "space-y-5" : "hidden"}>

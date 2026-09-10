@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PdfUploadController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ExportController;
@@ -54,6 +55,7 @@ Route::middleware(['auth', 'noindex'])->prefix('admin')->name('admin.')->group(f
     Route::delete('/articles/{article}', [ArticleController::class, 'destroy'])->name('articles.destroy');
 
     Route::post('/upload', [ImageUploadController::class, 'store'])->name('upload');
+    Route::post('/translate', [TranslationController::class, 'translate'])->name('translate');
 
     Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
     Route::get('/products/new', [AdminProductController::class, 'create'])->name('products.create');
