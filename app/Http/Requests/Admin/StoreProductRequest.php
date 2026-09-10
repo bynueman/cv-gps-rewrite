@@ -3,11 +3,14 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\TekoPackaging;
+use App\Http\Requests\Admin\Concerns\AutoTranslatesBilingualFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreProductRequest extends FormRequest
 {
+    use AutoTranslatesBilingualFields;
+
     public function authorize(): bool
     {
         return true;
@@ -15,50 +18,14 @@ class StoreProductRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $nameId = $this->input('name.id');
-        $nameEn = $this->input('name.en');
-        $shortId = $this->input('short.id');
-        $shortEn = $this->input('short.en');
-        $personalityId = $this->input('personality.id');
-        $personalityEn = $this->input('personality.en');
-        $servingId = $this->input('serving.id');
-        $servingEn = $this->input('serving.en');
-        $descId = $this->input('description.id');
-        $descEn = $this->input('description.en');
-        $highlightsId = $this->input('highlights.id');
-        $highlightsEn = $this->input('highlights.en');
-        $notesId = $this->input('notes.id');
-        $notesEn = $this->input('notes.en');
-
-        $this->merge([
-            'name' => [
-                'id' => $nameId ?: $nameEn,
-                'en' => $nameEn ?: $nameId,
-            ],
-            'short' => [
-                'id' => $shortId ?: $shortEn,
-                'en' => $shortEn ?: $shortId,
-            ],
-            'personality' => [
-                'id' => $personalityId ?: $personalityEn,
-                'en' => $personalityEn ?: $personalityId,
-            ],
-            'serving' => [
-                'id' => $servingId ?: $servingEn,
-                'en' => $servingEn ?: $servingId,
-            ],
-            'description' => [
-                'id' => $descId ?: $descEn,
-                'en' => $descEn ?: $descId,
-            ],
-            'highlights' => [
-                'id' => $highlightsId ?: $highlightsEn,
-                'en' => $highlightsEn ?: $highlightsId,
-            ],
-            'notes' => [
-                'id' => $notesId ?: $notesEn,
-                'en' => $notesEn ?: $notesId,
-            ],
+        $this->autoTranslateFields([
+            'name',
+            'short',
+            'personality',
+            'serving',
+            'description',
+            'highlights',
+            'notes',
         ]);
     }
 

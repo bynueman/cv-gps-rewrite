@@ -142,4 +142,29 @@ class ProductCrudTest extends TestCase
 
         $this->get('/products/kuicip/kopi-uji')->assertNotFound();
     }
+
+    public function test_admin_saving_product_with_empty_english_auto_translates(): void
+    {
+        $brand = Brand::where('key', 'kuicip')->firstOrFail();
+
+        $payload = $this->payload($brand->id, [
+            'slug' => 'produk-otomatis',
+            'name' => ['id' => 'Gula Manis', 'en' => ''],
+            'short' => ['id' => 'Manis alami', 'en' => ''],
+            'personality' => ['id' => 'Manis', 'en' => ''],
+            'description' => ['id' => 'Terbuat dari tebu asli.', 'en' => ''],
+            'highlights' => ['id' => "100% Alami\nTanpa Pemanis Buatan", 'en' => ''],
+        ]);
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.products.store'), $payload)
+            ->assertRedirect(route('admin.products.index'));
+
+        $product = Product::where('slug', 'produk-otomatis')->firstOrFail();
+        $this->assertSame('Gula Manis', $product->name_id);
+        $this->assertNotEmpty($product->name_en);
+        $this->assertNotEmpty($product->description_en);
+        $this->assertCount(2, $product->highlights);
+        $this->assertNotEmpty($product->highlights[0]['en']);
+    }
 }

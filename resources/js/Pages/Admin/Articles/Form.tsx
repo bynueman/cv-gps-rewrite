@@ -268,6 +268,10 @@ function Form({
             />
           </div>
 
+          <p className="-mt-3 text-xs text-espresso-500">
+            💡 Cukup isi tab Indonesia — tab English akan otomatis diterjemahkan saat Anda menekan tombol <strong>Simpan</strong>, atau klik tombol di samping untuk pratinjau sekarang.
+          </p>
+
           <div className={tab === "id" ? "space-y-5" : "hidden space-y-5"}>
             <div>
               <span className="mb-1.5 block text-sm font-semibold">Judul (ID)</span>
@@ -388,7 +392,11 @@ function Form({
 
           <div className="flex items-center gap-4 pt-2">
             <button type="submit" disabled={processing} className="btn-primary disabled:opacity-60">
-              {processing ? "Menyimpan…" : "Simpan"}
+              {processing
+                ? (!data.title.en?.trim() && !!data.title.id?.trim()
+                    ? "Menerjemahkan & Menyimpan…"
+                    : "Menyimpan…")
+                : "Simpan"}
             </button>
             <Link href={route("admin.articles.index")} className="btn-outline">
               Batal
