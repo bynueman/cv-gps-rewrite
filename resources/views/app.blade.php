@@ -67,8 +67,10 @@
 
         {{-- Self-hosted fonts (see resources/css/app.css for @font-face) —
              preloaded explicitly since there's no next/font equivalent here. --}}
-        <link rel="preload" as="font" type="font/woff2" href="{{ asset('fonts/lilita-one-400.woff2') }}" crossorigin>
-        <link rel="preload" as="font" type="font/woff2" href="{{ asset('fonts/comic-neue-400.woff2') }}" crossorigin>
+        <link rel="preload" as="font" type="font/woff2" href="{{ asset('fonts/archivo-black-latin.woff2') }}" crossorigin>
+        <link rel="preload" as="font" type="font/woff2" href="{{ asset('fonts/dm-sans-latin.woff2') }}" crossorigin>
+
+        @include('partials.splash-styles')
 
         @routes
         @viteReactRefresh
@@ -76,6 +78,8 @@
         @inertiaHead
     </head>
     <body class="bg-cream-100 text-espresso-900 font-sans antialiased">
+        @include('partials.splash')
+
         <div id="app" data-page="{{ json_encode($page) }}">
             {{-- Non-JS fallback: React replaces this the instant it mounts
                  (client-only createRoot render, not hydration — see app.tsx),

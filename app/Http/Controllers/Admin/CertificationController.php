@@ -83,10 +83,17 @@ class CertificationController extends Controller
             $this->imageProcessor->delete($certification->logo);
         }
 
-        // If PDF was uploaded to our server (not external URL), delete it too
-        if ($certification->pdf_url && str_starts_with($certification->pdf_url, '/uploads/certifications/')) {
-            $path = public_path(ltrim($certification->pdf_url, '/'));
-            if (file_exists($path)) {
+        if ($certification->pdf_url
+            && ! str_contains($certification->pdf_url, "\0")
+            && str_starts_with($certification->pdf_url, '/uploads/certifications/')) {
+            $directory = realpath(public_path('uploads/certifications'));
+            $path = realpath(public_path(ltrim($certification->pdf_url, '/')));
+
+            // Resolve traversal and symlinks before checking the actual parent directory.
+            if ($directory !== false && $path !== false
+                && dirname($path) === $directory
+                && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'pdf'
+                && is_file($path)) {
                 unlink($path);
             }
         }

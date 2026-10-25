@@ -5,6 +5,7 @@ import { useReveal } from "@/hooks/useReveal";
 import { ProductPackshot } from "@/Components/ProductPackshot";
 import { ProductCard } from "@/Components/ProductCard";
 import { ExportCTA } from "@/Components/ExportCTA";
+import { productInquiryUrl } from "@/lib/commerce";
 import SiteLayout from "@/Layouts/SiteLayout";
 import type { Product, SharedProps } from "@/types";
 
@@ -17,18 +18,19 @@ type Seo = { title: string; description: string; canonical?: string };
  * computed server-side (Product::relatedTo scope) instead of client-side,
  * since the full product catalog isn't shipped to every page.
  */
-function ProductDetail({ product, related, seo }: { product: Product; related: Product[]; seo: Seo }) {
+function ProductDetail({ product, related, seo, seoEnglish }: { product: Product; related: Product[]; seo: Seo; seoEnglish?: Pick<Seo, "title" | "description"> }) {
   const { lang, t } = useLang();
   const scope = useReveal<HTMLElement>([lang, product.slug]);
-  const { brands } = usePage<SharedProps>().props.site;
+  const { brands, company } = usePage<SharedProps>().props.site;
 
   const brand = brands.find((b) => b.key === product.brand)!;
   const isKuicip = product.brand === "kuicip";
+  const whatsapp = productInquiryUrl(company.whatsapp, brand?.name || product.brand, product.name[lang], lang);
 
   return (
     <>
-      <Head title={seo.title}>
-        <meta name="description" content={seo.description} />
+      <Head title={lang === "en" && seoEnglish ? seoEnglish.title : seo.title}>
+        <meta name="description" content={lang === "en" && seoEnglish ? seoEnglish.description : seo.description} />
         {seo.canonical ? <link rel="canonical" href={seo.canonical} /> : null}
       </Head>
       <article ref={scope} className="pb-20 pt-28 sm:pt-36 lg:pb-28">
@@ -76,9 +78,9 @@ function ProductDetail({ product, related, seo }: { product: Product; related: P
                   </div>
                 </div>
               )}
-              {isKuicip && brand.weight ? (
+              {product.netWeight || (isKuicip && brand.weight) ? (
                 <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-espresso-500">
-                  {t.productDetail.weightLabel}: {brand.weight}
+                  {t.productDetail.weightLabel}: {product.netWeight || brand.weight}
                 </p>
               ) : null}
             </div>
@@ -106,14 +108,18 @@ function ProductDetail({ product, related, seo }: { product: Product; related: P
                 {t.productDetail.aboutTitle}
               </h2>
               <p data-reveal className="mt-2 max-w-2xl text-base leading-relaxed text-espresso-600">
-                {product.description[lang]}
+                {product.description?.[lang] || product.short[lang]}
               </p>
 
+              <div className="mt-8 flex flex-wrap gap-3">
+                {product.shopeeUrl && <a href={product.shopeeUrl} target="_blank" rel="noopener noreferrer sponsored" className="btn-primary w-full whitespace-nowrap sm:w-auto">{lang === "id" ? "Beli di Shopee" : "Buy on Shopee"} ↗</a>}
+                {whatsapp ? <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="btn-outline w-full whitespace-nowrap sm:w-auto">{lang === "id" ? "Tanya Produk" : "Ask about this product"} ↗</a> : <Link href="/contact" className="btn-outline">{t.nav.contact}</Link>}
+              </div>
               <div className="mt-8 grid gap-8 sm:grid-cols-2">
                 <div data-reveal>
                   <h2 className="font-display text-lg font-semibold">{t.productDetail.highlightsTitle}</h2>
                   <ul className="mt-3 space-y-2.5">
-                    {product.highlights.map((h, i) => (
+                    {(product.highlights ?? []).map((h, i) => (
                       <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-espresso-700">
                         <span
                           className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
@@ -130,7 +136,7 @@ function ProductDetail({ product, related, seo }: { product: Product; related: P
                     {isKuicip ? t.productDetail.notesTitleKuicip : t.productDetail.notesTitleTeko}
                   </h2>
                   <ul className="mt-3 space-y-2.5">
-                    {product.notes.map((n, i) => (
+                    {(product.notes ?? []).map((n, i) => (
                       <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-espresso-700">
                         <span
                           className="mt-1.5 h-2 w-2 shrink-0 rounded-full"

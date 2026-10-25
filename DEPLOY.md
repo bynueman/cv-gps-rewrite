@@ -78,8 +78,12 @@ the CV Gama Putra Santosa production host. Written from how this app is
    php artisan migrate --force
    php artisan db:seed --force          # brands, products, and Pengaturan defaults
    php artisan storage:link
-   php artisan admin:create admin@gpsfood.id 'a-real-password-not-a-placeholder'
+   php artisan admin:create admin@gpsfood.id 'a-real-password-not-a-placeholder' --superadmin
    ```
+
+   `--superadmin` explicitly creates a new superadmin. It never promotes an
+   existing editor. Without this option, new accounts are editors and password
+   resets preserve the existing role. Manage existing roles through Pengguna.
 
 5. **Build assets locally, then upload:**
    ```bash

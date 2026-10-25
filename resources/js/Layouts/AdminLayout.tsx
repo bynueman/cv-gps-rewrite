@@ -27,6 +27,7 @@ function FlashWatcher() {
 
 function AdminChrome({ title, children }: { title?: string; children: ReactNode }) {
   const { collapsed, toggle } = useSidebarCollapsed();
+  const { site } = usePage<SharedProps>().props;
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -39,7 +40,7 @@ function AdminChrome({ title, children }: { title?: string; children: ReactNode 
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar title={title} onOpenMobileSidebar={() => setMobileOpen(true)} />
-        <main className="container-page flex-1 py-8">{children}</main>
+        <main className="container-page flex-1 py-8">{site.localPreview && <p role="status" className="mb-6 rounded-xl border border-gold-500/40 bg-gold-300/20 p-3 text-sm">PREVIEW LOKAL · Data fiksi, akun terisolasi, kebijakan belum disahkan.</p>}{children}</main>
       </div>
     </div>
   );

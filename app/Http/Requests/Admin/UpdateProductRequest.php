@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\TekoPackaging;
 use App\Http\Requests\Admin\Concerns\AutoTranslatesBilingualFields;
+use App\Rules\ShopeeUrl;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -58,6 +59,14 @@ class UpdateProductRequest extends FormRequest
             'notes.en' => ['nullable', 'string'],
             'color' => ['required', 'string', 'max:20'],
             'color_dark' => ['required', 'string', 'max:20'],
+            'shopee_url' => ['nullable', 'string', 'max:2048', new ShopeeUrl],
+            'net_weight' => ['nullable', 'string', 'max:80'],
+            'seo_title_id' => ['nullable', 'string', 'max:120'],
+            'seo_title_en' => ['nullable', 'string', 'max:120'],
+            'meta_description_id' => ['nullable', 'string', 'max:160'],
+            'meta_description_en' => ['nullable', 'string', 'max:160'],
+            'image_alt_id' => ['nullable', 'string', 'max:255'],
+            'image_alt_en' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'string'],
             'image_thumb' => ['nullable', 'string'],
             'image_og' => ['nullable', 'string'],

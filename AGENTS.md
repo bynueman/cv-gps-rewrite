@@ -65,7 +65,7 @@ composer setup
 php artisan admin:create <email> <password>
 ```
 
-> **Note on TypeScript**: There is no separate standalone JS linter configured. TypeScript type-checking executes automatically during `npm run build` / `vite build`.
+> **Note on TypeScript**: There is no standalone JS linter configured. Run `node node_modules/typescript/bin/tsc --noEmit` separately; `npm run build` / `vite build` compiles assets without type-checking.
 
 ---
 

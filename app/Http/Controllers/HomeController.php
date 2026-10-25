@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ArticleResource;
-use App\Http\Resources\ProductResource;
+use App\Http\Resources\ProductSummaryResource;
 use App\Models\Article;
 use App\Models\Brand;
 use App\Models\Partner;
@@ -20,8 +20,8 @@ class HomeController extends Controller
         $kuicip = Brand::where('key', 'kuicip')->firstOrFail();
         $teko = Brand::where('key', 'putri-teko')->firstOrFail();
 
-        $find = fn (Brand $brand, string $slug) => Product::where('brand_id', $brand->id)->where('slug', $slug)->where('is_active', true)->first();
-        $resolve = fn (?Product $p) => $p ? (new ProductResource($p))->resolve() : null;
+        $find = fn (Brand $brand, string $slug) => Product::with('brand')->where('brand_id', $brand->id)->where('slug', $slug)->where('is_active', true)->first();
+        $resolve = fn (?Product $p) => $p ? (new ProductSummaryResource($p))->resolve() : null;
 
         $heroProduct = $find($teko, 'wedang-uwuh-toples');
         $supporting = collect([
@@ -34,10 +34,10 @@ class HomeController extends Controller
         $featuredArticles = Article::published()->featured()->orderBy('date', 'desc')->limit(3)->get();
 
         return Inertia::render('Home', [
-            'kuicipCount' => Product::where('brand_id', $kuicip->id)->where('is_active', true)->count(),
-            'tekoCount' => Product::where('brand_id', $teko->id)->where('is_active', true)->count(),
+            'kuicipCount' => Product::with('brand')->where('brand_id', $kuicip->id)->where('is_active', true)->count(),
+            'tekoCount' => Product::with('brand')->where('brand_id', $teko->id)->where('is_active', true)->count(),
             'featuredHero' => $resolve($heroProduct),
-            'featuredSupporting' => ProductResource::collection($supporting)->resolve(),
+            'featuredSupporting' => ProductSummaryResource::collection($supporting)->resolve(),
             'familiesKuicip1' => $resolve($find($kuicip, 'seaweed')),
             'familiesKuicip2' => $resolve($find($kuicip, 'truffle')),
             'familiesTeko1' => $resolve($find($teko, 'kunir-asam')),

@@ -30,6 +30,14 @@ type ProductFormValues = {
   image: string | null;
   image_thumb: string | null;
   image_og: string | null;
+  shopee_url: string | null;
+  net_weight: string | null;
+  seo_title_id: string | null;
+  seo_title_en: string | null;
+  meta_description_id: string | null;
+  meta_description_en: string | null;
+  image_alt_id: string | null;
+  image_alt_en: string | null;
   featured: boolean;
   placeholder: boolean;
   is_active: boolean;
@@ -65,6 +73,14 @@ function Form({
     image: product?.image ?? (null as string | null),
     image_thumb: product?.image_thumb ?? (null as string | null),
     image_og: product?.image_og ?? (null as string | null),
+    shopee_url: product?.shopee_url ?? "",
+    net_weight: product?.net_weight ?? "",
+    seo_title_id: product?.seo_title_id ?? "",
+    seo_title_en: product?.seo_title_en ?? "",
+    meta_description_id: product?.meta_description_id ?? "",
+    meta_description_en: product?.meta_description_en ?? "",
+    image_alt_id: product?.image_alt_id ?? "",
+    image_alt_en: product?.image_alt_en ?? "",
     featured: product?.featured ?? false,
     placeholder: product?.placeholder ?? false,
     is_active: product?.is_active ?? true,
@@ -464,6 +480,14 @@ function Form({
           {errors.sort_order ? <p className="mt-1.5 text-sm text-red-700">{errors.sort_order}</p> : null}
         </div>
 
+        <fieldset className="space-y-4 rounded-2xl border border-espresso-900/15 p-5"><legend className="px-2 font-semibold">Marketing & Commerce</legend>
+          <label className="block"><span className={labelClass}>URL Shopee produk (opsional)</span><input type="url" className={inputClass} value={data.shopee_url} onChange={e => setData("shopee_url", e.target.value)} placeholder="https://shopee.co.id/…"/>{errors.shopee_url && <span className="text-sm text-red-700">{errors.shopee_url}</span>}</label>
+          <label className="block"><span className={labelClass}>Isi bersih terverifikasi (opsional)</span><input className={inputClass} value={data.net_weight} onChange={e => setData("net_weight", e.target.value)} maxLength={80}/>{errors.net_weight && <span className="text-sm text-red-700">{errors.net_weight}</span>}</label>
+          <p className="text-sm text-espresso-600">Tanya Produk memakai kontak WhatsApp situs dan nama produk. Harga, stok, dan tautan marketplace tidak dibuat otomatis.</p>
+        </fieldset>
+        <details className="rounded-2xl border border-espresso-900/15 p-5"><summary className="cursor-pointer font-semibold">SEO & Metadata — opsional</summary><p className="my-4 text-sm text-espresso-600">Metadata awal memakai bahasa Indonesia. Canonical mengikuti URL produk. Kosongkan untuk memakai nama dan ringkasan produk.</p>
+          <div className="grid gap-4 sm:grid-cols-2">{(["seo_title_id", "seo_title_en", "meta_description_id", "meta_description_en", "image_alt_id", "image_alt_en"] as const).map(field => <label key={field}><span className={labelClass}>{field.replace(/_/g, " ")}</span><input className={inputClass} value={data[field]} onChange={e => setData(field, e.target.value)} maxLength={field.startsWith("meta") ? 160 : field.startsWith("seo") ? 120 : 255}/>{errors[field] && <span className="text-sm text-red-700">{errors[field]}</span>}</label>)}</div>
+        </details>
         <div className="flex flex-wrap gap-6">
           <label className="flex items-center gap-2 text-sm font-semibold">
             <input type="checkbox" checked={data.is_active} onChange={(e) => setData("is_active", e.target.checked)} />

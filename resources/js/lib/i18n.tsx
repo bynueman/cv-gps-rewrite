@@ -86,7 +86,7 @@ const id = {
     empty: "Belum ada mitra di kategori ini.",
   },
   families: {
-    kuicipTagline: "Renyah, berani, dan bikin nagih — keripik singkong dengan 8 varian rasa khas Nusantara.",
+    kuicipTagline: "Renyah, berani, dan bikin nagih — keripik singkong dengan pilihan rasa khas Nusantara.",
     kuicipCta: "Jelajahi Kuicip",
     tekoTagline: "Racikan hangat warisan leluhur — herbal, menenangkan, penuh makna.",
     tekoCta: "Jelajahi Putri Teko",

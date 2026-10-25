@@ -16,6 +16,7 @@ import {
 import type { SharedProps } from "@/types";
 
 const NAV_ITEMS = [
+  { routeName: "admin.stories.index", pathPrefix: "/admin/stories", label: "Kuicip — Ruang Cerita", icon: Newspaper, superadminOnly: true, storyOnly: true },
   { routeName: "admin.dashboard", pathPrefix: "/admin", exact: true, label: "Dashboard", icon: LayoutDashboard },
   { routeName: "admin.products.index", pathPrefix: "/admin/products", label: "Produk", icon: Package },
   { routeName: "admin.articles.index", pathPrefix: "/admin/articles", label: "Artikel", icon: Newspaper },
@@ -101,20 +102,19 @@ function SidebarContent({
   onNavigate?: () => void;
   showCollapseToggle: boolean;
 }) {
-  const { auth } = usePage<SharedProps>().props;
+  const { auth, site } = usePage<SharedProps>().props;
   const isSuperadmin = (auth.user as { role?: string } | null)?.role === "superadmin";
 
   return (
     <div className="flex h-full flex-col gap-1 p-3">
-      <div className={`flex items-center gap-2 px-2 py-3 ${collapsed ? "justify-center" : ""}`}>
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cream-50 font-display text-sm font-bold text-espresso-900">
-          GPS
-        </span>
-        {!collapsed ? <span className="font-display text-sm font-semibold text-cream-50">Admin GPS</span> : null}
+      <div className={`flex items-center gap-2 py-3 ${collapsed ? "justify-center px-0" : "px-2"}`}>
+        <Link href={route("admin.dashboard")} aria-label="GPS FOOD Admin" className={`rounded-lg bg-white ${collapsed ? "p-1.5" : "p-2"}`}>
+          <img src={site.brandAssets.logos.gps} width={3236} height={1080} alt="GPS FOOD" className={collapsed ? "h-auto w-10" : "h-auto w-32"}/>
+        </Link>
       </div>
 
       <nav className="mt-2 flex flex-1 flex-col gap-1" aria-label="Navigasi admin">
-        {NAV_ITEMS.filter((item) => !item.superadminOnly || isSuperadmin).map((item) => (
+        {NAV_ITEMS.filter((item) => (!item.superadminOnly || isSuperadmin) && (!item.storyOnly || site.storyEnabled)).map((item) => (
           <NavLink key={item.routeName} item={item} collapsed={collapsed} onNavigate={onNavigate} />
         ))}
       </nav>

@@ -5,7 +5,7 @@
 // `groupShots` lookup maps. Paths are relative to public/.
 return [
     'logos' => [
-        'gps' => '/images/logo/gps.webp',
+        'gps' => '/images/logo/logo-gpsfood.png',
         'kuicip' => '/images/logo/kuicip.webp',
         'putri-teko' => '/images/logo/putriteko.webp',
     ],

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Rules\ShopeeUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -30,6 +31,11 @@ class ProductResource extends JsonResource
             'color' => $this->color,
             'colorDark' => $this->color_dark,
             'image' => $this->image,
+            'imageThumb' => $this->image_thumb,
+            'imageAlt' => ['id' => $this->image_alt_id, 'en' => $this->image_alt_en],
+            'netWeight' => $this->net_weight,
+            'shopeeUrl' => ShopeeUrl::isValid($this->shopee_url) ? $this->shopee_url
+                : (ShopeeUrl::isValid(config('company.shopee_storefront')) ? config('company.shopee_storefront') : null),
             'featured' => $this->featured,
             'placeholder' => $this->placeholder,
         ];

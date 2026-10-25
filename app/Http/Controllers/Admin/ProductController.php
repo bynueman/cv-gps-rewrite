@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Services\ImageProcessor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,7 +29,7 @@ class ProductController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('is_active', $request->string('status') === 'active');
+            $query->where('is_active', $request->input('status') === 'active');
         }
 
         if ($request->filled('q')) {
@@ -86,6 +87,7 @@ class ProductController extends Controller
                 'id' => $product->id,
                 'brand_id' => $product->brand_id,
                 'slug' => $product->slug,
+                ...$product->only(['shopee_url', 'net_weight', 'seo_title_id', 'seo_title_en', 'meta_description_id', 'meta_description_en', 'image_alt_id', 'image_alt_en']),
                 'group' => $product->group,
                 'packaging' => $product->packaging,
                 'name' => ['id' => $product->name_id, 'en' => $product->name_en],
@@ -165,6 +167,8 @@ class ProductController extends Controller
             'notes' => $this->linesToBilingualPairs($data['notes']['id'] ?? '', $data['notes']['en'] ?? ''),
             'color' => $data['color'],
             'color_dark' => $data['color_dark'],
+            ...Arr::only($data, ['shopee_url', 'net_weight', 'seo_title_id', 'seo_title_en',
+                'meta_description_id', 'meta_description_en', 'image_alt_id', 'image_alt_en']),
             'image' => $data['image'] ?? null,
             'image_thumb' => $data['image_thumb'] ?? null,
             'image_og' => $data['image_og'] ?? null,

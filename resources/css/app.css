@@ -7,32 +7,29 @@
    automatically must be handled manually (see the <link rel="preload">
    tags in resources/views/app.blade.php). */
 @font-face {
-  font-family: "Lilita One";
-  src: url("/fonts/lilita-one-400.woff2") format("woff2");
+  font-family: "Archivo Black";
+  src: url("/fonts/archivo-black-latin.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Comic Neue";
-  src: url("/fonts/comic-neue-400.woff2") format("woff2");
-  font-weight: 400;
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans-latin.woff2") format("woff2");
+  font-weight: 400 700;
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: "Comic Neue";
-  src: url("/fonts/comic-neue-700.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
-  --font-display: "Lilita One";
-  --font-sans: "Comic Neue";
+  --font-display: "Archivo Black";
+  --font-sans: "DM Sans";
   scroll-padding-top: 5.5rem;
 }
+
+.font-display { font-weight: 400; letter-spacing: -0.035em; font-synthesis: none; }
+.catalog-select { border: 1px solid #2c1f1433; border-radius: 9999px; background: #fcf9f2; padding: .8rem 1rem; font-size: .875rem; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid #9c6508; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 
 @media (prefers-reduced-motion: no-preference) {
   html {
@@ -68,7 +65,7 @@ button:focus-visible {
     @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream-100;
   }
   .btn-primary {
-    @apply btn bg-gold-500 text-espresso-950 hover:bg-gold-400;
+    @apply btn bg-gpsBlue text-white hover:bg-gpsBlue/90;
   }
   .btn-outline {
     @apply btn border border-espresso-900/25 text-espresso-900 hover:border-espresso-900 hover:bg-espresso-900 hover:text-cream-100;

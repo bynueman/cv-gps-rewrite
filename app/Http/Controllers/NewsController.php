@@ -59,7 +59,7 @@ class NewsController extends Controller
             'publisher' => [
                 '@type' => 'Organization',
                 'name' => config('app.name'),
-                'logo' => ['@type' => 'ImageObject', 'url' => url('/images/logo/gps.webp')],
+                'logo' => ['@type' => 'ImageObject', 'url' => url(config('brand_assets.logos.gps'))],
             ],
             'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $articleUrl],
         ]);

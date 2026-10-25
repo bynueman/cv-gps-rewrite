@@ -14,6 +14,7 @@ export function Footer() {
     { href: "/export", label: t.nav.export },
     { href: "/news", label: t.nav.news },
     { href: "/contact", label: t.nav.contact },
+    { href: "/kuicip/cerita", label: lang === "id" ? "Kuicip — Ruang Cerita" : "Kuicip — Your Story" },
   ];
 
   return (
@@ -25,9 +26,9 @@ export function Footer() {
               <img
                 src={brandAssets.logos.gps}
                 alt={`Logo ${company.name}`}
-                width={128}
-                height={72}
-                className="h-6 w-auto"
+                width={3236}
+                height={1080}
+                className="h-auto w-36"
               />
             </span>
             <span className="font-display text-lg font-semibold text-cream-100">

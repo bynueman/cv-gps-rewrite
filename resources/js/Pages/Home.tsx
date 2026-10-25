@@ -9,6 +9,7 @@ import { ExportPreview } from "@/Components/sections/ExportPreview";
 import { NewsPreview } from "@/Components/sections/NewsPreview";
 import { ContactCTA } from "@/Components/sections/ContactCTA";
 import SiteLayout from "@/Layouts/SiteLayout";
+import { StoryInvitation } from "@/Components/sections/StoryInvitation";
 import type { Article, Partner, Product } from "@/types";
 
 type Seo = { title: string; description: string; canonical?: string };
@@ -55,6 +56,7 @@ function Home({
           teko1={familiesTeko1}
           teko2={familiesTeko2}
         />
+        <StoryInvitation />
         <ExportPreview />
         <NewsPreview articles={featuredArticles} />
         <ContactCTA />

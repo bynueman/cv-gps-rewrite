@@ -24,6 +24,8 @@ export default {
     extend: {
       colors: {
         // Neutral base — warm cream / espresso (the 80%)
+        gpsBlue: "#006eb8",
+        gpsRed: "#e9161b",
         cream: {
           50: "#FCF9F2",
           100: "#F7F1E5",
@@ -73,9 +75,7 @@ export default {
       },
       fontFamily: {
         display: ["var(--font-display)", "Arial Black", "sans-serif"],
-        // Literal "Comic Sans MS" first (real thing, when the OS has it),
-        // Comic Neue (loaded webfont) as the guaranteed fallback.
-        sans: ["Comic Sans MS", "var(--font-sans)", "cursive"],
+        sans: ["var(--font-sans)", "Arial", "sans-serif"],
       },
       maxWidth: {
         page: "76rem",

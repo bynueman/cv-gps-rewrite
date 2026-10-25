@@ -4,11 +4,20 @@ namespace Tests\Feature\Admin;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class TranslationTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Http::fake(['https://api.mymemory.translated.net/*' => Http::response([
+            'responseData' => ['translatedText' => 'Translated test text'],
+        ])]);
+    }
 
     private function admin(): User
     {

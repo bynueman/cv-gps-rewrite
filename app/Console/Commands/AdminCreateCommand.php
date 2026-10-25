@@ -15,14 +15,14 @@ use Illuminate\Support\Facades\Validator;
  */
 class AdminCreateCommand extends Command
 {
-    protected $signature = 'admin:create {email} {password}';
+    protected $signature = 'admin:create {email} {password?} {--superadmin : Create a new superadmin without promoting an existing editor}';
 
-    protected $description = 'Create or update the single admin account';
+    protected $description = 'Create an administrator or reset an existing account password';
 
     public function handle(): int
     {
         $email = $this->argument('email');
-        $password = $this->argument('password');
+        $password = $this->argument('password') ?? $this->secret('Password (minimal 8 karakter)', false);
 
         $validator = Validator::make(
             ['email' => $email, 'password' => $password],
@@ -37,10 +37,19 @@ class AdminCreateCommand extends Command
             return self::FAILURE;
         }
 
-        $user = User::updateOrCreate(
-            ['email' => $email],
-            ['name' => 'Admin', 'password' => Hash::make($password)]
-        );
+        $user = User::firstOrNew(['email' => $email]);
+
+        if ($this->option('superadmin') && $user->exists && ! $user->isSuperadmin()) {
+            $this->error('Existing editors cannot be promoted by this command. Use Pengguna as a superadmin.');
+
+            return self::FAILURE;
+        }
+
+        if (! $user->exists) {
+            $user->role = $this->option('superadmin') ? 'superadmin' : 'editor';
+        }
+
+        $user->fill(['name' => 'Admin', 'password' => Hash::make($password)])->save();
 
         $this->info("Admin user ready: {$user->email}");
 

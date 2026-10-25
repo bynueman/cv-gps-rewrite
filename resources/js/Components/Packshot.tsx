@@ -15,6 +15,8 @@ export function Packshot({
   className,
   imgClassName,
   fit = "contain",
+  srcSet,
+  sizes = "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw",
   children,
 }: {
   src: string | null;
@@ -23,6 +25,7 @@ export function Packshot({
   imgClassName?: string;
   fit?: "contain" | "cover";
   sizes?: string;
+  srcSet?: string;
   children: ReactNode;
 }) {
   if (src) {
@@ -30,6 +33,10 @@ export function Packshot({
       <div className={`relative ${className ?? ""}`}>
         <img
           src={src}
+          srcSet={srcSet}
+          sizes={sizes}
+          loading="lazy"
+          decoding="async"
           alt={alt}
           className={`absolute inset-0 h-full w-full ${fit === "cover" ? "object-cover" : "object-contain"} ${imgClassName ?? ""}`}
         />

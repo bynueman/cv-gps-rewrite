@@ -35,7 +35,7 @@ composer setup                # install, .env, key:generate, migrate, npm instal
 php artisan admin:create <email> <password>
 ```
 
-There is no JS test runner or JS linter configured — TypeScript checking happens implicitly via `tsc`/Vite at build time, not as a separate script.
+There is no standalone JS test runner or JS linter configured. Run `node node_modules/typescript/bin/tsc --noEmit` separately; `npm run build` runs Vite without type-checking. Focused frontend assertions are in `tests/frontend/commerce.test.mjs`.
 
 ## Architecture
 

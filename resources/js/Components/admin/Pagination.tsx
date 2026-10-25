@@ -1,0 +1,3 @@
+import { Link } from "@inertiajs/react";
+export type PaginationData = {prev_page_url:string|null;next_page_url:string|null;current_page:number;last_page:number};
+export function Pagination({page}:{page:PaginationData}) { return <nav aria-label="Pagination" className="mt-7 flex items-center justify-between gap-4 border-t border-espresso-900/10 pt-5">{page.prev_page_url?<Link className="btn-outline" href={page.prev_page_url}>← Sebelumnya</Link>:<span/>}<span className="text-sm">{page.current_page} / {page.last_page}</span>{page.next_page_url?<Link className="btn-outline" href={page.next_page_url}>Berikutnya →</Link>:<span/>}</nav>; }

@@ -6,6 +6,7 @@ use App\Http\Resources\BrandResource;
 use App\Models\Brand;
 use App\Models\ContactMessage;
 use App\Models\Setting;
+use App\Support\StoryDatabase;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -46,6 +47,8 @@ class HandleInertiaRequests extends Middleware
             'site' => [
                 'company' => fn () => $this->resolveCompany(),
                 'brandAssets' => config('brand_assets'),
+                'storyEnabled' => (bool) config('stories.enabled'),
+                'localPreview' => StoryDatabase::isLocalPreview(),
                 'brands' => BrandResource::collection(Brand::query()->orderBy('id')->get())->resolve(),
             ],
             'flash' => [

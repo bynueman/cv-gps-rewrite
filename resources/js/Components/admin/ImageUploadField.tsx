@@ -15,7 +15,7 @@ export function ImageUploadField({
   initial: UploadedImage;
   onChange: (value: UploadedImage) => void;
   /** Destination folder — matches ImageProcessor::CONTEXTS server-side. */
-  context?: "products" | "articles" | "partners" | "settings";
+  context?: "products" | "articles" | "partners" | "settings" | "certifications";
   /** "standard" generates content/thumb/og; "logo" is a single ≤480px transparent-safe variant. */
   variant?: "standard" | "logo";
 }) {

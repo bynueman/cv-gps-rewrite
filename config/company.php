@@ -5,6 +5,7 @@
 return [
     'name' => 'CV Gama Putra Santosa',
     'short_name' => 'Gama Putra Santosa',
+    'shopee_storefront' => env('SHOPEE_STOREFRONT_URL', 'https://shopee.co.id/gpsfood?categoryId=100629&entryPoint=ShopByPDP&itemId=49919300654'),
     'location' => [
         'id' => 'Sleman, DI Yogyakarta, Indonesia',
         'en' => 'Sleman, Yogyakarta, Indonesia',

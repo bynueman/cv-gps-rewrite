@@ -1,8 +1,10 @@
 import type { FormEvent, ReactElement } from "react";
-import { Head, useForm } from "@inertiajs/react";
+import { Head, useForm, usePage } from "@inertiajs/react";
+import type { SharedProps } from "@/types";
 import GuestLayout from "@/Layouts/GuestLayout";
 
 function Login() {
+  const { site } = usePage<SharedProps>().props;
   const { data, setData, post, processing, errors } = useForm({
     email: "",
     password: "",
@@ -20,6 +22,8 @@ function Login() {
       <Head title="Admin Login" />
       <div className="flex min-h-screen items-center justify-center px-5">
         <div className="w-full max-w-sm rounded-3xl border border-espresso-900/10 bg-cream-50 p-8 shadow-card">
+          <img src={site.brandAssets.logos.gps} width={3236} height={1080} alt="GPS FOOD" className="mb-6 h-auto w-36" />
+          {site.localPreview && <p className="mb-4 rounded-xl bg-gold-300/30 p-3 text-xs font-semibold">PREVIEW LOKAL · Akun dan data terpisah dari website utama.</p>}
           <h1 className="font-display text-2xl font-semibold text-espresso-950">Admin Login</h1>
           <p className="mt-1 text-sm text-espresso-600">CV Gama Putra Santosa</p>
 

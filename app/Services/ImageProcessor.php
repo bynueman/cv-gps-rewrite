@@ -106,7 +106,10 @@ class ImageProcessor
         }
 
         $fullPath = public_path(ltrim($publicPath, '/'));
-        if (! str_starts_with(realpath(dirname($fullPath)) ?: '', public_path('uploads'))) {
+        $uploads = realpath(public_path('uploads'));
+        $directory = realpath(dirname($fullPath));
+        if ($uploads === false || $directory === false
+            || ! str_starts_with($directory.DIRECTORY_SEPARATOR, $uploads.DIRECTORY_SEPARATOR)) {
             return; // refuse to delete anything outside the uploads tree
         }
 

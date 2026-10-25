@@ -31,6 +31,20 @@ return [
     */
 
     'connections' => [
+        // No website DB credentials or default database fallback are used here.
+        'stories' => [
+            'driver' => env('STORY_DB_DRIVER', 'mysql'),
+            'host' => env('STORY_DB_HOST'),
+            'port' => env('STORY_DB_PORT', '3306'),
+            'database' => env('STORY_DB_DATABASE'),
+            'username' => env('STORY_DB_USERNAME'),
+            'password' => env('STORY_DB_PASSWORD'),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'foreign_key_constraints' => true,
+        ],
 
         'sqlite' => [
             'driver' => 'sqlite',

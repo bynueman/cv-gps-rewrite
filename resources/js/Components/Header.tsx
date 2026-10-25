@@ -27,6 +27,19 @@ export function Header() {
   const [desktopSubmenuOpen, setDesktopSubmenuOpen] = useState(false);
   const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState(false);
   const submenuRef = useRef<HTMLDivElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && (open || desktopSubmenuOpen)) {
+        setOpen(false); setDesktopSubmenuOpen(false); setMobileSubmenuOpen(false);
+        if (open) menuButton.current?.focus();
+        else submenuRef.current?.querySelector("button")?.focus();
+      }
+    };
+    document.addEventListener("keydown", close);
+    return () => document.removeEventListener("keydown", close);
+  }, [open, desktopSubmenuOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -71,9 +84,9 @@ export function Header() {
           <img
             src={brandAssets.logos.gps}
             alt={`Logo ${company.name}`}
-            width={128}
-            height={72}
-            className="h-14 w-auto sm:h-16"
+            width={3236}
+            height={1080}
+            className="h-auto w-32 sm:w-40"
           />
         </Link>
 
@@ -146,6 +159,7 @@ export function Header() {
           </Link>
           {/* Mobile menu toggle */}
           <button
+            ref={menuButton}
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}

@@ -52,12 +52,16 @@ export type Product = {
   short: Bilingual;
   personality: Bilingual;
   serving?: Bilingual | null;
-  description: Bilingual;
-  highlights: Bilingual[];
-  notes: Bilingual[];
+  description?: Bilingual;
+  highlights?: Bilingual[];
+  notes?: Bilingual[];
   color: string;
   colorDark: string;
   image: string | null;
+  imageThumb?: string | null;
+  imageAlt?: { id: string | null; en: string | null };
+  netWeight?: string | null;
+  shopeeUrl?: string | null;
   featured?: boolean;
   placeholder?: boolean;
 };
@@ -84,6 +88,8 @@ export type SharedProps = {
   };
   site: {
     company: Company;
+    storyEnabled?: boolean;
+    localPreview?: boolean;
     brandAssets: BrandAssets;
     brands: Brand[];
   };
@@ -92,4 +98,14 @@ export type SharedProps = {
     error: string | null;
   };
   unreadMessagesCount?: number;
+};
+
+/** Whitelisted DTO returned only by the publishable public story feed. */
+export type PublicStory = {
+  id: number;
+  code: string;
+  category: string;
+  body: string;
+  supports: number;
+  published_at: string;
 };

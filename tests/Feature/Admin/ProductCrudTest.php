@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\BrandSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class ProductCrudTest extends TestCase
@@ -16,6 +17,9 @@ class ProductCrudTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Http::fake(['https://api.mymemory.translated.net/*' => Http::response([
+            'responseData' => ['translatedText' => 'Translated test text'],
+        ])]);
         $this->seed(BrandSeeder::class);
     }
 
@@ -100,6 +104,23 @@ class ProductCrudTest extends TestCase
             'name_id' => 'Kopi Uji Baru',
             'is_active' => false,
         ]);
+    }
+
+    public function test_status_filters_return_the_requested_products(): void
+    {
+        $brand = Brand::query()->first();
+        $this->actingAs($this->admin());
+        $this->post(route('admin.products.store'), $this->payload($brand->id))->assertRedirect();
+        $this->post(route('admin.products.store'), $this->payload($brand->id, [
+            'slug' => 'inactive-product', 'is_active' => false,
+        ]))->assertRedirect();
+
+        foreach (['active' => 'kopi-uji', 'inactive' => 'inactive-product'] as $status => $slug) {
+            $this->get(route('admin.products.index', ['status' => $status]))
+                ->assertInertia(fn ($page) => $page->has('products', 1)->where('products.0.slug', $slug));
+        }
+
+        $this->get(route('admin.products.index'))->assertInertia(fn ($page) => $page->has('products', 2));
     }
 
     public function test_admin_updating_product_with_cleared_english_auto_translates(): void

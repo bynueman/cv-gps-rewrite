@@ -79,23 +79,10 @@ function Form({ mode, certification }: { mode: "create" | "edit"; certification?
     formData.append("file", file);
 
     try {
-      const res = await fetch(route("admin.upload-pdf"), {
-        method: "POST",
-        headers: {
-          "X-CSRF-TOKEN": (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? "",
-        },
-        body: formData,
-      });
-
-      const json = await res.json();
-
-      if (!res.ok || json.error) {
-        setPdfUploadError(json.error ?? "Upload gagal.");
-      } else {
-        setData("pdf_url", json.url);
-      }
-    } catch {
-      setPdfUploadError("Upload gagal. Periksa koneksi dan coba lagi.");
+      const res = await window.axios.post(route("admin.upload-pdf"), formData);
+      setData("pdf_url", res.data.url);
+    } catch (err: any) {
+      setPdfUploadError(err?.response?.data?.error || "Upload gagal. Periksa koneksi dan coba lagi.");
     } finally {
       setPdfUploading(false);
     }

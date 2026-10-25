@@ -17,7 +17,7 @@ class MessageController extends Controller
         $query = ContactMessage::query()->orderBy('created_at', 'desc');
 
         if ($request->filled('status')) {
-            $query->where('is_read', $request->string('status') === 'read');
+            $query->where('is_read', $request->input('status') === 'read');
         }
 
         return Inertia::render('Admin/Messages/Index', [

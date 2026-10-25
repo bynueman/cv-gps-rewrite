@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\ImageProcessor;
 use Database\Seeders\BrandSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -17,13 +18,28 @@ class ImageUploadTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    protected function tearDown(): void
+    public function test_image_cleanup_cannot_delete_a_sibling_of_the_upload_directory(): void
     {
-        foreach (['products', 'articles', 'partners', 'settings'] as $context) {
-            File::deleteDirectory(public_path("uploads/{$context}"));
-        }
+        File::ensureDirectoryExists(public_path('uploads'));
+        File::ensureDirectoryExists(public_path('uploads-backup'));
+        $path = public_path('uploads-backup/protected-content.webp');
+        File::put($path, 'test-owned sentinel');
 
-        parent::tearDown();
+        app(ImageProcessor::class)->delete('/uploads-backup/protected-content.webp');
+
+        $this->assertSame('test-owned sentinel', File::get($path));
+    }
+
+    public function test_certification_logos_use_the_supported_upload_context(): void
+    {
+        $url = $this->actingAs(User::factory()->create())->post(route('admin.upload'), [
+            'file' => UploadedFile::fake()->image('certificate.png', 600, 600),
+            'context' => 'certifications',
+            'variant' => 'logo',
+        ])->assertOk()->json('image');
+
+        $this->assertStringStartsWith('/uploads/certifications/', $url);
+        $this->assertFileExists(public_path(ltrim($url, '/')));
     }
 
     public function test_upload_generates_three_webp_variants_for_standard_context(): void

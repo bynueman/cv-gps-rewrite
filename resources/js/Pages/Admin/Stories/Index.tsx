@@ -1,0 +1,11 @@
+import type {ReactElement} from "react";
+import {Head,Link} from "@inertiajs/react";
+import AdminLayout from "@/Layouts/AdminLayout";
+import {Pagination,type PaginationData} from "@/Components/admin/Pagination";
+type Row={id:number;code:string;excerpt:string;visibility:string;status:string};
+function Index({stories,pendingReports,filters}:{stories:PaginationData&{data:Row[]};pendingReports:number;filters:{status?:string;visibility?:string;reports?:boolean}}){
+ const tabs=[['Semua',''],['Menunggu','?status=pending'],['Disetujui','?status=approved'],['Ditolak','?status=rejected'],['Disembunyikan','?status=hidden'],['Privat','?visibility=private'],['Laporan ('+pendingReports+')','?reports=1']];
+ return <><Head title="Kuicip — Ruang Cerita"/><p className="kicker">Moderasi superadmin</p><h1 className="mt-3 font-display text-3xl">Kuicip — Ruang Cerita</h1><p className="mt-4 max-w-2xl text-sm leading-relaxed text-espresso-600">Cerita privat tetap privat setelah disetujui. Tinjau data pribadi, consent, dan konteks sebelum memublikasikan. Jangan salin kiriman privat ke layanan terjemahan atau media sosial.</p><nav aria-label="Filter moderasi" className="my-7 flex flex-wrap gap-2">{tabs.map(([label,suffix])=><Link key={label} href={route('admin.stories.index')+suffix} className="rounded-full border border-espresso-900/20 px-4 py-2 text-sm font-semibold hover:bg-gold-300">{label}</Link>)}</nav><p className="mb-4 text-xs text-espresso-600">{filters.visibility==='private'?'Menampilkan kiriman privat':filters.reports?'Menampilkan cerita dengan laporan menunggu':filters.status||'Semua status'}</p><div className="space-y-3">{stories.data.map(s=><Link key={s.id} href={route('admin.stories.show',s.id)} className="block rounded-2xl border border-espresso-900/10 bg-cream-50 p-5 hover:border-gold-600"><div className="flex flex-wrap justify-between gap-3 text-sm font-semibold"><span>{s.code}</span><span>{s.visibility} · {s.status}</span></div><p className="mt-3 whitespace-pre-wrap break-words text-sm leading-relaxed">{s.excerpt}</p></Link>)}{!stories.data.length&&<p className="rounded-2xl border border-dashed border-espresso-900/20 p-10 text-center">Tidak ada kiriman pada filter ini.</p>}</div><Pagination page={stories}/></>;
+}
+Index.layout=(page:ReactElement)=><AdminLayout title="Ruang Cerita">{page}</AdminLayout>;
+export default Index;

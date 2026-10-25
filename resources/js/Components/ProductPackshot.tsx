@@ -28,7 +28,7 @@ export function ProductPackshot({
   rounded?: string;
 }) {
   const alt =
-    product.brand === "kuicip" ? `Kuicip ${product.name[lang]}` : `Putri Teko ${product.name[lang]}`;
+    product.imageAlt?.[lang] || (product.brand === "kuicip" ? `Kuicip ${product.name[lang]}` : `Putri Teko ${product.name[lang]}`);
 
   if (product.image) {
     const aspect =
@@ -40,8 +40,9 @@ export function ProductPackshot({
     return (
       <Packshot
         src={product.image}
+        srcSet={product.imageThumb ? `${product.imageThumb} 640w, ${product.image} 1280w` : undefined}
         alt={alt}
-        fit="cover"
+        fit="contain"
         className={`${aspect} ${rounded} overflow-hidden ${className ?? ""}`}
         imgClassName={zoom ? "transition-transform duration-500 group-hover:scale-[1.06]" : undefined}
       >

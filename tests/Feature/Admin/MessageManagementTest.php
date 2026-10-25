@@ -65,8 +65,13 @@ class MessageManagementTest extends TestCase
         $this->message(['is_read' => false]);
         $this->message(['is_read' => true, 'email' => 'read@example.com']);
 
-        $this->actingAs(User::factory()->create())
-            ->get(route('admin.messages.index', ['status' => 'unread']))
-            ->assertInertia(fn ($page) => $page->has('messages', 1));
+        $this->actingAs(User::factory()->create());
+
+        foreach (['unread' => false, 'read' => true] as $status => $isRead) {
+            $this->get(route('admin.messages.index', ['status' => $status]))
+                ->assertInertia(fn ($page) => $page->has('messages', 1)->where('messages.0.is_read', $isRead));
+        }
+
+        $this->get(route('admin.messages.index'))->assertInertia(fn ($page) => $page->has('messages', 2));
     }
 }
