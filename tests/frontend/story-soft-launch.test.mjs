@@ -20,9 +20,11 @@ await build({
     import Teko from '@/Pages/Products/TekoCatalog';
     import Detail from '@/Pages/Products/ProductDetail';
     import Cerita from '@/Pages/Kuicip/Cerita';
+    import StoryIndex from '@/Pages/Admin/Stories/Index';
+    import StoryShow from '@/Pages/Admin/Stories/Show';
     import {Sidebar} from '@/Components/admin/Sidebar';
     export function render(component,props){
-      const Page={Home,Kuicip,Teko,Detail,Cerita,Sidebar}[component];
+      const Page={Home,Kuicip,Teko,Detail,Cerita,Sidebar,StoryIndex,StoryShow}[component];
       return renderToStaticMarkup(<App initialPage={{component,url:'/',version:null,props}} initialComponent={Page} resolveComponent={()=>Page}/>);
     }
   `,resolveDir:root,sourcefile:'story-launch-test.tsx',loader:'tsx'},
@@ -98,4 +100,43 @@ test('an unknown provider renders no usable verification or send button',()=>{
   assert.ok(html.includes('Verifikasi belum tersedia. Coba lagi nanti.'));
   assert.ok(/<button disabled=""[^>]*>Kirim untuk ditinjau/.test(html));
   assert.ok(!html.includes('name="challenge_answer"'));
+});
+
+const pagination={prev_page_url:null,next_page_url:null,current_page:1,last_page:1};
+test('moderation index and detail render readable states, code search and no removal secrets',()=>{
+  const auth={user:{id:1,name:'Test moderator',email:'moderator@example.test',role:'superadmin'}};
+  const index=render('StoryIndex',{auth,stories:{...pagination,data:[{id:6,code:'KC-0006',excerpt:'Cerita privat fiksi.',visibility:'private',status:'pending'}]},pendingReports:2,filters:{status:'pending',code:'KC-0006'}});
+  assert.ok(index.includes('name="code"'));
+  assert.ok(index.includes('value="KC-0006"'));
+  assert.ok(index.includes('aria-current="page"'));
+  assert.ok(index.includes('Menunggu tinjauan'));
+  assert.ok(index.includes('Tinjau cerita'));
+  const detail=render('StoryShow',{auth,story:{id:6,body:'Cerita privat fiksi.\n\nParagraf berikutnya.',category:'kehidupan',visibility:'private',status:'pending',publication_consent:false,social_consent:false,policy_version:'approved-fixture'},code:'KC-0006',history:[],reports:{...pagination,data:[{id:2,reason:'privacy',details:null,status:'pending'}]}});
+  assert.ok(detail.includes('Salin kode cerita KC-0006'));
+  assert.ok(detail.includes('persetujuan moderasi tidak memublikasikan'));
+  assert.ok(detail.includes('Keputusan moderasi'));
+  assert.ok(detail.includes('Tandai ditinjau'));
+  assert.ok(detail.includes('approved-fixture'));
+  assert.ok(detail.includes('whitespace-pre-wrap'));
+  for(const html of [index,detail]){
+    assert.ok(!html.includes('deletion_token'));
+    assert.ok(!html.includes('Removal token'));
+    assert.ok(!html.includes('name="token"'));
+  }
+});
+
+test('submission groups preserve consent requirements and block sending before verification',()=>{
+  const html=render('Cerita',{enabled:true,antispamProvider:'local',siteKey:null,policyVersion:'approved-fixture',retentionDays:90,categories:['kehidupan','bahagia']});
+  assert.ok(/<input(?=[^>]*name="visibility")(?=[^>]*value="public")(?=[^>]*checked="")[^>]*>/.test(html));
+  assert.ok(/<input(?=[^>]*name="visibility")(?=[^>]*value="private")[^>]*>/.test(html));
+  assert.ok(/name="terms_consent" type="checkbox" required=""/.test(html));
+  assert.ok(/name="publication_consent" type="checkbox" required=""/.test(html));
+  assert.ok(!/name="social_consent"[^>]*required/.test(html));
+  assert.ok(/<button disabled=""[^>]*>Kirim untuk ditinjau/.test(html));
+  assert.ok(html.indexOf('name="category"') < html.indexOf('id="story-body"'));
+  assert.ok(html.indexOf('id="story-body"') < html.indexOf('name="visibility"'));
+  assert.ok(html.includes('minLength="20" maxLength="1500"'));
+  assert.ok(html.includes('aria-describedby="story-body-help story-character-count"'));
+  assert.ok(html.includes('Cara kerjanya'));
+  assert.ok(html.includes('Kamu tidak sendiri.'));
 });

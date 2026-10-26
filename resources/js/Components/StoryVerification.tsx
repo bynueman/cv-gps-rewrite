@@ -103,21 +103,21 @@ export function StoryVerification({ provider, siteKey, localPreview, resetKey, o
   if (provider !== "local") return <p role="alert" className="text-sm">{id ? "Verifikasi belum tersedia. Coba lagi nanti." : "Verification is unavailable. Please try later."}</p>;
 
   return (
-    <fieldset className="rounded-2xl border border-espresso-900/15 bg-cream-100 p-5" aria-describedby="story-verification-help">
+    <fieldset className="rounded-2xl border border-espresso-900/15 bg-cream-100/70 px-4 pb-4 pt-2" aria-describedby="story-verification-help">
       <legend className="px-1 text-sm font-semibold">{id ? "Verifikasi sederhana" : "Quick verification"}</legend>
-      <label htmlFor="story-challenge-answer" className="block text-sm font-semibold">
+      <div className="grid grid-cols-[1fr_6rem] items-end gap-4"><label htmlFor="story-challenge-answer" className="block text-xs font-medium text-espresso-700">
         {id ? "Hitung dan tulis hasilnya" : "Calculate and enter the answer"}
-        <span className="mt-2 block text-xl tabular-nums" aria-live="polite">{challenge ? challenge.question + " = ?" : (loading ? (id ? "Memuat soal…" : "Loading…") : "—")}</span>
+        <span className="mt-2 block text-lg font-semibold tabular-nums text-espresso-900" aria-live="polite">{challenge ? challenge.question + " = ?" : (loading ? (id ? "Memuat soal…" : "Loading…") : "—")}</span>
       </label>
       <input id="story-challenge-answer" name="challenge_answer" type="text" inputMode="numeric" pattern="[0-9]{1,3}"
         autoComplete="off" maxLength={3} required disabled={!challenge || expired || loading} value={answer}
         onChange={(event) => setAnswer(event.target.value)}
-        className="mt-3 w-full rounded-xl border border-espresso-900/25 bg-cream-50 px-4 py-3 text-base focus-visible:outline-espresso-700 disabled:opacity-50" />
+        className="w-full rounded-xl border border-espresso-900/25 bg-cream-50 px-3 py-3 text-center text-base tabular-nums focus-visible:outline-espresso-700 disabled:opacity-50" /></div>
       <p id="story-verification-help" role="status" className="mt-3 text-xs leading-relaxed text-espresso-700">
         {expired ? (id ? "Soal kedaluwarsa. Minta soal baru; ceritamu tetap tersimpan di formulir." : "This question expired. Request another; your story stays in the form.")
           : (id ? "Soal berlaku 5 menit. Jika baru mengganti soal, tunggu sebentar sebelum mengirim." : "Valid for 5 minutes. Allow a moment after changing the question before sending.")}
       </p>
-      <button type="button" onClick={() => void renew()} disabled={loading} className="mt-3 min-h-11 text-sm font-semibold underline underline-offset-4 disabled:opacity-50">
+      <button type="button" onClick={() => void renew()} disabled={loading} className="mt-3 min-h-11 rounded-full border border-espresso-900/20 bg-cream-50 px-4 py-2 text-xs font-semibold transition-colors hover:bg-cream-200 disabled:opacity-50">
         {id ? "Minta soal baru" : "Get a new question"}
       </button>
       {error && <p role="alert" className="mt-3 text-sm text-red-800">{error}</p>}

@@ -56,6 +56,25 @@ class StoryPlatformTest extends TestCase
             'duplicate_hash' => str_repeat('c', 64), 'published_at' => now()], $overrides));
     }
 
+    public function test_admin_can_find_an_exact_story_code_with_existing_filters_without_exposing_tokens(): void
+    {
+        $target = $this->story(['visibility' => 'private', 'status' => 'pending', 'deletion_token_hash' => str_repeat('d', 64)]);
+        $this->story();
+        $this->actingAs(User::factory()->create(['role' => 'superadmin']));
+        $this->get(route('admin.stories.index', ['code' => $target->displayCode(), 'visibility' => 'private']))
+            ->assertOk()->assertInertia(fn ($page) => $page->component('Admin/Stories/Index')
+            ->has('stories.data', 1)->where('stories.data.0.code', $target->displayCode())
+            ->where('filters.code', $target->displayCode())->missing('stories.data.0.deletion_token_hash'));
+        $this->get(route('admin.stories.index', ['code' => $target->displayCode(), 'visibility' => 'public']))
+            ->assertInertia(fn ($page) => $page->has('stories.data', 0));
+        $this->get(route('admin.stories.index', ['code' => 'KC-0000']))
+            ->assertInertia(fn ($page) => $page->has('stories.data', 0));
+        $this->getJson(route('admin.stories.index', ['code' => 'KC-1 OR 1=1']))
+            ->assertUnprocessable()->assertJsonValidationErrors('code');
+        $this->actingAs(User::factory()->create(['role' => 'editor']))
+            ->get(route('admin.stories.index', ['code' => $target->displayCode()]))->assertForbidden();
+    }
+
     public function test_public_feed_keeps_full_text_for_the_story_detail_modal(): void
     {
         $body = "Paragraf pertama cerita fiksi.\n\n".str_repeat('Cerita panjang untuk dibaca secara utuh. ', 40);

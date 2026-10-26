@@ -1,3 +1,4 @@
+import { storyCategoryName } from "@/lib/storyLabels";
 import { useState, type FormEvent } from "react";
 import { Heart, Flag, ArrowUpRight } from "lucide-react";
 import { useLang, type Lang } from "@/lib/i18n";
@@ -24,12 +25,12 @@ export function StoryActions({
           disabled={busy}
           onClick={onSupport}
           aria-label={(id ? "Dukung cerita " : "Support story ") + code}
-          className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-espresso-900/10 px-3 py-2 text-sm font-semibold transition-colors hover:bg-gold-300/20 disabled:opacity-50"
         >
           <Heart size={18} aria-hidden="true" />{supports} <span>{id ? "Dukung" : "Support"}</span>
         </button>
         <details className="relative">
-          <summary className="cursor-pointer list-none rounded-full p-2 text-sm">
+          <summary className="flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center rounded-full border border-transparent p-2 text-sm hover:border-espresso-900/15 hover:bg-cream-100">
             <span className="sr-only">{id ? "Laporkan cerita " : "Report story "}{code}</span>
             <Flag size={18} aria-hidden="true" />
           </summary>
@@ -90,10 +91,10 @@ export function StoryCard({ story }: { story: PublicStory }) {
 
   return (
     <>
-      <article className="flex h-full min-w-0 flex-col rounded-3xl border border-espresso-900/10 bg-cream-50 p-6 sm:p-8">
+      <article className="flex h-full min-w-0 flex-col rounded-3xl border border-espresso-900/10 bg-cream-50 p-5 transition-colors hover:border-gold-700/40 sm:p-6">
         <div className="flex items-center justify-between gap-3">
-          <span className="rounded-full bg-gold-300/40 px-3 py-1 text-xs font-semibold capitalize">{story.category}</span>
-          <span className="shrink-0 text-xs text-espresso-600">{story.code}</span>
+          <span className="rounded-full bg-gold-300/40 px-3 py-1 text-xs font-semibold capitalize">{storyCategoryName(story.category, lang)}</span>
+          <span className="shrink-0 font-mono text-xs text-espresso-600">{story.code}</span>
         </div>
         <div className="my-5"><StoryText body={story.body} preview /></div>
         <button
@@ -102,11 +103,11 @@ export function StoryCard({ story }: { story: PublicStory }) {
           aria-haspopup="dialog"
           aria-expanded={open}
           aria-label={(id ? "Baca selengkapnya cerita " : "Read full story ") + story.code}
-          className="inline-flex items-center gap-2 self-start rounded-lg py-1 text-sm font-semibold text-gpsBlue underline underline-offset-4 hover:text-espresso-950"
+          className="inline-flex min-h-11 items-center gap-2 self-start rounded-lg text-sm font-semibold text-espresso-700 underline decoration-gold-700/60 underline-offset-4 hover:text-espresso-950"
         >
           {id ? "Baca selengkapnya" : "Read full story"}<ArrowUpRight size={16} aria-hidden="true" />
         </button>
-        <div className="mt-auto pt-5"><div className="border-t border-espresso-900/10 pt-4">{actions}</div></div>
+        <div className="mt-auto pt-4"><div className="border-t border-espresso-900/10 pt-4">{actions}</div></div>
       </article>
       <StoryDetailModal story={story} open={open} onClose={() => setOpen(false)} lang={lang}>{actions}</StoryDetailModal>
     </>

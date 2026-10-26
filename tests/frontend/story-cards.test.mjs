@@ -23,8 +23,12 @@ await build({
       import {Dialog,DialogTitle,Description} from '@headlessui/react';
       import {StoryCard,StoryActions} from '@/Components/StoryCard';
       import {StoryDetailModal,StoryText} from '@/Components/StoryDetailModal';
+      import {StoryReceipt} from '@/Components/StoryReceipt';
+      import {StoryRemovalPanel} from '@/Components/StoryRemovalPanel';
       import {LanguageProvider} from '@/lib/i18n';
       export {StoryActions,StoryDetailModal,StoryText,Dialog,DialogTitle,Description};
+      export const receipt = receipt => renderToStaticMarkup(<LanguageProvider><StoryReceipt receipt={receipt}/></LanguageProvider>);
+      export const removal = () => renderToStaticMarkup(<LanguageProvider><StoryRemovalPanel onRemoved={()=>{}}/></LanguageProvider>);
       export const text = props => renderToStaticMarkup(<StoryText {...props}/>);
       export const cards = stories => renderToStaticMarkup(<LanguageProvider>{stories.map(story => <StoryCard key={story.id} story={story}/>)}</LanguageProvider>);
       export const actions = props => renderToStaticMarkup(<StoryActions {...props}/>);
@@ -115,4 +119,31 @@ test('card and modal actions use controlled counts, pending state, and explicit 
   assert.ok(after.includes('disabled=""'));
   assert.ok(after.includes('Dukungan diterima.'));
   assert.equal(supports,1); assert.equal(reports,1);
+});
+
+test('accepted receipts distinguish the shareable code from the once-only private token', () => {
+  const token = 'a'.repeat(64);
+  const html = ui.receipt({code: 'KC-0006', deletion_token: token});
+  assert.ok(html.includes('Ceritamu sudah diterima.'));
+  assert.ok(html.includes('kiriman tidak langsung tampil'));
+  assert.ok(html.includes('Salin kode cerita KC-0006'));
+  assert.equal((html.match(new RegExp(token, 'g')) || []).length, 1);
+  assert.ok(/<textarea[^>]*readonly=""/.test(html));
+  assert.ok(html.includes('hanya ditampilkan sekali'));
+  assert.ok(html.includes('Kode cerita saja tidak cukup'));
+  const replay = ui.receipt({code: 'KC-0006'});
+  assert.ok(!replay.includes('<textarea'));
+  assert.ok(replay.includes('tidak dapat ditampilkan ulang'));
+  assert.ok(ui.receipt({code: '<script>invalid</script>'}).includes('&lt;script&gt;'));
+});
+
+test('removal stays secondary and requires a paired story code and private token', () => {
+  const html = ui.removal();
+  assert.ok(html.startsWith('<details'));
+  assert.ok(!/<details[^>]* open/.test(html));
+  assert.ok(html.includes('kode saja tidak cukup'));
+  assert.ok(html.includes('name="code"'));
+  assert.ok(html.includes('name="token" type="password" autoComplete="off"'));
+  assert.ok(html.includes('pattern="[a-f0-9]{64}"'));
+  assert.ok(html.includes('pattern="KC-[0-9]{4,20}"'));
 });

@@ -20,9 +20,11 @@ class StoryController extends Controller
     {
         Gate::authorize('viewAny', Story::class);
         $data = $request->validate(['status' => ['nullable', Rule::in(['pending', 'approved', 'rejected', 'hidden'])],
-            'visibility' => ['nullable', Rule::in(['public', 'private'])], 'reports' => ['nullable', 'boolean']]);
+            'visibility' => ['nullable', Rule::in(['public', 'private'])], 'reports' => ['nullable', 'boolean'],
+            'code' => ['nullable', 'string', 'regex:/^KC-[0-9]{4,20}$/']]);
         $query = Story::query()->when($data['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
-            ->when($data['visibility'] ?? null, fn ($q, $visibility) => $q->where('visibility', $visibility));
+            ->when($data['visibility'] ?? null, fn ($q, $visibility) => $q->where('visibility', $visibility))
+            ->when($data['code'] ?? null, fn ($q, $code) => $q->whereKey(ltrim(substr($code, 3), '0') ?: '0'));
         if ($request->boolean('reports')) {
             $query->whereIn('id', StoryReport::where('status', 'pending')->select('story_id'));
         }

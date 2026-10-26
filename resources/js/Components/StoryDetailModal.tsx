@@ -1,3 +1,4 @@
+import { storyCategoryName } from "@/lib/storyLabels";
 import type { ReactNode } from "react";
 import { Description, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { X } from "lucide-react";
@@ -38,7 +39,7 @@ export function StoryDetailModal({
         <DialogPanel className="flex max-h-[85vh] w-full min-w-0 max-w-2xl flex-col overflow-hidden rounded-3xl bg-cream-50 shadow-lift supports-[height:100dvh]:max-h-[85dvh]">
           <div className="flex shrink-0 items-start justify-between gap-4 border-b border-espresso-900/10 p-5 sm:px-7">
             <div className="min-w-0">
-              <span className="rounded-full bg-gold-300/40 px-3 py-1 text-xs font-semibold capitalize">{story.category}</span>
+              <span className="rounded-full bg-gold-300/40 px-3 py-1 text-xs font-semibold capitalize">{storyCategoryName(story.category, lang)}</span>
               <DialogTitle className="mt-3 break-words font-display text-2xl text-espresso-950">
                 {id ? "Cerita" : "Story"} {story.code}
               </DialogTitle>
@@ -51,7 +52,7 @@ export function StoryDetailModal({
               data-autofocus
               onClick={onClose}
               aria-label={id ? "Tutup cerita" : "Close story"}
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-espresso-900/15 text-espresso-700 hover:bg-cream-200"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-espresso-900/15 text-espresso-700 hover:bg-cream-200"
             >
               <X size={20} aria-hidden="true" />
             </button>
