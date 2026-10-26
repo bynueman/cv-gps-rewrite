@@ -22,10 +22,14 @@ await build({
     import Cerita from '@/Pages/Kuicip/Cerita';
     import StoryIndex from '@/Pages/Admin/Stories/Index';
     import StoryShow from '@/Pages/Admin/Stories/Show';
+    import {Header} from '@/Components/Header';
+    import {LanguageProvider,dictionary} from '@/lib/i18n';
+    export {dictionary};
+    function HeaderFixture(){return <LanguageProvider><Header/></LanguageProvider>;}
     import {Sidebar} from '@/Components/admin/Sidebar';
-    export function render(component,props){
-      const Page={Home,Kuicip,Teko,Detail,Cerita,Sidebar,StoryIndex,StoryShow}[component];
-      return renderToStaticMarkup(<App initialPage={{component,url:'/',version:null,props}} initialComponent={Page} resolveComponent={()=>Page}/>);
+    export function render(component,props,url="/"){
+      const Page={Home,Kuicip,Teko,Detail,Cerita,Sidebar,StoryIndex,StoryShow,Header:HeaderFixture}[component];
+      return renderToStaticMarkup(<App initialPage={{component,url,version:null,props}} initialComponent={Page} resolveComponent={()=>Page}/>);
     }
   `,resolveDir:root,sourcefile:'story-launch-test.tsx',loader:'tsx'},
   alias:{'@':path.join(root,'resources/js')},jsx:'automatic',bundle:true,packages:'external',platform:'node',format:'esm',outfile:output,logLevel:'silent',
@@ -37,24 +41,59 @@ const company={name:'GPS FOOD',location:{id:'Yogyakarta',en:'Yogyakarta'},email:
 const site={company,brandAssets:{logos:{gps:'/images/logo/logo-gpsfood.png'},group_shots:{kuicip:'/images/kuicip-nobg.webp','putri-teko':'/images/putriteko-nobg.webp'},fostered_by:[]},brands:[brand('kuicip'),brand('putri-teko')],storyEnabled:true,localPreview:false};
 const product={brand:'kuicip',slug:'original',name:{id:'Original',en:'Original'},short:{id:'Deskripsi produk',en:'Product description'},personality:{id:'Renyah',en:'Crunchy'},description:{id:'Produk asli',en:'Original product'},highlights:[],color:'#ffffff',colorDark:'#000000',image:'/images/kuicip/kuicip-ori.webp'};
 const props={site,auth:{user:null},seo:{title:'Test',description:'Test',canonical:'https://example.test/'},kuicipCount:8,tekoCount:14,featuredHero:null,featuredSupporting:[],familiesKuicip1:null,familiesKuicip2:null,familiesTeko1:null,familiesTeko2:null,featuredArticles:[],partners:[],products:[product],product,related:[]};
-function render(component,values={}){
+function render(component,values={},url="/"){
   const previous=console.error;
   const errors=[];
   console.error=(message,...args)=>{if(typeof message==='string'&&message.includes('useLayoutEffect does nothing on the server'))return;errors.push(message);previous(message,...args);};
-  try{const html=ui.render(component,{...props,...values});assert.deepEqual(errors,[]);return html;}finally{console.error=previous;}
+  try{const html=ui.render(component,{...props,...values},url);assert.deepEqual(errors,[]);return html;}finally{console.error=previous;}
 }
-test('homepage, both catalogs and detail pages retain shared branding with no story campaign links',()=>{
+test('homepage adds one story invitation and shared navigation preserves the corporate pages',()=>{
   for(const enabled of [false,true]){
     for(const component of ['Home','Kuicip','Teko','Detail']){
       const html=render(component,{site:{...site,storyEnabled:enabled}});
-      assert.ok(!/href="[^"]*\/kuicip\/cerita/.test(html),component);
-      assert.ok(!html.includes('Ruang Cerita'),component);
-      assert.ok(html.includes('<header'),component);
-      assert.ok(html.includes('<footer'),component);
+      const header=html.match(/<header[\s\S]*?<\/header>/)[0];
+      const footer=html.match(/<footer[\s\S]*?<\/footer>/)[0];
+      assert.equal((header.match(/href="\/kuicip\/cerita"/g)||[]).length,1,component);
+      assert.ok(!footer.includes('/kuicip/cerita'),component);
+      assert.equal((html.match(/href="\/kuicip\/cerita"/g)||[]).length,component==='Home'?2:1,component);
+      assert.equal(html.includes('id="story-invitation-title"'),component==='Home',component);
       assert.ok(html.includes('/images/logo/logo-gpsfood.png'),component);
+      assert.ok(html.includes('href="/products"'),component);
+      assert.ok(html.includes('href="/news"'),component);
+      assert.ok(html.includes('href="/contact"'),component);
     }
   }
 });
+
+test('navbar exposes a first-level story destination with its active state and retained order',()=>{
+  const html=render('Header',{},'/kuicip/cerita');
+  const nav=html.match(/<nav aria-label="Main"[^>]*>([\s\S]*?)<\/nav>/)[1];
+  assert.ok(/<a(?=[^>]*href="\/kuicip\/cerita")(?=[^>]*aria-current="page")[^>]*>Ruang Cerita<\/a>/.test(nav));
+  assert.ok(nav.indexOf('href="/products"') < nav.indexOf('href="/kuicip/cerita"'));
+  assert.ok(nav.indexOf('href="/kuicip/cerita"') < nav.indexOf('href="/mitra"'));
+  for(const text of ['Beranda','Produk Kami','Mitra','Ekspor','Berita &amp; Kegiatan','Hubungi Kami'])assert.ok(nav.includes(text),text);
+  assert.ok(html.includes('aria-controls="mobile-nav"'));
+  assert.ok(/<button(?=[^>]*aria-controls="mobile-nav")(?=[^>]*aria-expanded="false")/.test(html));
+});
+
+test('homepage invitation uses reviewed messaging and follows both product families',()=>{
+  const html=render('Home');
+  const start=html.indexOf('<section aria-labelledby="story-invitation-title"');
+  const invitation=html.slice(start,html.indexOf('</section>',start));
+  assert.ok(invitation.includes('Setiap Rasa Punya Cerita.'));
+  assert.ok(invitation.includes('Mulai Bercerita'));
+  assert.ok(invitation.includes('Tanpa akun'));
+  assert.ok(invitation.includes('Cerita ditinjau sebelum ditampilkan'));
+  assert.ok(invitation.includes('aria-hidden="true"'));
+  assert.ok(!invitation.includes('<img'));
+  assert.ok(!invitation.includes('<blockquote'));
+  assert.ok(html.indexOf('href="/products/putri-teko"') < start);
+  assert.ok(start < html.indexOf('href="/export"',start));
+  assert.equal(ui.dictionary.en.nav.stories,'Story Space');
+  assert.equal(ui.dictionary.en.homeStory.title,'Every Flavour Has a Story.');
+  assert.equal(ui.dictionary.en.homeStory.cta,'Start Sharing');
+});
+
 test('moderation sidebar entry is shown only to superadmins while story management is enabled',()=>{
   for(const role of ['superadmin','editor']){
     for(const enabled of [false,true]){
@@ -93,7 +132,7 @@ test('local verification needs no Turnstile key and its trap stays outside keybo
   assert.ok(/name="contact_website"[^>]*tabindex="-1"[^>]*autoComplete="off"/.test(html));
   assert.ok(!html.includes('Verifikasi belum tersedia.'));
   assert.ok(!html.includes('challenges.cloudflare.com'));
-  assert.ok(!html.includes('href="/kuicip/cerita"'));
+  assert.equal((html.match(/href="\/kuicip\/cerita"/g)||[]).length,1);
 });
 test('an unknown provider renders no usable verification or send button',()=>{
   const html=render('Cerita',{enabled:true,antispamProvider:'none',siteKey:null,policyVersion:'approved-fixture',retentionDays:90,categories:['kehidupan']});

@@ -13,6 +13,7 @@ const id = {
   nav: {
     home: "Beranda",
     products: "Produk Kami",
+    stories: "Ruang Cerita",
     export: "Ekspor",
     exportLegality: "Legalitas & Sertifikasi",
     news: "Berita & Kegiatan",
@@ -91,6 +92,13 @@ const id = {
     tekoTagline: "Racikan hangat warisan leluhur — herbal, menenangkan, penuh makna.",
     tekoCta: "Jelajahi Putri Teko",
     center: "1 Perusahaan, 2 Dunia Rasa",
+  },
+  homeStory: {
+    kicker: "Kuicip — Teman Ceritamu",
+    title: "Setiap Rasa Punya Cerita.",
+    description: "Punya cerita yang ingin dibagikan? Ruang Cerita Kuicip hadir untuk mendengarkan. Tulis ceritamu tanpa perlu membuat akun.",
+    cta: "Mulai Bercerita",
+    helper: "Tanpa akun · Cerita ditinjau sebelum ditampilkan",
   },
   /** Home-only export teaser — do NOT reuse on /export (see exportSection) */
   homeExport: {
@@ -299,6 +307,7 @@ const en: typeof id = {
   nav: {
     home: "Home",
     products: "Our Products",
+    stories: "Story Space",
     export: "Export",
     exportLegality: "Legal & Certifications",
     news: "News & Activities",
@@ -376,6 +385,13 @@ const en: typeof id = {
     tekoTagline: "Warm ancestral blends — herbal, grounding, full of meaning.",
     tekoCta: "Explore Putri Teko",
     center: "1 Company, 2 Flavor Worlds",
+  },
+  homeStory: {
+    kicker: "Kuicip — Your Story Companion",
+    title: "Every Flavour Has a Story.",
+    description: "Have a story to share? Kuicip’s Story Space is here to listen. Tell your story without creating an account.",
+    cta: "Start Sharing",
+    helper: "No account · Stories reviewed before appearing",
   },
   homeExport: {
     kicker: "Export",

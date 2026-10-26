@@ -5,6 +5,7 @@ import { CompanyIntro } from "@/Components/sections/CompanyIntro";
 import { PartnersLogoWall } from "@/Components/sections/PartnersLogoWall";
 import { FeaturedProducts } from "@/Components/sections/FeaturedProducts";
 import { ProductFamilies } from "@/Components/sections/ProductFamilies";
+import { StoryInvitation } from "@/Components/sections/StoryInvitation";
 import { ExportPreview } from "@/Components/sections/ExportPreview";
 import { NewsPreview } from "@/Components/sections/NewsPreview";
 import { ContactCTA } from "@/Components/sections/ContactCTA";
@@ -55,6 +56,7 @@ function Home({
           teko1={familiesTeko1}
           teko2={familiesTeko2}
         />
+        <StoryInvitation />
         <ExportPreview />
         <NewsPreview articles={featuredArticles} />
         <ContactCTA />

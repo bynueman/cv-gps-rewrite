@@ -1,5 +1,7 @@
 # Rilis anti-spam first-party — Stage A, NyanHosting
 
+> **Dokumen historis.** Pemilik menyatakan Ruang Cerita produksi sudah terbuka. Untuk rilis UI/UX beserta promosi homepage dan navbar, gunakan [runbook Ruang Cerita V2 terbaru](GPSFOOD_RUANG_CERITA_V2_RELEASE.md). Jangan menerapkan ulang aktivasi Stage A, inisialisasi DB, atau penutupan promosi dari dokumen ini.
+
 26 Oktober 2026, Asia/Jakarta. Ini prosedur **manual pemilik**, bukan deployment oleh agen. Baseline server menurut pemilik: e39cef2896837675670bedd7b3622eae5c09e504. Local acceptance sudah diterima pemilik. SHA/ZIP/hash final harus diambil dari laporan artefak rilis, bukan ditebak dari nama branch.
 
 Target setelah deployment:

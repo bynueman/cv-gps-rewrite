@@ -8,6 +8,7 @@ import type { SharedProps } from "@/types";
 const links = [
   { href: "/", key: "home" },
   { href: "/products", key: "products" },
+  { href: "/kuicip/cerita", key: "stories" },
   { href: "/mitra", key: "partners" },
   {
     href: "/export",
@@ -78,9 +79,9 @@ export function Header() {
           : "bg-transparent"
       }`}
     >
-      <div className="container-page flex h-16 items-center justify-between gap-6 sm:h-20">
+      <div className="container-page flex h-16 items-center justify-between gap-4 sm:h-20 xl:gap-6">
         {/* Logo area */}
-        <Link href="/" className="flex items-center" aria-label={company.name}>
+        <Link href="/" className="flex shrink-0 items-center" aria-label={company.name}>
           <img
             src={brandAssets.logos.gps}
             alt={`Logo ${company.name}`}
@@ -90,7 +91,7 @@ export function Header() {
           />
         </Link>
 
-        <nav aria-label="Main" className="hidden items-center gap-7 lg:flex">
+        <nav aria-label="Main" className="hidden shrink-0 items-center gap-4 xl:flex 2xl:gap-6">
           {links.map((l) =>
             "children" in l && l.children ? (
               <div key={l.href} ref={submenuRef} className="relative">
@@ -152,7 +153,7 @@ export function Header() {
           )}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           <LangSwitch />
           <Link href="/contact" className="btn-primary hidden whitespace-nowrap !px-5 !py-2 md:inline-flex">
             {t.nav.inquiry}
@@ -165,7 +166,7 @@ export function Header() {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label="Menu"
-            className="grid h-10 w-10 place-items-center rounded-full border border-espresso-900/20 lg:hidden"
+            className="grid h-10 w-10 place-items-center rounded-full border border-espresso-900/20 xl:hidden"
           >
             <span className="relative block h-3 w-4">
               <span
@@ -183,7 +184,7 @@ export function Header() {
         <nav
           id="mobile-nav"
           aria-label="Mobile"
-          className="border-t border-espresso-900/10 bg-cream-100/95 backdrop-blur-md lg:hidden"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-espresso-900/10 bg-cream-100/95 backdrop-blur-md sm:max-h-[calc(100dvh-5rem)] xl:hidden"
         >
           <div className="container-page flex flex-col gap-1 py-4">
             {links.map((l) =>

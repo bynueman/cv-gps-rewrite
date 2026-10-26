@@ -1,5 +1,7 @@
 # Kuicip Ruang Cerita — runbook soft launch tanpa promosi
 
+> **Dokumen historis.** Pemilik menyatakan Ruang Cerita produksi sudah terbuka. Untuk rilis UI/UX beserta promosi homepage dan navbar, gunakan [runbook Ruang Cerita V2 terbaru](GPSFOOD_RUANG_CERITA_V2_RELEASE.md). Jangan menerapkan ulang aktivasi Stage A, inisialisasi DB, atau penutupan promosi dari dokumen ini.
+
 > Local acceptance telah diterima pemilik. Untuk rilis source/build Stage A yang diotorisasi berikutnya, gunakan [runbook rilis Stage A](GPSFOOD_ANTISPAM_STAGE_A_RELEASE.md). Status “belum commit/push” di laporan implementasi ini merekam fase review sebelumnya; status rilis aktual ada pada laporan artefak final.
 
 26 Oktober 2026, Asia/Jakarta. Baseline website V2: `671ee9603dcc2da048cb821355e36a529494a91d`. Dokumen ini adalah rencana manual, **bukan bukti deployment atau persetujuan kebijakan**. Semua operasi server dilakukan pemilik, bukan agen. Ikuti dokumen ini untuk aktivasi cerita; instruksi cerita lama di GPSFOOD_V2_DEPLOYMENT.md adalah riwayat.
