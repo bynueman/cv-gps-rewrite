@@ -44,7 +44,10 @@ class Seo
         public string $twitterCard = 'summary_large_image',
         public array $jsonLd = [],
     ) {
-        $siteName = config('company.name');
+        $siteName = Setting::get('site_title', config('company.name')) ?: config('company.name');
+        if (trim($this->description) === '') {
+            $this->description = Setting::get('meta_description_default', '') ?? '';
+        }
         $this->title = str_ends_with($title, $siteName) ? $title : "{$title} — {$siteName}";
 
         if ($ogImage) {

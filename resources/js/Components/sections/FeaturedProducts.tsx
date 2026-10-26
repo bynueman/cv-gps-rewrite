@@ -1,3 +1,4 @@
+import { localized, LocalizedText } from "@/lib/localized";
 import { Link, usePage } from "@inertiajs/react";
 import { useLang } from "@/lib/i18n";
 import { useReveal } from "@/hooks/useReveal";
@@ -48,7 +49,7 @@ export function FeaturedProducts({ hero, supporting }: { hero: Product | null; s
                 {hero.image ? (
                   <img
                     src={hero.image}
-                    alt={hero.name[lang]}
+                    alt={localized(hero.name, lang)}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                   />
                 ) : null}
@@ -57,8 +58,8 @@ export function FeaturedProducts({ hero, supporting }: { hero: Product | null; s
                 <p className={`mb-1 text-[11px] font-extrabold uppercase tracking-[0.04em] ${accentFor(hero.brand)}`}>
                   {tekoBrand.name} · {tagFor(hero.brand, hero.packaging)}
                 </p>
-                <p className="font-display text-2xl text-homeInk">{hero.name[lang]}</p>
-                <p className="mt-1 text-sm text-homeInk2">{hero.short[lang]}</p>
+                <p className="font-display text-2xl text-homeInk"><LocalizedText value={hero.name} lang={lang}/></p>
+                <p className="mt-1 text-sm text-homeInk2"><LocalizedText value={hero.short} lang={lang}/></p>
               </div>
             </Link>
           ) : null}
@@ -75,7 +76,7 @@ export function FeaturedProducts({ hero, supporting }: { hero: Product | null; s
                   {product.image ? (
                     <img
                       src={product.image}
-                      alt={product.name[lang]}
+                      alt={localized(product.name, lang)}
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                     />
                   ) : null}
@@ -84,7 +85,7 @@ export function FeaturedProducts({ hero, supporting }: { hero: Product | null; s
                   <p className={`mb-1 text-[11px] font-extrabold uppercase tracking-[0.04em] ${accentFor(product.brand)}`}>
                     {tagFor(product.brand, product.packaging)}
                   </p>
-                  <p className="font-display text-lg text-homeInk">{product.name[lang]}</p>
+                  <p className="font-display text-lg text-homeInk"><LocalizedText value={product.name} lang={lang}/></p>
                 </div>
               </Link>
             ))}

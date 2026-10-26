@@ -1,4 +1,5 @@
-import { useState, type FormEvent, type ReactElement } from "react";
+import { TranslationPanel, type TranslationState } from "@/Components/admin/TranslationPanel";
+import { useRef, useState, type FormEvent, type ReactElement } from "react";
 import { Head, useForm } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { ImageUploadField, type UploadedImage } from "@/Components/admin/ImageUploadField";
@@ -21,10 +22,17 @@ type SettingsValues = {
   og_image_default: string;
 };
 
-function Edit({ settings }: { settings: SettingsValues }) {
+function SettingsTranslation({state,dirty,onLoad,onRevisionChange}:{state?:TranslationState;dirty:boolean;onRevisionChange:(revision:string|null)=>void;onLoad:(values:Record<string,string>)=>void}) {
+  const [revision,setRevision]=useState(state?.revision??null);
+  return <TranslationPanel initial={state} dirty={dirty} revision={revision} onRevision={value=>{setRevision(value);onRevisionChange(value);}} onLoadEnglish={onLoad}/>;
+}
+
+function Edit({ settings, english = {}, translations = {} }: { settings: SettingsValues; english?:Record<string,string|null>; translations?:Record<string,TranslationState> }) {
+  const [revisions,setRevisions]=useState<Record<string,string|null>>(Object.fromEntries(Object.entries(translations).map(([key,value])=>[key,value.revision])));
   const [tab, setTab] = useState<"kontak" | "aplikasi">("kontak");
 
-  const { data, setData, patch, processing, errors, isDirty } = useForm<SettingsValues>(settings);
+  const { data, setData, patch, processing, errors, isDirty, setDefaults, transform } = useForm<SettingsValues & {english:Record<string,string>}>({...settings,english:Object.fromEntries(Object.entries(english).map(([key,value])=>[key,value??""]))});
+  const englishSnapshot = useRef(data.english);
   const { bypassNext } = useUnsavedChangesGuard(isDirty);
 
   function handleOgImageChange(value: UploadedImage) {
@@ -34,8 +42,9 @@ function Edit({ settings }: { settings: SettingsValues }) {
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    transform(values=>({...values,translation_revisions:revisions,translation_english_edits:Object.keys(values.english).filter(key=>values.english[key] !== (englishSnapshot.current[key]??""))}));
     bypassNext();
-    patch(route("admin.settings.update"));
+    patch(route("admin.settings.update"), {onSuccess:()=>{englishSnapshot.current=data.english;setDefaults();}});
   }
 
   return (
@@ -59,6 +68,7 @@ function Edit({ settings }: { settings: SettingsValues }) {
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6 max-w-2xl space-y-5">
+        <details className="rounded-2xl border border-espresso-900/15 p-5"><summary className="cursor-pointer font-semibold">Terjemahan English — teks publik</summary><p className="mt-3 text-sm text-espresso-600">Jam operasional, judul situs dan deskripsi default ikut diproses saat Simpan. Alamat resmi, email, telepon, URL dan identitas tidak dikirim ke penerjemah.</p><div className="mt-5 space-y-5">{(["operating_hours","site_title","meta_description_default"] as const).map(key=><div key={key} className="space-y-3"><h2 className="text-sm font-semibold">{key.replace(/_/g," ")}</h2><SettingsTranslation state={translations[key]} dirty={isDirty} onRevisionChange={value=>setRevisions(prev=>({...prev,[key]:value}))} onLoad={values=>{const next={...data.english,[key]:values.value??""};englishSnapshot.current={...englishSnapshot.current,[key]:next[key]};setData("english",next);setDefaults({...data,english:next});}}/><label className={labelClass}>English · override manual<textarea className={inputClass} value={data.english[key]??""} onChange={e=>setData("english",{...data.english,[key]:e.target.value})} rows={2} maxLength={key==="meta_description_default"?160:255}/></label></div>)}</div></details>
         <div className={tab === "kontak" ? "space-y-5" : "hidden"}>
           <div>
             <label className={labelClass}>Nomor WhatsApp</label>

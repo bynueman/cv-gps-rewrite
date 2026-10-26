@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\LocalizedContent;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,9 +19,9 @@ class BrandResource extends JsonResource
         return [
             'key' => $this->key,
             'name' => $this->name,
-            'tag' => ['id' => $this->tag_id, 'en' => $this->tag_en],
+            'tag' => LocalizedContent::pair($this->resource, 'tag'),
             'weight' => $this->weight,
-            'story' => ['id' => $this->story_id, 'en' => $this->story_en],
+            'story' => LocalizedContent::pair($this->resource, 'story'),
             'href' => $this->href,
         ];
     }

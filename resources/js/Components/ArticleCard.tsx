@@ -1,3 +1,4 @@
+import { LocalizedText } from "@/lib/localized";
 import { Link } from "@inertiajs/react";
 import { useLang, type Lang } from "@/lib/i18n";
 import type { Article } from "@/types";
@@ -46,7 +47,7 @@ export function ArticleCard({
         </div>
         <div className="mt-4 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.15em]">
           <span className="rounded-full bg-gold-500/15 px-3 py-1 text-gold-700">
-            {article.category[lang]}
+            <LocalizedText value={article.category} lang={lang}/>
           </span>
           <time dateTime={article.date} className="text-espresso-500">
             {formatDate(article.date, lang)}
@@ -57,9 +58,9 @@ export function ArticleCard({
             size === "featured" ? "text-2xl" : "text-lg"
           }`}
         >
-          {article.title[lang]}
+          <LocalizedText value={article.title} lang={lang}/>
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-espresso-600">{article.excerpt[lang]}</p>
+        <p className="mt-2 text-sm leading-relaxed text-espresso-600"><LocalizedText value={article.excerpt} lang={lang}/></p>
         <span className="mt-3 inline-block text-sm font-semibold text-gold-600">
           {t.common.readMore} →
         </span>

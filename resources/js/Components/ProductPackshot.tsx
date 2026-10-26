@@ -1,3 +1,4 @@
+import { localized } from "@/lib/localized";
 import type { Product } from "@/types";
 import type { Lang } from "@/lib/i18n";
 import { Packshot } from "@/Components/Packshot";
@@ -28,7 +29,7 @@ export function ProductPackshot({
   rounded?: string;
 }) {
   const alt =
-    product.imageAlt?.[lang] || (product.brand === "kuicip" ? `Kuicip ${product.name[lang]}` : `Putri Teko ${product.name[lang]}`);
+    localized(product.imageAlt, lang) || (product.brand === "kuicip" ? `Kuicip ${localized(product.name, lang)}` : `Putri Teko ${localized(product.name, lang)}`);
 
   if (product.image) {
     const aspect =
@@ -64,13 +65,13 @@ export function ProductPackshot({
         <PouchSVG
           color={product.color}
           colorDark={product.colorDark}
-          flavor={product.name[lang]}
+          flavor={localized(product.name, lang)}
           className="h-full w-full"
         />
       ) : product.group === "brew" ? (
-        <SachetSVG label="Putri Teko" product={product.name[lang]} color={product.color} className="h-full w-full" />
+        <SachetSVG label="Putri Teko" product={localized(product.name, lang)} color={product.color} className="h-full w-full" />
       ) : (
-        <BottleSVG label="Putri Teko" product={product.name[lang]} liquid={product.color} className="h-full w-full" />
+        <BottleSVG label="Putri Teko" product={localized(product.name, lang)} liquid={product.color} className="h-full w-full" />
       )}
     </Packshot>
   );

@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasContentTranslation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
 {
+    use HasContentTranslation;
+
+    protected $with = ['translationState'];
+
     protected $fillable = [
         'slug', 'date', 'category_slug',
         'title_id', 'title_en', 'excerpt_id', 'excerpt_en',

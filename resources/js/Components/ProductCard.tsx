@@ -1,3 +1,4 @@
+import { localized, LocalizedText } from "@/lib/localized";
 import { Link } from "@inertiajs/react";
 import type { Product } from "@/types";
 import { useLang } from "@/lib/i18n";
@@ -42,8 +43,8 @@ export function ProductCard({
               decoding="async"
               alt={
                 product.brand === "kuicip"
-                  ? `Kuicip ${product.name[lang]}`
-                  : `Putri Teko ${product.name[lang]}`
+                  ? `Kuicip ${localized(product.name, lang)}`
+                  : `Putri Teko ${localized(product.name, lang)}`
               }
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
             />
@@ -65,14 +66,14 @@ export function ProductCard({
         </div>
         <div className="flex min-w-0 grow flex-col justify-center p-6 sm:p-7">
           <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: product.colorDark }}>
-            {product.personality[lang]}
+            <LocalizedText value={product.personality} lang={lang}/>
           </p>
           <h3 className="mt-1.5 font-display text-xl font-semibold leading-snug text-espresso-950">
-            {product.name[lang]}
+            <LocalizedText value={product.name} lang={lang}/>
           </h3>
-          <p className="mt-2 text-sm leading-relaxed text-espresso-600">{product.short[lang]}</p>
+          <p className="mt-2 text-sm leading-relaxed text-espresso-600"><LocalizedText value={product.short} lang={lang}/></p>
           {showServing && product.serving ? (
-            <p className="mt-2 text-xs font-medium text-espresso-500">{product.serving[lang]}</p>
+            <p className="mt-2 text-xs font-medium text-espresso-500"><LocalizedText value={product.serving} lang={lang}/></p>
           ) : null}
           <span className="mt-3 inline-block text-sm font-semibold text-gold-600">
             {t.common.viewDetail} →
@@ -99,14 +100,14 @@ export function ProductCard({
       </div>
       <div className="flex grow flex-col px-6 pb-7 pt-6">
         <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: product.colorDark }}>
-          {product.personality[lang]}
+          <LocalizedText value={product.personality} lang={lang}/>
         </p>
         <h3 className="mt-2 font-display text-2xl leading-snug text-espresso-950">
-          {product.name[lang]}
+          <LocalizedText value={product.name} lang={lang}/>
         </h3>
-        <p className="mt-1.5 grow text-sm leading-relaxed text-espresso-600">{product.short[lang]}</p>
+        <p className="mt-1.5 grow text-sm leading-relaxed text-espresso-600"><LocalizedText value={product.short} lang={lang}/></p>
         {showServing && product.serving ? (
-          <p className="mt-2 text-xs font-medium text-espresso-500">{product.serving[lang]}</p>
+          <p className="mt-2 text-xs font-medium text-espresso-500"><LocalizedText value={product.serving} lang={lang}/></p>
         ) : null}
         <span className="mt-3 text-sm font-semibold text-gold-600">{t.common.viewDetail} →</span>
       </div>

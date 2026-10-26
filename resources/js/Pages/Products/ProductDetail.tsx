@@ -1,3 +1,4 @@
+import { localized, LocalizedText, LocalizedList } from "@/lib/localized";
 import type { ReactElement } from "react";
 import { Link, Head, usePage } from "@inertiajs/react";
 import { useLang } from "@/lib/i18n";
@@ -25,7 +26,7 @@ function ProductDetail({ product, related, seo, seoEnglish }: { product: Product
 
   const brand = brands.find((b) => b.key === product.brand)!;
   const isKuicip = product.brand === "kuicip";
-  const whatsapp = productInquiryUrl(company.whatsapp, brand?.name || product.brand, product.name[lang], lang);
+  const whatsapp = productInquiryUrl(company.whatsapp, brand?.name || product.brand, localized(product.name, lang), lang);
 
   return (
     <>
@@ -87,28 +88,28 @@ function ProductDetail({ product, related, seo, seoEnglish }: { product: Product
 
             <div className="lg:col-span-7">
               <p data-reveal className="kicker">
-                {t.productDetail.categoryLabel} · {brand.name} — {brand.tag[lang]}
+                {t.productDetail.categoryLabel} · {brand.name} — <LocalizedText value={brand.tag} lang={lang}/>
               </p>
               <h1
                 data-reveal
                 className="mt-3 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl"
               >
-                {product.name[lang]}
+                <LocalizedText value={product.name} lang={lang} empty={lang === "id" ? "Produk" : "Product"}/>
               </h1>
               <p
                 data-reveal
                 className="mt-3 text-sm font-semibold uppercase tracking-[0.16em]"
                 style={{ color: product.colorDark }}
               >
-                {product.personality[lang]}
-                {product.serving ? ` · ${product.serving[lang]}` : ""}
+                <LocalizedText value={product.personality} lang={lang}/>
+                {product.serving ? ` · ${localized(product.serving, lang)}` : ""}
               </p>
 
               <h2 data-reveal className="mt-8 font-display text-lg font-semibold">
                 {t.productDetail.aboutTitle}
               </h2>
               <p data-reveal className="mt-2 max-w-2xl text-base leading-relaxed text-espresso-600">
-                {product.description?.[lang] || product.short[lang]}
+                <LocalizedText value={product.description?.id || product.description?.en ? product.description : product.short} lang={lang}/>
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -118,35 +119,13 @@ function ProductDetail({ product, related, seo, seoEnglish }: { product: Product
               <div className="mt-8 grid gap-8 sm:grid-cols-2">
                 <div data-reveal>
                   <h2 className="font-display text-lg font-semibold">{t.productDetail.highlightsTitle}</h2>
-                  <ul className="mt-3 space-y-2.5">
-                    {(product.highlights ?? []).map((h, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-espresso-700">
-                        <span
-                          className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                          style={{ backgroundColor: product.color }}
-                          aria-hidden="true"
-                        />
-                        {h[lang]}
-                      </li>
-                    ))}
-                  </ul>
+                  <LocalizedList items={product.highlights} lang={lang} color={product.color}/>
                 </div>
                 <div data-reveal>
                   <h2 className="font-display text-lg font-semibold">
                     {isKuicip ? t.productDetail.notesTitleKuicip : t.productDetail.notesTitleTeko}
                   </h2>
-                  <ul className="mt-3 space-y-2.5">
-                    {(product.notes ?? []).map((n, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-espresso-700">
-                        <span
-                          className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                          style={{ backgroundColor: product.colorDark }}
-                          aria-hidden="true"
-                        />
-                        {n[lang]}
-                      </li>
-                    ))}
-                  </ul>
+                  <LocalizedList items={product.notes} lang={lang} color={product.colorDark}/>
                 </div>
               </div>
             </div>

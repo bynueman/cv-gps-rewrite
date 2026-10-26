@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use App\Support\ArticleCategory;
+use App\Support\LocalizedContent;
 use App\Support\Seo;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -77,6 +78,7 @@ class NewsController extends Controller
         return Inertia::render('News/Show', [
             'article' => (new ArticleResource($article))->resolve(),
             'relatedArticles' => ArticleResource::collection($related)->resolve(),
+            'seoEnglish' => ['title' => LocalizedContent::english($article, 'title'), 'description' => LocalizedContent::english($article, 'excerpt')],
             'seo' => (new Seo(
                 title: $article->title_id,
                 description: $article->excerpt_id,

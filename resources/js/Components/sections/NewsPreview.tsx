@@ -1,3 +1,4 @@
+import { LocalizedText } from "@/lib/localized";
 import { Link } from "@inertiajs/react";
 import { useLang } from "@/lib/i18n";
 import { useReveal } from "@/hooks/useReveal";
@@ -50,9 +51,9 @@ export function NewsPreview({ articles }: { articles: Article[] }) {
             </div>
             <div className="flex flex-col gap-1.5 p-6">
               <p className="text-[11px] font-extrabold uppercase tracking-[0.04em] text-homeTerracotta">
-                {hero.category[lang]} · {formatDate(hero.date, lang)}
+                <LocalizedText value={hero.category} lang={lang}/> · {formatDate(hero.date, lang)}
               </p>
-              <p className="font-display text-xl leading-snug text-homeInk">{hero.title[lang]}</p>
+              <p className="font-display text-xl leading-snug text-homeInk"><LocalizedText value={hero.title} lang={lang}/></p>
             </div>
           </Link>
 
@@ -75,9 +76,9 @@ export function NewsPreview({ articles }: { articles: Article[] }) {
                 </div>
                 <div className="flex flex-col justify-center gap-1.5 py-1">
                   <p className="text-[11px] font-extrabold uppercase tracking-[0.04em] text-homeTerracotta">
-                    {a.category[lang]} · {formatDate(a.date, lang)}
+                    <LocalizedText value={a.category} lang={lang}/> · {formatDate(a.date, lang)}
                   </p>
-                  <p className="font-display text-base leading-snug text-homeInk">{a.title[lang]}</p>
+                  <p className="font-display text-base leading-snug text-homeInk"><LocalizedText value={a.title} lang={lang}/></p>
                 </div>
               </Link>
             ))}

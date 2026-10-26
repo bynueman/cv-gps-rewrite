@@ -2,12 +2,15 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Jobs\TranslateCompanyContent;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\TranslationService;
 use Database\Seeders\BrandSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class ProductCrudTest extends TestCase
@@ -17,10 +20,31 @@ class ProductCrudTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Http::fake(['https://api.mymemory.translated.net/*' => Http::response([
-            'responseData' => ['translatedText' => 'Translated test text'],
+        Queue::fake([TranslateCompanyContent::class]);
+        $translations = [
+            'Gula Manis' => 'Sweet Sugar',
+            'Manis alami' => 'Naturally sweet',
+            'Manis' => 'Sweet',
+            'Terbuat dari tebu asli.' => 'Made from real sugar cane.',
+            '100% Alami' => '100% Natural',
+            'Tanpa Pemanis Buatan' => 'No Artificial Sweeteners',
+        ];
+        Http::fake(['https://api.mymemory.translated.net/*' => fn ($request) => Http::response([
+            'responseStatus' => 200, 'responseData' => ['translatedText' => $translations[$request['q']] ?? ''],
         ])]);
         $this->seed(BrandSeeder::class);
+    }
+
+    private function finishTranslations($record): void
+    {
+        foreach (range(1, 6) as $attempt) {
+            $state = $record->fresh()->translationState;
+            if (! in_array($state->status, ['pending', 'processing'], true)) {
+                return;
+            }
+            (new TranslateCompanyContent($record->getTable(), $record->id, $state->revision))->handle(app(TranslationService::class));
+        }
+        $this->fail('Worker did not finish the bounded translation fixture.');
     }
 
     private function admin(): User
@@ -123,7 +147,7 @@ class ProductCrudTest extends TestCase
         $this->get(route('admin.products.index'))->assertInertia(fn ($page) => $page->has('products', 2));
     }
 
-    public function test_admin_updating_product_with_cleared_english_auto_translates(): void
+    public function test_clearing_legacy_english_does_not_erase_a_manual_translation(): void
     {
         $brand = Brand::query()->first();
         $admin = $this->admin();
@@ -139,8 +163,8 @@ class ProductCrudTest extends TestCase
 
         $product->refresh();
         $this->assertSame('Kopi Robusta Istimewa', $product->name_id);
-        $this->assertNotEmpty($product->name_en);
-        $this->assertNotEmpty($product->description_en);
+        $this->assertSame('Test Coffee', $product->name_en);
+        $this->assertSame('Test description.', $product->description_en);
     }
 
     public function test_admin_can_delete_a_product(): void
@@ -203,6 +227,10 @@ class ProductCrudTest extends TestCase
 
         $product = Product::where('slug', 'produk-otomatis')->firstOrFail();
         $this->assertSame('Gula Manis', $product->name_id);
+        $this->assertSame('', $product->name_en);
+        Http::assertNothingSent();
+        $this->finishTranslations($product);
+        $product->refresh();
         $this->assertNotEmpty($product->name_en);
         $this->assertNotEmpty($product->description_en);
         $this->assertCount(2, $product->highlights);

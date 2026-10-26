@@ -2,14 +2,22 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasContentTranslation;
+use App\Support\LocalizedContent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class Setting extends Model
 {
+    use HasContentTranslation;
+
+    protected $with = ['translationState'];
+
     protected $fillable = [
         'key',
         'value',
+        'value_en',
     ];
 
     protected static string $cachePrefix = 'setting:';
@@ -34,9 +42,28 @@ class Setting extends Model
         Cache::forget(self::$cachePrefix.$key);
     }
 
+    public static function pair(string $key, string $defaultId = '', string $defaultEn = ''): array
+    {
+        return Cache::rememberForever('setting-pair:'.$key, function () use ($key, $defaultId, $defaultEn) {
+            $record = static::where('key', $key)->first();
+
+            return $record ? LocalizedContent::pair($record, 'value') : ['id' => $defaultId, 'en' => $defaultEn];
+        });
+    }
+
     protected static function booted(): void
     {
-        static::saved(fn (Setting $setting) => Cache::forget(self::$cachePrefix.$setting->key));
-        static::deleted(fn (Setting $setting) => Cache::forget(self::$cachePrefix.$setting->key));
+        static::saved(function (Setting $setting) {
+            Cache::forget(self::$cachePrefix.$setting->key);
+            Cache::forget('setting-pair:'.$setting->key);
+            DB::afterCommit(function () use ($setting) {
+                Cache::forget(self::$cachePrefix.$setting->key);
+                Cache::forget('setting-pair:'.$setting->key);
+            });
+        });
+        static::deleted(function (Setting $setting) {
+            Cache::forget(self::$cachePrefix.$setting->key);
+            Cache::forget('setting-pair:'.$setting->key);
+        });
     }
 }

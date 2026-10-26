@@ -1,30 +1,43 @@
-import { useMemo, useState, type FormEvent, type ReactElement } from "react";
+import { useMemo, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { ImageUploadField, type UploadedImage } from "@/Components/admin/ImageUploadField";
-import { AutoTranslateButton } from "@/Components/admin/AutoTranslateButton";
+import { BilingualListEditor, type BilingualItem } from "@/Components/admin/BilingualListEditor";
+import { TranslationPanel, type TranslationState } from "@/Components/admin/TranslationPanel";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { slugify } from "@/lib/slug";
-
-const inputClass =
-  "w-full rounded-xl border border-espresso-900/15 bg-cream-50 px-4 py-3 text-sm text-espresso-900 outline-none transition-colors focus:border-gold-500 focus:ring-2 focus:ring-gold-400/30";
-const labelClass = "mb-1.5 block text-sm font-semibold";
-
-type Brand = { id: number; key: string; name: string };
-
+const inputClass = "mt-2 w-full rounded-xl border border-espresso-900/20 bg-cream-50 px-4 py-3 text-sm";
+const labelClass = "block text-sm font-semibold";
+const textFields = ["name", "short", "personality", "serving", "description"] as const;
+const labels = {
+  name: "Nama produk",
+  short: "Tagline singkat",
+  personality: "Kepribadian rasa",
+  serving: "Penyajian (opsional)",
+  description: "Deskripsi"
+};
+type Pair = {
+  id: string;
+  en: string;
+};
+type Brand = {
+  id: number;
+  key: string;
+  name: string;
+};
 type ProductFormValues = {
   id: number;
   brand_id: number;
   slug: string;
   group: string | null;
   packaging: string | null;
-  name: { id: string; en: string };
-  short: { id: string; en: string };
-  personality: { id: string; en: string };
-  serving: { id: string; en: string };
-  description: { id: string; en: string };
-  highlights: { id: string; en: string };
-  notes: { id: string; en: string };
+  name: Pair;
+  short: Pair;
+  personality: Pair;
+  serving: Pair;
+  description: Pair;
+  highlights: BilingualItem[];
+  notes: BilingualItem[];
   color: string;
   color_dark: string;
   image: string | null;
@@ -43,36 +56,62 @@ type ProductFormValues = {
   is_active: boolean;
   sort_order: number;
 };
-
 function Form({
   mode,
   brands,
   product,
+  translation
 }: {
   mode: "create" | "edit";
   brands: Brand[];
   product?: ProductFormValues;
+  translation?: TranslationState;
 }) {
-  const [tab, setTab] = useState<"id" | "en">("id");
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
-
-  const { data, setData, post, patch, processing, errors, transform, isDirty } = useForm({
+  const [englishOpen, setEnglishOpen] = useState(false);
+  const [revision, setRevision] = useState(translation?.revision ?? null);
+  const {
+    data,
+    setData,
+    post,
+    patch,
+    processing,
+    errors,
+    transform,
+    isDirty,
+    setDefaults
+  } = useForm({
     brand_id: product?.brand_id ?? brands[0]?.id ?? 0,
     slug: product?.slug ?? "",
     group: product?.group ?? "",
     packaging: product?.packaging ?? "",
-    name: { id: product?.name.id ?? "", en: product?.name.en ?? "" },
-    short: { id: product?.short.id ?? "", en: product?.short.en ?? "" },
-    personality: { id: product?.personality.id ?? "", en: product?.personality.en ?? "" },
-    serving: { id: product?.serving.id ?? "", en: product?.serving.en ?? "" },
-    description: { id: product?.description.id ?? "", en: product?.description.en ?? "" },
-    highlights: { id: product?.highlights.id ?? "", en: product?.highlights.en ?? "" },
-    notes: { id: product?.notes.id ?? "", en: product?.notes.en ?? "" },
+    name: product?.name ?? {
+      id: "",
+      en: ""
+    },
+    short: product?.short ?? {
+      id: "",
+      en: ""
+    },
+    personality: product?.personality ?? {
+      id: "",
+      en: ""
+    },
+    serving: product?.serving ?? {
+      id: "",
+      en: ""
+    },
+    description: product?.description ?? {
+      id: "",
+      en: ""
+    },
+    highlights: product?.highlights ?? [],
+    notes: product?.notes ?? [],
     color: product?.color ?? "#E29A12",
     color_dark: product?.color_dark ?? "#9C6508",
-    image: product?.image ?? (null as string | null),
-    image_thumb: product?.image_thumb ?? (null as string | null),
-    image_og: product?.image_og ?? (null as string | null),
+    image: product?.image ?? null as string | null,
+    image_thumb: product?.image_thumb ?? null as string | null,
+    image_og: product?.image_og ?? null as string | null,
     shopee_url: product?.shopee_url ?? "",
     net_weight: product?.net_weight ?? "",
     seo_title_id: product?.seo_title_id ?? "",
@@ -84,440 +123,97 @@ function Form({
     featured: product?.featured ?? false,
     placeholder: product?.placeholder ?? false,
     is_active: product?.is_active ?? true,
-    sort_order: product?.sort_order ?? 0,
+    sort_order: product?.sort_order ?? 0
   });
-
-  const { bypassNext } = useUnsavedChangesGuard(isDirty);
-
-  const selectedBrand = brands.find((b) => b.id === data.brand_id);
-  const isTeko = selectedBrand?.key === "putri-teko";
-
-  const effectiveSlug = useMemo(
-    () => (slugTouched ? data.slug : slugify(data.name.id)),
-    [slugTouched, data.slug, data.name.id]
-  );
-
-  function handleImageChange(value: UploadedImage) {
-    setData((prev) => ({ ...prev, image: value.image, image_thumb: value.imageThumb, image_og: value.imageOg }));
+  const {
+    bypassNext
+  } = useUnsavedChangesGuard(isDirty);
+  const effectiveSlug = useMemo(() => slugTouched ? data.slug : slugify(data.name.id), [slugTouched, data.slug, data.name.id]);
+  function englishValues() {
+    return Object.fromEntries([
+      ...textFields.map(field => [field, data[field].en]),
+      ...(["highlights", "notes"] as const).flatMap(list => data[list].map(row => [list+"."+row.key, row.en])),
+      ...(["seo_title", "meta_description", "image_alt"] as const).map(field => [field, data[`${field}_en`]]),
+    ]);
   }
-
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    transform((formData) => ({ ...formData, slug: effectiveSlug }));
+  const englishSnapshot = useRef(englishValues());
+  const isTeko = brands.find(brand => brand.id === data.brand_id)?.key === "putri-teko";
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    transform(values => ({
+      ...values,
+      slug: effectiveSlug,
+      translation_revision: revision,
+      translation_english_edits: Object.entries(englishValues()).filter(([path, value]) => value !== (englishSnapshot.current[path] ?? '')).map(([path]) => path),
+    }));
     bypassNext();
-
-    if (mode === "create") {
-      post(route("admin.products.store"));
-    } else {
-      patch(route("admin.products.update", product!.id));
-    }
+    if (mode === "create") post(route("admin.products.store"));else patch(route("admin.products.update", product!.id));
   }
-
-  const image: UploadedImage = { image: data.image, imageThumb: data.image_thumb, imageOg: data.image_og };
-
-  const idErrorKeys = ["name.id", "short.id", "personality.id", "serving.id", "description.id", "highlights.id", "notes.id"];
-  const enErrorKeys = ["name.en", "short.en", "personality.en", "serving.en", "description.en", "highlights.en", "notes.en"];
-  const hasIdErrors = idErrorKeys.some((k) => k in errors);
-  const hasEnErrors = enErrorKeys.some((k) => k in errors);
-  const hasAnyErrors = Object.keys(errors).length > 0;
-
-  return (
-    <>
-      <Head title={mode === "create" ? "Tambah Produk" : "Edit Produk"} />
-      <h1 className="font-display text-2xl font-semibold">
-        {mode === "create" ? "Tambah Produk" : "Edit Produk"}
-      </h1>
-
-      {hasAnyErrors ? (
-        <div className="mt-4 max-w-3xl rounded-xl border border-red-500/20 bg-red-50 p-4 text-sm text-red-800">
-          <p className="font-semibold">Terdapat kesalahan pengisian formulir:</p>
-          <p className="mt-1 text-xs text-red-700">
-            Periksa kolom yang ditandai merah
-            {hasEnErrors && !hasIdErrors
-              ? " (termasuk pada tab English)."
-              : hasIdErrors && !hasEnErrors
-              ? " (termasuk pada tab Indonesia)."
-              : hasIdErrors && hasEnErrors
-              ? " (pada tab Indonesia dan tab English)."
-              : "."}
-          </p>
-        </div>
-      ) : null}
-
-      <form onSubmit={handleSubmit} className="mt-8 max-w-3xl space-y-6">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label className={labelClass}>Brand</label>
-            <select
-              className={inputClass}
-              value={data.brand_id}
-              onChange={(e) => setData("brand_id", Number(e.target.value))}
-            >
-              {brands.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-            {errors.brand_id ? <p className="mt-1.5 text-sm text-red-700">{errors.brand_id}</p> : null}
-          </div>
-
-          <div>
-            <label className={labelClass}>Slug</label>
-            <input
-              type="text"
-              value={effectiveSlug}
-              onChange={(e) => {
-                setSlugTouched(true);
-                setData("slug", e.target.value);
-              }}
-              className={inputClass}
-            />
-            {errors.slug ? <p className="mt-1.5 text-sm text-red-700">{errors.slug}</p> : null}
-          </div>
-        </div>
-
-        {isTeko ? (
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label className={labelClass}>Grup</label>
-              <select className={inputClass} value={data.group ?? ""} onChange={(e) => setData("group", e.target.value)}>
-                <option value="">—</option>
-                <option value="rtd">RTD (Siap Minum)</option>
-                <option value="brew">Brew (Seduh Sendiri)</option>
-              </select>
-              {errors.group ? <p className="mt-1.5 text-sm text-red-700">{errors.group}</p> : null}
-            </div>
-            <div>
-              <label className={labelClass}>Kemasan</label>
-              <select
-                className={inputClass}
-                value={data.packaging ?? ""}
-                onChange={(e) => setData("packaging", e.target.value)}
-              >
-                <option value="">—</option>
-                <option value="botol">Botol</option>
-                <option value="kotak">Kotak Sachet</option>
-                <option value="toples">Toples</option>
-                <option value="kemasan">Kemasan</option>
-                <option value="besek">Besek</option>
-              </select>
-              {errors.packaging ? <p className="mt-1.5 text-sm text-red-700">{errors.packaging}</p> : null}
-              <p className="mt-1 text-xs text-espresso-500">Pilih salah satu kemasan agar produk tampil di katalog Putri Teko.</p>
-            </div>
-          </div>
-        ) : null}
-
-        {/* Language tabs & Auto-Translate */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-espresso-900/10 pb-1">
-          <div className="flex gap-2">
-            {(["id", "en"] as const).map((l) => {
-              const tabHasError = l === "id" ? hasIdErrors : hasEnErrors;
-              return (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => setTab(l)}
-                  className={`relative flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors ${
-                    tab === l ? "border-b-2 border-gold-600 text-espresso-950" : "text-espresso-500 hover:text-espresso-800"
-                  }`}
-                >
-                  <span>{l === "id" ? "Indonesia" : "English"}</span>
-                  {tabHasError && (
-                    <span className="h-2 w-2 rounded-full bg-red-600" title="Ada kolom yang belum lengkap" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          <AutoTranslateButton
-            sourceLang={tab}
-            targetLang={tab === "id" ? "en" : "id"}
-            getFields={() => {
-              const src = tab;
-              return {
-                name: data.name[src],
-                short: data.short[src],
-                personality: data.personality[src],
-                serving: data.serving[src],
-                description: data.description[src],
-                highlights: data.highlights[src],
-                notes: data.notes[src],
-              };
-            }}
-            onSuccess={(translated) => {
-              const tgt = tab === "id" ? "en" : "id";
-              setData((prev) => ({
-                ...prev,
-                name: { ...prev.name, [tgt]: translated.name || prev.name[tgt] },
-                short: { ...prev.short, [tgt]: translated.short || prev.short[tgt] },
-                personality: { ...prev.personality, [tgt]: translated.personality || prev.personality[tgt] },
-                serving: { ...prev.serving, [tgt]: translated.serving || prev.serving[tgt] },
-                description: { ...prev.description, [tgt]: translated.description || prev.description[tgt] },
-                highlights: { ...prev.highlights, [tgt]: translated.highlights || prev.highlights[tgt] },
-                notes: { ...prev.notes, [tgt]: translated.notes || prev.notes[tgt] },
-              }));
-            }}
-          />
-        </div>
-
-        <p className="-mt-3 text-xs text-espresso-500">
-          💡 Cukup isi tab Indonesia — tab English akan otomatis diterjemahkan saat Anda menekan tombol <strong>Simpan</strong>, atau klik tombol di samping untuk pratinjau sekarang.
-        </p>
-
-        <div className={tab === "id" ? "space-y-5" : "hidden"}>
-          <div>
-            <label className={labelClass}>Nama (ID)</label>
-            <input
-              type="text"
-              value={data.name.id}
-              onChange={(e) => setData("name", { ...data.name, id: e.target.value })}
-              className={inputClass}
-            />
-            {errors["name.id" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["name.id" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Tagline Singkat (ID)</label>
-            <input
-              type="text"
-              value={data.short.id}
-              onChange={(e) => setData("short", { ...data.short, id: e.target.value })}
-              className={inputClass}
-            />
-            {errors["short.id" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["short.id" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Kepribadian Rasa (ID)</label>
-            <input
-              type="text"
-              value={data.personality.id}
-              onChange={(e) => setData("personality", { ...data.personality, id: e.target.value })}
-              className={inputClass}
-            />
-            {errors["personality.id" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["personality.id" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Penyajian (ID, opsional)</label>
-            <input
-              type="text"
-              value={data.serving.id}
-              onChange={(e) => setData("serving", { ...data.serving, id: e.target.value })}
-              className={inputClass}
-            />
-            {errors["serving.id" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["serving.id" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Deskripsi (ID)</label>
-            <textarea
-              rows={4}
-              value={data.description.id}
-              onChange={(e) => setData("description", { ...data.description, id: e.target.value })}
-              className={inputClass}
-            />
-            {errors["description.id" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["description.id" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Keunggulan (ID) — satu per baris</label>
-            <textarea
-              rows={4}
-              value={data.highlights.id}
-              onChange={(e) => setData("highlights", { ...data.highlights, id: e.target.value })}
-              className={inputClass}
-            />
-            {errors["highlights.id" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["highlights.id" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Catatan Rasa/Bahan (ID) — satu per baris</label>
-            <textarea
-              rows={4}
-              value={data.notes.id}
-              onChange={(e) => setData("notes", { ...data.notes, id: e.target.value })}
-              className={inputClass}
-            />
-            {errors["notes.id" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["notes.id" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className={tab === "en" ? "space-y-5" : "hidden"}>
-          <div>
-            <label className={labelClass}>Name (EN)</label>
-            <input
-              type="text"
-              value={data.name.en}
-              onChange={(e) => setData("name", { ...data.name, en: e.target.value })}
-              className={inputClass}
-            />
-            {errors["name.en" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["name.en" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Short Tagline (EN)</label>
-            <input
-              type="text"
-              value={data.short.en}
-              onChange={(e) => setData("short", { ...data.short, en: e.target.value })}
-              className={inputClass}
-            />
-            {errors["short.en" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["short.en" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Flavor Personality (EN)</label>
-            <input
-              type="text"
-              value={data.personality.en}
-              onChange={(e) => setData("personality", { ...data.personality, en: e.target.value })}
-              className={inputClass}
-            />
-            {errors["personality.en" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["personality.en" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Serving (EN, optional)</label>
-            <input
-              type="text"
-              value={data.serving.en}
-              onChange={(e) => setData("serving", { ...data.serving, en: e.target.value })}
-              className={inputClass}
-            />
-            {errors["serving.en" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["serving.en" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Description (EN)</label>
-            <textarea
-              rows={4}
-              value={data.description.en}
-              onChange={(e) => setData("description", { ...data.description, en: e.target.value })}
-              className={inputClass}
-            />
-            {errors["description.en" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["description.en" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Highlights (EN) — one per line</label>
-            <textarea
-              rows={4}
-              value={data.highlights.en}
-              onChange={(e) => setData("highlights", { ...data.highlights, en: e.target.value })}
-              className={inputClass}
-            />
-            {errors["highlights.en" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["highlights.en" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass}>Flavor/Ingredient Notes (EN) — one per line</label>
-            <textarea
-              rows={4}
-              value={data.notes.en}
-              onChange={(e) => setData("notes", { ...data.notes, en: e.target.value })}
-              className={inputClass}
-            />
-            {errors["notes.en" as keyof typeof errors] ? (
-              <p className="mt-1.5 text-sm text-red-700">{errors["notes.en" as keyof typeof errors]}</p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label className={labelClass}>Warna Terang</label>
-            <input
-              type="color"
-              value={data.color}
-              onChange={(e) => setData("color", e.target.value)}
-              className="h-11 w-full rounded-xl border border-espresso-900/15 bg-cream-50"
-            />
-            {errors.color ? <p className="mt-1.5 text-sm text-red-700">{errors.color}</p> : null}
-          </div>
-          <div>
-            <label className={labelClass}>Warna Gelap</label>
-            <input
-              type="color"
-              value={data.color_dark}
-              onChange={(e) => setData("color_dark", e.target.value)}
-              className="h-11 w-full rounded-xl border border-espresso-900/15 bg-cream-50"
-            />
-            {errors.color_dark ? <p className="mt-1.5 text-sm text-red-700">{errors.color_dark}</p> : null}
-          </div>
-        </div>
-
-        <div>
-          <label className={labelClass}>Gambar Produk</label>
-          <ImageUploadField initial={image} onChange={handleImageChange} context="products" />
-          {errors.image ? <p className="mt-1.5 text-sm text-red-700">{errors.image}</p> : null}
-        </div>
-
-        <div>
-          <label className={labelClass}>Urutan Tampil</label>
-          <input
-            type="number"
-            value={data.sort_order}
-            onChange={(e) => setData("sort_order", Number(e.target.value))}
-            className={`${inputClass} max-w-[10rem]`}
-          />
-          {errors.sort_order ? <p className="mt-1.5 text-sm text-red-700">{errors.sort_order}</p> : null}
-        </div>
-
-        <fieldset className="space-y-4 rounded-2xl border border-espresso-900/15 p-5"><legend className="px-2 font-semibold">Marketing & Commerce</legend>
-          <label className="block"><span className={labelClass}>URL Shopee produk (opsional)</span><input type="url" className={inputClass} value={data.shopee_url} onChange={e => setData("shopee_url", e.target.value)} placeholder="https://shopee.co.id/…"/>{errors.shopee_url && <span className="text-sm text-red-700">{errors.shopee_url}</span>}</label>
-          <label className="block"><span className={labelClass}>Isi bersih terverifikasi (opsional)</span><input className={inputClass} value={data.net_weight} onChange={e => setData("net_weight", e.target.value)} maxLength={80}/>{errors.net_weight && <span className="text-sm text-red-700">{errors.net_weight}</span>}</label>
-          <p className="text-sm text-espresso-600">Tanya Produk memakai kontak WhatsApp situs dan nama produk. Harga, stok, dan tautan marketplace tidak dibuat otomatis.</p>
-        </fieldset>
-        <details className="rounded-2xl border border-espresso-900/15 p-5"><summary className="cursor-pointer font-semibold">SEO & Metadata — opsional</summary><p className="my-4 text-sm text-espresso-600">Metadata awal memakai bahasa Indonesia. Canonical mengikuti URL produk. Kosongkan untuk memakai nama dan ringkasan produk.</p>
-          <div className="grid gap-4 sm:grid-cols-2">{(["seo_title_id", "seo_title_en", "meta_description_id", "meta_description_en", "image_alt_id", "image_alt_en"] as const).map(field => <label key={field}><span className={labelClass}>{field.replace(/_/g, " ")}</span><input className={inputClass} value={data[field]} onChange={e => setData(field, e.target.value)} maxLength={field.startsWith("meta") ? 160 : field.startsWith("seo") ? 120 : 255}/>{errors[field] && <span className="text-sm text-red-700">{errors[field]}</span>}</label>)}</div>
-        </details>
-        <div className="flex flex-wrap gap-6">
-          <label className="flex items-center gap-2 text-sm font-semibold">
-            <input type="checkbox" checked={data.is_active} onChange={(e) => setData("is_active", e.target.checked)} />
-            Aktif (tampil di situs)
-          </label>
-          <label className="flex items-center gap-2 text-sm font-semibold">
-            <input type="checkbox" checked={data.featured} onChange={(e) => setData("featured", e.target.checked)} />
-            Featured
-          </label>
-        </div>
-
-        <div className="flex items-center gap-4 pt-2">
-          <button type="submit" disabled={processing} className="btn-primary disabled:opacity-60">
-            {processing
-              ? (!data.name.en?.trim() && !!data.name.id?.trim()
-                  ? "Menerjemahkan & Menyimpan…"
-                  : "Menyimpan…")
-              : "Simpan"}
-          </button>
-          <Link href={route("admin.products.index")} className="btn-outline">
-            Batal
-          </Link>
-        </div>
-      </form>
-    </>
-  );
+  function loadEnglish(values: Record<string, string>) {
+    const next = {
+      ...data
+    };
+    for (const field of textFields) next[field] = {
+      ...next[field],
+      en: values[field] ?? next[field].en
+    };
+    for (const list of ["highlights", "notes"] as const) next[list] = next[list].map(row => ({
+      ...row,
+      en: values[list + "." + row.key] ?? row.en
+    }));
+    for (const field of ["seo_title", "meta_description", "image_alt"] as const) next[`${field}_en`] = values[field] ?? next[`${field}_en`];
+    englishSnapshot.current = {...englishSnapshot.current, ...values};
+    setData(next);
+    setDefaults(next);
+    setEnglishOpen(true);
+  }
+  const image: UploadedImage = {
+    image: data.image,
+    imageThumb: data.image_thumb,
+    imageOg: data.image_og
+  };
+  function imageChange(value: UploadedImage) {
+    setData(prev => ({
+      ...prev,
+      image: value.image,
+      image_thumb: value.imageThumb,
+      image_og: value.imageOg
+    }));
+  }
+  return <>
+    <Head title={mode === "create" ? "Tambah Produk" : "Edit Produk"} /><h1 className="font-display text-2xl">{mode === "create" ? "Tambah Produk" : "Edit Produk"}</h1>
+    <form onSubmit={submit} className="mt-7 max-w-3xl space-y-6">
+      <TranslationPanel initial={translation} dirty={isDirty} revision={revision} onRevision={setRevision} onLoadEnglish={loadEnglish} />
+      {Object.keys(errors).length > 0 && <div role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-800"><p className="font-semibold">Periksa formulir:</p>{Object.entries(errors).map(([field, error]) => <p key={field}>{field}: {error}</p>)}</div>}
+      <div className="grid gap-5 sm:grid-cols-2"><label className={labelClass}>Brand<select className={inputClass} value={data.brand_id} onChange={e => setData("brand_id", Number(e.target.value))}>{brands.map(brand => <option key={brand.id} value={brand.id}>{brand.name}</option>)}</select></label><label className={labelClass}>Slug<input required className={inputClass} value={effectiveSlug} onChange={e => {
+            setSlugTouched(true);
+            setData("slug", e.target.value);
+          }} /></label></div>
+      {isTeko && <div className="grid gap-5 sm:grid-cols-2"><label className={labelClass}>Grup<select className={inputClass} value={data.group} onChange={e => setData("group", e.target.value)}><option value="">—</option><option value="rtd">RTD (Siap Minum)</option><option value="brew">Brew (Seduh Sendiri)</option></select></label><label className={labelClass}>Kemasan<select className={inputClass} value={data.packaging} onChange={e => setData("packaging", e.target.value)}><option value="">—</option>{["botol", "kotak", "toples", "kemasan", "besek"].map(value => <option key={value} value={value}>{value}</option>)}</select></label></div>}
+      <section className="space-y-5"><h2 className="font-display text-xl">Konten Indonesia</h2>{textFields.map(field => <label key={field} className={labelClass}>{labels[field]}{field === "description" ? <textarea required rows={5} className={inputClass} value={data[field].id} onChange={e => setData(field, {
+            ...data[field],
+            id: e.target.value
+          })} /> : <input required={field !== "serving"} maxLength={255} className={inputClass} value={data[field].id} onChange={e => setData(field, {
+            ...data[field],
+            id: e.target.value
+          })} />}</label>)}</section>
+      {(["highlights", "notes"] as const).map(list => <BilingualListEditor key={list} label={list === "highlights" ? "Keunggulan" : "Catatan rasa / bahan"} items={data[list]} onChange={items => setData(list, items)} errors={Object.fromEntries(Object.entries(errors).filter(([key]) => key.startsWith(list)))} />)}
+      <details open={englishOpen} onToggle={e => setEnglishOpen(e.currentTarget.open)} className="rounded-2xl border border-espresso-900/15 p-5"><summary className="cursor-pointer font-semibold">Terjemahan English · pratinjau & edit manual (opsional)</summary><p className="mt-3 text-xs leading-relaxed text-espresso-600">English yang diubah di sini akan dilindungi dari penimpaan otomatis. Untuk menggantinya dengan hasil baru, gunakan tindakan terjemahkan ulang dengan konfirmasi di atas.</p><div className="mt-5 space-y-5">{textFields.map(field => <label key={field} className={labelClass}>{labels[field]} (English){field === "description" ? <textarea rows={5} className={inputClass} value={data[field].en} onChange={e => setData(field, {
+              ...data[field],
+              en: e.target.value
+            })} /> : <input maxLength={255} className={inputClass} value={data[field].en} onChange={e => setData(field, {
+              ...data[field],
+              en: e.target.value
+            })} />}</label>)}</div></details>
+      <div className="grid gap-5 sm:grid-cols-2">{(["color", "color_dark"] as const).map(field => <label key={field} className={labelClass}>{field === "color" ? "Warna" : "Warna gelap"}<input type="color" value={data[field]} onChange={e => setData(field, e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-espresso-900/15" /></label>)}</div>
+      <div><p className={labelClass}>Gambar produk</p><div className="mt-2"><ImageUploadField initial={image} onChange={imageChange} context="products" /></div></div>
+      <label className={labelClass}>Urutan tampil<input type="number" value={data.sort_order} onChange={e => setData("sort_order", Number(e.target.value))} className={inputClass} /></label>
+      <fieldset className="space-y-4 rounded-2xl border border-espresso-900/15 p-5"><legend className="px-2 font-semibold">Marketing & Commerce</legend><label className={labelClass}>URL Shopee produk (opsional)<input type="url" className={inputClass} value={data.shopee_url} onChange={e => setData("shopee_url", e.target.value)} placeholder="https://shopee.co.id/…" /></label><label className={labelClass}>Isi bersih terverifikasi (opsional)<input className={inputClass} value={data.net_weight} onChange={e => setData("net_weight", e.target.value)} maxLength={80} /></label><p className="text-xs text-espresso-600">URL, kode produk, harga, dan berat tidak diterjemahkan atau dibuat otomatis. Klaim makanan perlu pemeriksaan manusia.</p></fieldset>
+      <details className="rounded-2xl border border-espresso-900/15 p-5"><summary className="cursor-pointer font-semibold">SEO & Metadata — opsional</summary><p className="my-4 text-sm text-espresso-600">Isi Indonesia. English ikut antrean; bila kosong, metadata memakai nama/ringkasan produk. Canonical tetap mengikuti URL produk.</p><div className="grid gap-4 sm:grid-cols-2">{(["seo_title_id", "meta_description_id", "image_alt_id"] as const).map(field => <label key={field} className={labelClass}>{field.replace(/_/g, " ")}<input className={inputClass} value={data[field]} onChange={e => setData(field, e.target.value)} maxLength={field.startsWith("meta") ? 160 : field.startsWith("seo") ? 120 : 255} /></label>)}</div><details className="mt-5"><summary className="cursor-pointer text-sm font-semibold">English metadata · override manual</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">{(["seo_title_en", "meta_description_en", "image_alt_en"] as const).map(field => <label key={field} className={labelClass}>{field.replace(/_/g, " ")}<input className={inputClass} value={data[field]} onChange={e => setData(field, e.target.value)} maxLength={field.startsWith("meta") ? 160 : field.startsWith("seo") ? 120 : 255} /></label>)}</div></details></details>
+      <div className="flex flex-wrap gap-6">{(["is_active", "featured", "placeholder"] as const).map(field => <label key={field} className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={data[field]} onChange={e => setData(field, e.target.checked)} />{field === "is_active" ? "Aktif (tampil di situs)" : field === "featured" ? "Featured" : "Placeholder"}</label>)}</div>
+      <div className="flex flex-wrap gap-4"><button type="submit" disabled={processing} className="btn-primary disabled:opacity-50">{processing ? "Menyimpan & menyiapkan English…" : "Simpan"}</button><Link href={route("admin.products.index")} className="btn-outline">Batal</Link></div>
+    </form>
+  </>;
 }
-
-Form.layout = (page: ReactElement<{ mode: "create" | "edit" }>) => (
-  <AdminLayout title={page.props.mode === "create" ? "Tambah Produk" : "Edit Produk"} children={page} />
-);
-
+Form.layout = (page: ReactElement) => <AdminLayout title="Produk">{page}</AdminLayout>;
 export default Form;

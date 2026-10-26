@@ -1,11 +1,11 @@
-import { useMemo, useState, type FormEvent, type ReactElement } from "react";
+import { useMemo, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { ImageUploadField, type UploadedImage } from "@/Components/admin/ImageUploadField";
 import { RichTextEditor } from "@/Components/admin/RichTextEditor";
 import { slugify } from "@/lib/slug";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
-import { AutoTranslateButton } from "@/Components/admin/AutoTranslateButton";
+import { TranslationPanel, type TranslationState } from "@/Components/admin/TranslationPanel";
 
 const EXCERPT_MIN = 70;
 const EXCERPT_MAX = 160;
@@ -74,15 +74,18 @@ function Form({
   mode,
   categories,
   article,
+  translation,
 }: {
   mode: "create" | "edit";
   categories: Category[];
   article?: ArticleFormValues;
+  translation?: TranslationState;
 }) {
-  const [tab, setTab] = useState<"id" | "en">("id");
+  const [englishOpen, setEnglishOpen] = useState(false);
+  const [revision, setRevision] = useState(translation?.revision ?? null);
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
 
-  const { data, setData, post, patch, processing, errors, transform, isDirty } = useForm({
+  const { data, setData, post, patch, processing, errors, transform, isDirty, setDefaults } = useForm({
     slug: article?.slug ?? "",
     date: article?.date ?? new Date().toISOString().slice(0, 10),
     category_slug: article?.category_slug ?? categories[0].slug,
@@ -105,6 +108,15 @@ function Form({
     [slugTouched, data.slug, data.title.id]
   );
 
+  const englishSnapshot = useRef(Object.fromEntries((["title","excerpt","body","tags"] as const).map(field => [field, data[field].en])));
+  function loadEnglish(values: Record<string,string>) {
+    const next = {...data};
+    for (const field of ["title","excerpt","body","tags"] as const) next[field] = {...next[field], en: values[field] ?? next[field].en};
+    englishSnapshot.current = {...englishSnapshot.current, ...values};
+    setData(next); setDefaults(next); setEnglishOpen(true);
+  }
+
+  const origin = typeof window === "undefined" ? "" : window.location.origin;
   const wasPublished = mode === "edit" && Boolean(article?.published);
   const slugChangedAfterPublish = wasPublished && effectiveSlug !== article?.slug;
 
@@ -120,7 +132,7 @@ function Form({
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    transform((formData) => ({ ...formData, slug: effectiveSlug }));
+    transform((formData) => ({ ...formData, slug: effectiveSlug, translation_revision: revision, translation_english_edits: (["title","excerpt","body","tags"] as const).filter(field => formData[field].en !== englishSnapshot.current[field]) }));
     bypassNext();
 
     if (mode === "create") {
@@ -132,11 +144,6 @@ function Form({
 
   const image: UploadedImage = { image: data.image, imageThumb: data.image_thumb, imageOg: data.image_og };
 
-  const hasErrorId = Object.keys(errors).some(
-    (k) => k.endsWith(".id") || ["category_slug", "slug", "date", "image"].includes(k)
-  );
-  const hasErrorEn = Object.keys(errors).some((k) => k.endsWith(".en"));
-
   return (
     <>
       <Head title={mode === "create" ? "Tambah Artikel" : "Edit Artikel"} />
@@ -145,6 +152,7 @@ function Form({
       </h1>
 
       <form onSubmit={handleSubmit} className="mt-8 max-w-3xl space-y-6">
+        <TranslationPanel initial={translation} dirty={isDirty} revision={revision} onRevision={setRevision} onLoadEnglish={loadEnglish}/>
         {Object.keys(errors).length > 0 && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
             <p className="font-semibold">Mohon periksa kembali formulir Anda:</p>
@@ -219,60 +227,9 @@ function Form({
             <ImageUploadField initial={image} onChange={handleImageChange} context="articles" />
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-espresso-900/10 pb-2">
-            <div className="flex gap-2">
-              {(["id", "en"] as const).map((l) => {
-                const tabHasError = l === "id" ? hasErrorId : hasErrorEn;
-                return (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => setTab(l)}
-                    className={`relative flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors ${
-                      tab === l
-                        ? "border-b-2 border-gold-600 text-espresso-950"
-                        : "text-espresso-500 hover:text-espresso-800"
-                    }`}
-                  >
-                    <span>{l === "id" ? "Indonesia" : "English"}</span>
-                    {tabHasError && (
-                      <span className="h-2 w-2 rounded-full bg-red-600" title="Ada kolom yang belum lengkap" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+          <h2 className="font-display text-xl">Konten Indonesia</h2>
 
-            <AutoTranslateButton
-              sourceLang={tab}
-              targetLang={tab === "id" ? "en" : "id"}
-              getFields={() => {
-                const src = tab;
-                return {
-                  title: data.title[src],
-                  excerpt: data.excerpt[src],
-                  body: data.body[src],
-                  tags: data.tags[src],
-                };
-              }}
-              onSuccess={(translated) => {
-                const tgt = tab === "id" ? "en" : "id";
-                setData((prev) => ({
-                  ...prev,
-                  title: { ...prev.title, [tgt]: translated.title || prev.title[tgt] },
-                  excerpt: { ...prev.excerpt, [tgt]: translated.excerpt || prev.excerpt[tgt] },
-                  body: { ...prev.body, [tgt]: translated.body || prev.body[tgt] },
-                  tags: { ...prev.tags, [tgt]: translated.tags || prev.tags[tgt] },
-                }));
-              }}
-            />
-          </div>
-
-          <p className="-mt-3 text-xs text-espresso-500">
-            💡 Cukup isi tab Indonesia — tab English akan otomatis diterjemahkan saat Anda menekan tombol <strong>Simpan</strong>, atau klik tombol di samping untuk pratinjau sekarang.
-          </p>
-
-          <div className={tab === "id" ? "space-y-5" : "hidden space-y-5"}>
+          <div className="space-y-5">
             <div>
               <span className="mb-1.5 block text-sm font-semibold">Judul (ID)</span>
               <input
@@ -295,7 +252,7 @@ function Form({
               {errors["excerpt.id"] ? <p className="mt-1 text-xs text-red-700">{errors["excerpt.id"]}</p> : null}
               <SeoPreview
                 title={data.title.id}
-                url={`${window.location.origin}/news/${effectiveSlug}`}
+                url={`${origin}/news/${effectiveSlug}`}
                 description={data.excerpt.id}
               />
             </div>
@@ -321,7 +278,7 @@ function Form({
             </div>
           </div>
 
-          <div className={tab === "en" ? "space-y-5" : "hidden space-y-5"}>
+          <details open={englishOpen} onToggle={e=>setEnglishOpen(e.currentTarget.open)} className="space-y-5 rounded-2xl border border-espresso-900/15 p-5"><summary className="cursor-pointer font-semibold">Terjemahan English · pratinjau & edit manual (opsional)</summary><p className="text-xs text-espresso-600">English manual dilindungi. Gunakan terjemahkan ulang dengan konfirmasi untuk menggantinya.</p>
             <div>
               <span className="mb-1.5 block text-sm font-semibold">Title (EN)</span>
               <input
@@ -344,7 +301,7 @@ function Form({
               {errors["excerpt.en"] ? <p className="mt-1 text-xs text-red-700">{errors["excerpt.en"]}</p> : null}
               <SeoPreview
                 title={data.title.en}
-                url={`${window.location.origin}/news/${effectiveSlug}`}
+                url={`${origin}/news/${effectiveSlug}`}
                 description={data.excerpt.en}
               />
             </div>
@@ -368,7 +325,7 @@ function Form({
               />
               <p className="mt-1 text-xs text-espresso-500">Comma-separated. Used for meta keywords & SEO.</p>
             </div>
-          </div>
+          </details>
 
           <div className="flex flex-wrap gap-6 border-t border-espresso-900/10 pt-6">
             <label className="flex items-center gap-2 text-sm font-semibold">
@@ -394,7 +351,7 @@ function Form({
             <button type="submit" disabled={processing} className="btn-primary disabled:opacity-60">
               {processing
                 ? (!data.title.en?.trim() && !!data.title.id?.trim()
-                    ? "Menerjemahkan & Menyimpan…"
+                    ? "Menyimpan & menyiapkan English…"
                     : "Menyimpan…")
                 : "Simpan"}
             </button>

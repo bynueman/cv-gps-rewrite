@@ -1,3 +1,4 @@
+import { LocalizedText } from "@/lib/localized";
 import { Link, usePage } from "@inertiajs/react";
 import { useLang } from "@/lib/i18n";
 import { LangSwitch } from "@/Components/LangSwitch";
@@ -63,7 +64,7 @@ export function Footer() {
               <li key={b.key}>
                 <Link href={b.href} className="text-sm text-cream-200/80 hover:text-cream-100">
                   {b.name}
-                  <span className="block text-xs text-cream-200/50">{b.tag[lang]}</span>
+                  <span className="block text-xs text-cream-200/50"><LocalizedText value={b.tag} lang={lang}/></span>
                 </Link>
               </li>
             ))}
@@ -75,7 +76,7 @@ export function Footer() {
             {t.footer.contactTitle}
           </h3>
           <ul className="mt-4 space-y-2.5 text-sm text-cream-200/80">
-            <li>{company.location[lang]}</li>
+            <li><LocalizedText value={company.location} lang={lang}/></li>
             <li>
               <a href={`mailto:${company.email}`} className="hover:text-cream-100">
                 {company.email}

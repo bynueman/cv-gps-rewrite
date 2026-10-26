@@ -1,3 +1,4 @@
+import { localized, localeValue, LocalizedText } from "@/lib/localized";
 import type { ReactElement } from "react";
 import { Link, Head } from "@inertiajs/react";
 import { useLang } from "@/lib/i18n";
@@ -20,14 +21,14 @@ type Seo = {
  * admin editor (server-side sanitization — see Phase 5), rendered here
  * via dangerouslySetInnerHTML through the shared .prose-article styles.
  */
-function Show({ article, relatedArticles, seo }: { article: Article; relatedArticles: Article[]; seo: Seo }) {
+function Show({ article, relatedArticles, seo, seoEnglish }: { article: Article; relatedArticles: Article[]; seo: Seo; seoEnglish?:Pick<Seo,"title"|"description"> }) {
   const { lang, t } = useLang();
   const scope = useReveal<HTMLElement>([lang, article.slug]);
 
   return (
     <>
-      <Head title={seo.title}>
-        <meta name="description" content={seo.description} />
+      <Head title={lang==="en"?(seoEnglish?.title||localized(article.title,lang,"Article")):seo.title}>
+        <meta name="description" content={lang==="en"?(seoEnglish?.description||localized(article.excerpt,lang,seo.description)):seo.description} />
         {seo.canonical ? <link rel="canonical" href={seo.canonical} /> : null}
       </Head>
       <article ref={scope} className="pb-20 pt-28 sm:pt-36 lg:pb-28">
@@ -41,7 +42,7 @@ function Show({ article, relatedArticles, seo }: { article: Article; relatedArti
           <header className="mx-auto mt-8 max-w-3xl">
             <div data-reveal className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.15em]">
               <span className="rounded-full bg-gold-500/15 px-3 py-1 text-gold-700">
-                {article.category[lang]}
+                <LocalizedText value={article.category} lang={lang}/>
               </span>
               <time dateTime={article.date} className="text-espresso-500">
                 {t.articleDetail.publishedLabel} {formatDate(article.date, lang)}
@@ -51,10 +52,10 @@ function Show({ article, relatedArticles, seo }: { article: Article; relatedArti
               data-reveal
               className="mt-4 font-display text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl"
             >
-              {article.title[lang]}
+              <LocalizedText value={article.title} lang={lang} empty={lang==="id"?"Artikel":"Article"}/>
             </h1>
             <p data-reveal className="mt-4 text-lg leading-relaxed text-espresso-600">
-              {article.excerpt[lang]}
+              <LocalizedText value={article.excerpt} lang={lang}/>
             </p>
           </header>
 
@@ -69,20 +70,22 @@ function Show({ article, relatedArticles, seo }: { article: Article; relatedArti
             )}
           </div>
 
+          {localeValue(article.body[0],lang).fallback && <p className="mx-auto mt-8 max-w-2xl text-sm text-espresso-600">{lang==="en"?"Original Indonesian article — English is not ready.":"Artikel asli English — Indonesia belum tersedia."}</p>}
           <div
             data-reveal
             className="prose-article mx-auto mt-12 max-w-2xl"
-            dangerouslySetInnerHTML={{ __html: article.body[0]?.[lang] ?? "" }}
+            lang={localeValue(article.body[0], lang).language}
+            dangerouslySetInnerHTML={{ __html: localized(article.body[0], lang) }}
           />
 
           {article.tags && article.tags.length > 0 ? (
             <div className="mx-auto mt-8 flex max-w-2xl flex-wrap gap-2">
-              {article.tags.map((tag) => (
+              {(article.tagsLocalized ?? article.tags.map(tag=>({id:tag,en:""}))).map((tag,index) => (
                 <span
-                  key={tag}
+                  key={index}
                   className="rounded-full bg-espresso-900/5 px-3 py-1 text-xs font-semibold text-espresso-600"
                 >
-                  #{tag}
+                  #<LocalizedText value={tag} lang={lang}/>
                 </span>
               ))}
             </div>

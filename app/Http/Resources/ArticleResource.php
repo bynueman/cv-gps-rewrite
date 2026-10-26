@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Support\ArticleCategory;
+use App\Support\LocalizedContent;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,13 +26,14 @@ class ArticleResource extends JsonResource
                 'id' => ArticleCategory::label($this->category_slug, 'id'),
                 'en' => ArticleCategory::label($this->category_slug, 'en'),
             ],
-            'title' => ['id' => $this->title_id, 'en' => $this->title_en],
-            'excerpt' => ['id' => $this->excerpt_id, 'en' => $this->excerpt_en],
-            'body' => [['id' => $this->body_id, 'en' => $this->body_en]],
+            'title' => LocalizedContent::pair($this->resource, 'title'),
+            'excerpt' => LocalizedContent::pair($this->resource, 'excerpt'),
+            'body' => [LocalizedContent::pair($this->resource, 'body')],
             'image' => $this->image,
             'imageThumb' => $this->image_thumb,
             'imageOg' => $this->image_og,
             'featured' => $this->featured,
+            'tagsLocalized' => array_map(fn ($tag, $index) => ['id' => $tag, 'en' => $this->tagsEnList()[$index] ?? '', 'en_stale' => LocalizedContent::pair($this->resource, 'tags')['en_stale']], $this->tagsIdList(), array_keys($this->tagsIdList())),
             'tags' => array_values(array_filter(array_map('trim', explode(',', $this->tags_id ?? '')))),
         ];
     }

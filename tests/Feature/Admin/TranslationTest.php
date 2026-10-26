@@ -14,8 +14,14 @@ class TranslationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Http::fake(['https://api.mymemory.translated.net/*' => Http::response([
-            'responseData' => ['translatedText' => 'Translated test text'],
+        $translations = [
+            'Gula Batu' => 'Rock Sugar',
+            'Manis dan alami' => 'Sweet and natural',
+            'Kuicip adalah camilan lezat.' => 'Kuicip is a delicious snack.',
+            'Sangat cocok dinikmati bersama teman.' => 'Perfect for sharing with friends.',
+        ];
+        Http::fake(['https://api.mymemory.translated.net/*' => fn ($request) => Http::response([
+            'responseStatus' => 200, 'responseData' => ['translatedText' => $translations[$request['q']] ?? ''],
         ])]);
     }
 

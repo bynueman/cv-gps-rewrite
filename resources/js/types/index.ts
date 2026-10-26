@@ -1,4 +1,4 @@
-export type Bilingual = { id: string; en: string };
+export type Bilingual = { id: string; en: string; key?: string; en_stale?: boolean };
 
 export type Company = {
   name: string;
@@ -80,6 +80,7 @@ export type Article = {
   imageOg?: string | null;
   featured?: boolean;
   tags?: string[];
+  tagsLocalized?: Bilingual[];
 };
 
 export type SharedProps = {
@@ -88,6 +89,7 @@ export type SharedProps = {
   };
   site: {
     company: Company;
+    metadata?: { title: Bilingual; description: Bilingual };
     storyEnabled?: boolean;
     localPreview?: boolean;
     brandAssets: BrandAssets;

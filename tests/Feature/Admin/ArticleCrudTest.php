@@ -2,10 +2,13 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Jobs\TranslateCompanyContent;
 use App\Models\Article;
 use App\Models\User;
+use App\Services\TranslationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class ArticleCrudTest extends TestCase
@@ -15,9 +18,28 @@ class ArticleCrudTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Http::fake(['https://api.mymemory.translated.net/*' => Http::response([
-            'responseData' => ['translatedText' => 'Translated test text'],
+        Queue::fake([TranslateCompanyContent::class]);
+        $translations = [
+            'Manfaat Singkong untuk Kesehatan' => 'Health benefits of cassava',
+            'Singkong kaya akan serat dan nutrisi penting bagi tubuh.' => 'Cassava is rich in fibre and nutrients important for the body.',
+            'Singkong merupakan makanan tradisional yang sangat bernutrisi.' => 'Cassava is a highly nutritious traditional food.',
+            'singkong, kesehatan, nutrisi' => 'cassava, health, nutrition',
+        ];
+        Http::fake(['https://api.mymemory.translated.net/*' => fn ($request) => Http::response([
+            'responseStatus' => 200, 'responseData' => ['translatedText' => $translations[$request['q']] ?? ''],
         ])]);
+    }
+
+    private function finishTranslations($record): void
+    {
+        foreach (range(1, 6) as $attempt) {
+            $state = $record->fresh()->translationState;
+            if (! in_array($state->status, ['pending', 'processing'], true)) {
+                return;
+            }
+            (new TranslateCompanyContent($record->getTable(), $record->id, $state->revision))->handle(app(TranslationService::class));
+        }
+        $this->fail('Worker did not finish the bounded translation fixture.');
     }
 
     private function admin(): User
@@ -56,6 +78,10 @@ class ArticleCrudTest extends TestCase
 
         $article = Article::where('slug', 'artikel-otomatis')->firstOrFail();
         $this->assertSame('Manfaat Singkong untuk Kesehatan', $article->title_id);
+        $this->assertSame('', $article->title_en);
+        Http::assertNothingSent();
+        $this->finishTranslations($article);
+        $article->refresh();
         $this->assertNotEmpty($article->title_en);
         $this->assertNotEmpty($article->excerpt_en);
         $this->assertNotEmpty($article->body_en);

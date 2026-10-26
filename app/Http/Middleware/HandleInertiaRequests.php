@@ -47,6 +47,10 @@ class HandleInertiaRequests extends Middleware
             'site' => [
                 'company' => fn () => $this->resolveCompany(),
                 'brandAssets' => config('brand_assets'),
+                'metadata' => [
+                    'title' => Setting::pair('site_title', config('company.name'), config('company.name')),
+                    'description' => Setting::pair('meta_description_default'),
+                ],
                 'storyEnabled' => (bool) config('stories.enabled'),
                 'localPreview' => StoryDatabase::isLocalPreview(),
                 'brands' => BrandResource::collection(Brand::query()->orderBy('id')->get())->resolve(),
@@ -85,10 +89,7 @@ class HandleInertiaRequests extends Middleware
             'email_alt' => Setting::get('email_secondary', config('company.email_alt')),
             'whatsapp' => $whatsapp,
             'whatsapp_href' => 'https://wa.me/'.preg_replace('/\D/', '', (string) $whatsapp),
-            'hours' => [
-                'id' => Setting::get('operating_hours', config('company.hours.id')),
-                'en' => config('company.hours.en'),
-            ],
+            'hours' => Setting::pair('operating_hours', config('company.hours.id'), config('company.hours.en')),
             'map_embed_url' => config('company.map_embed_url'),
         ];
     }

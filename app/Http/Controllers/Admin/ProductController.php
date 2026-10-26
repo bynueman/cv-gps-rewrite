@@ -8,7 +8,9 @@ use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\ActivityLog;
 use App\Models\Brand;
 use App\Models\Product;
+use App\Services\ContentTranslationWorkflow;
 use App\Services\ImageProcessor;
+use App\Support\BilingualLists;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -71,17 +73,18 @@ class ProductController extends Controller
     {
         $data = $this->prepareData($request->validated());
 
-        $product = Product::create($data);
+        $product = app(ContentTranslationWorkflow::class)->save(new Product, $data);
 
         ActivityLog::record('created', 'products', $product->name_id);
 
-        return redirect()->route('admin.products.index')->with('status', "Produk \"{$product->name_id}\" berhasil dibuat.");
+        return redirect()->route('admin.products.index')->with('status', "Produk \"{$product->name_id}\" berhasil dibuat. English diproses di antrean; edit manual tetap dilindungi.");
     }
 
     public function edit(Product $product): Response
     {
         return Inertia::render('Admin/Products/Form', [
             'mode' => 'edit',
+            'translation' => ContentTranslationWorkflow::view($product),
             'brands' => Brand::query()->orderBy('id')->get(['id', 'key', 'name']),
             'product' => [
                 'id' => $product->id,
@@ -95,14 +98,8 @@ class ProductController extends Controller
                 'personality' => ['id' => $product->personality_id, 'en' => $product->personality_en],
                 'serving' => ['id' => $product->serving_id ?? '', 'en' => $product->serving_en ?? ''],
                 'description' => ['id' => $product->description_id, 'en' => $product->description_en],
-                'highlights' => [
-                    'id' => implode("\n", array_column($product->highlights ?? [], 'id')),
-                    'en' => implode("\n", array_column($product->highlights ?? [], 'en')),
-                ],
-                'notes' => [
-                    'id' => implode("\n", array_column($product->notes ?? [], 'id')),
-                    'en' => implode("\n", array_column($product->notes ?? [], 'en')),
-                ],
+                'highlights' => BilingualLists::keyed($product->highlights),
+                'notes' => BilingualLists::keyed($product->notes),
                 'color' => $product->color,
                 'color_dark' => $product->color_dark,
                 'image' => $product->image,
@@ -120,15 +117,16 @@ class ProductController extends Controller
     {
         $data = $this->prepareData($request->validated());
 
-        if ($product->image && $product->image !== $data['image']) {
-            $this->imageProcessor->delete($product->image);
-        }
+        $oldImage = $product->image;
 
-        $product->update($data);
+        $product = app(ContentTranslationWorkflow::class)->save($product, $data, $request->only(['translation_revision', 'translation_english_edits']));
+        if ($oldImage && $oldImage !== $product->image) {
+            $this->imageProcessor->delete($oldImage);
+        }
 
         ActivityLog::record('updated', 'products', $product->name_id);
 
-        return redirect()->route('admin.products.index')->with('status', "Produk \"{$product->name_id}\" berhasil diperbarui.");
+        return redirect()->route('admin.products.index')->with('status', "Produk \"{$product->name_id}\" berhasil diperbarui. Status English tersedia pada halaman edit.");
     }
 
     public function destroy(Product $product): RedirectResponse
@@ -154,17 +152,17 @@ class ProductController extends Controller
             'group' => $data['group'] ?? null ?: null,
             'packaging' => $data['packaging'] ?? null ?: null,
             'name_id' => $data['name']['id'],
-            'name_en' => $data['name']['en'],
+            'name_en' => ($data['name']['en'] ?? ''),
             'short_id' => $data['short']['id'],
-            'short_en' => $data['short']['en'],
+            'short_en' => ($data['short']['en'] ?? ''),
             'personality_id' => $data['personality']['id'],
-            'personality_en' => $data['personality']['en'],
-            'serving_id' => $data['serving']['id'] ?: null,
-            'serving_en' => $data['serving']['en'] ?: null,
+            'personality_en' => ($data['personality']['en'] ?? ''),
+            'serving_id' => ($data['serving']['id'] ?? '') ?: null,
+            'serving_en' => ($data['serving']['en'] ?? '') ?: null,
             'description_id' => $data['description']['id'],
-            'description_en' => $data['description']['en'],
-            'highlights' => $this->linesToBilingualPairs($data['highlights']['id'] ?? '', $data['highlights']['en'] ?? ''),
-            'notes' => $this->linesToBilingualPairs($data['notes']['id'] ?? '', $data['notes']['en'] ?? ''),
+            'description_en' => ($data['description']['en'] ?? ''),
+            'highlights' => $data['highlights'] ?? [],
+            'notes' => $data['notes'] ?? [],
             'color' => $data['color'],
             'color_dark' => $data['color_dark'],
             ...Arr::only($data, ['shopee_url', 'net_weight', 'seo_title_id', 'seo_title_en',
@@ -177,26 +175,5 @@ class ProductController extends Controller
             'is_active' => (bool) ($data['is_active'] ?? true),
             'sort_order' => (int) ($data['sort_order'] ?? 0),
         ];
-    }
-
-    /**
-     * Admin form collects highlights/notes as one-per-line textareas
-     * (ID and EN kept in sync by line number); this zips them back into
-     * the [{id, en}] pairs the public site's ProductResource expects.
-     *
-     * @return array<int, array{id: string, en: string}>
-     */
-    private function linesToBilingualPairs(string $id, string $en): array
-    {
-        $idLines = array_values(array_filter(array_map('trim', explode("\n", $id)), fn ($l) => $l !== ''));
-        $enLines = array_values(array_filter(array_map('trim', explode("\n", $en)), fn ($l) => $l !== ''));
-        $count = max(count($idLines), count($enLines));
-
-        $pairs = [];
-        for ($i = 0; $i < $count; $i++) {
-            $pairs[] = ['id' => $idLines[$i] ?? '', 'en' => $enLines[$i] ?? ''];
-        }
-
-        return $pairs;
     }
 }

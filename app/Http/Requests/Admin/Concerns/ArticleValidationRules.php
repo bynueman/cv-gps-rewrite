@@ -16,23 +16,21 @@ use Illuminate\Validation\Rule;
  */
 trait ArticleValidationRules
 {
-    use AutoTranslatesBilingualFields;
-
-    protected function prepareForValidation(): void
-    {
-        $this->autoTranslateFields(['title', 'excerpt', 'body', 'tags'], isHtmlBody: true);
-    }
-
     protected function baseRules(): array
     {
         return [
+            'translation_english_edits' => ['sometimes', 'array', 'max:120'],
+            'translation_english_edits.*' => ['string', 'max:100', 'distinct'],
             'title.id' => ['required', 'string', 'max:255'],
-            'title.en' => ['required', 'string', 'max:255'],
+            'title.en' => ['nullable', 'string', 'max:255'],
             'category_slug' => ['required', Rule::in(ArticleCategory::slugs())],
-            'excerpt.id' => ['required', 'string'],
-            'excerpt.en' => ['required', 'string'],
-            'body.id' => ['required', 'string'],
-            'body.en' => ['required', 'string'],
+            'excerpt.id' => ['required', 'string', 'max:50000'],
+            'excerpt.en' => ['nullable', 'string', 'max:50000'],
+            'body.id' => ['required', 'string', 'max:50000'],
+            'body.en' => ['nullable', 'string', 'max:50000'],
+            'translation_revision' => ['nullable', 'uuid'],
+            'translation_refresh' => ['boolean'],
+            'translation_overwrite_manual' => ['boolean'],
             'date' => ['required', 'date'],
             'slug' => ['nullable', 'string', 'max:255'],
             'tags.id' => ['nullable', 'string'],
@@ -69,7 +67,7 @@ trait ArticleValidationRules
 
     protected function ensureBodyNotEmpty(Validator $validator): void
     {
-        foreach (['id' => 'ID', 'en' => 'EN'] as $lang => $label) {
+        foreach (['id' => 'ID'] as $lang => $label) {
             $stripped = trim(strip_tags((string) $this->input("body.{$lang}")));
             if ($stripped === '') {
                 $validator->errors()->add("body.{$lang}", "Isi artikel ({$label}) wajib diisi.");

@@ -1,3 +1,4 @@
+import { localized } from "@/lib/localized";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { useLang } from "@/lib/i18n";
@@ -12,7 +13,7 @@ export function ProductCatalog({ products }: { products: Product[]; brand: "kuic
   const packs = [...new Set(products.flatMap(p => p.packaging ? [p.packaging] : []))];
   const groups = [...new Set(products.flatMap(p => p.group ? [p.group] : []))];
   const filtered = useMemo(() => products.filter(p =>
-    p.name[lang].toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
+    localized(p.name, lang).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
     && (!packaging || p.packaging === packaging) && (!group || p.group === group)), [products, lang, query, packaging, group]);
   const id = lang === "id";
   return <section className="pb-24">

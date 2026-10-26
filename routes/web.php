@@ -67,7 +67,9 @@ Route::middleware(['auth', 'noindex'])->prefix('admin')->name('admin.')->group(f
     Route::delete('/articles/{article}', [ArticleController::class, 'destroy'])->name('articles.destroy');
 
     Route::post('/upload', [ImageUploadController::class, 'store'])->name('upload');
-    Route::post('/translate', [TranslationController::class, 'translate'])->name('translate');
+    Route::post('/translate', [TranslationController::class, 'translate'])->middleware('throttle:10,1,cms-translate')->name('translate');
+    Route::get('/translations/status', [TranslationController::class, 'status'])->middleware('throttle:60,1,cms-translation-status')->name('translations.status');
+    Route::post('/translations/retry', [TranslationController::class, 'retry'])->middleware('throttle:10,1,cms-translation-retry')->name('translations.retry');
 
     Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
     Route::get('/products/new', [AdminProductController::class, 'create'])->name('products.create');

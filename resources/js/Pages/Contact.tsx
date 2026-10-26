@@ -1,3 +1,4 @@
+import { LocalizedText } from "@/lib/localized";
 import type { ReactElement } from "react";
 import { Head, usePage } from "@inertiajs/react";
 import { useLang } from "@/lib/i18n";
@@ -74,7 +75,7 @@ function Contact({ seo }: { seo: Seo }) {
                   <dt className="text-xs font-semibold uppercase tracking-[0.15em] text-espresso-500">
                     {info.hoursLabel}
                   </dt>
-                  <dd className="mt-1 text-espresso-700">{company.hours[lang]}</dd>
+                  <dd className="mt-1 text-espresso-700"><LocalizedText value={company.hours} lang={lang}/></dd>
                 </div>
               </dl>
               <a href={company.whatsapp_href} className="btn-primary mt-8 w-full">

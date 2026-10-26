@@ -1,89 +1,26 @@
 import { useState } from "react";
-import { Languages, Loader2, Check } from "lucide-react";
-
-type Props = {
-  sourceLang: "id" | "en";
-  targetLang: "id" | "en";
-  getFields: () => Record<string, string | null | undefined>;
-  onSuccess: (translations: Record<string, string>) => void;
-  className?: string;
-};
-
+import { Languages, Loader2 } from "lucide-react";
 export function AutoTranslateButton({
-  sourceLang,
-  targetLang,
-  getFields,
-  onSuccess,
-  className = "",
-}: Props) {
-  const [translating, setTranslating] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const targetLabel = targetLang === "en" ? "English" : "Indonesia";
-
-  async function handleTranslate() {
-    const fields = getFields();
-    const hasContent = Object.values(fields).some((v) => v && v.trim() !== "");
-
-    if (!hasContent) {
-      setError(`Isi data pada tab ${sourceLang === "id" ? "Indonesia" : "English"} terlebih dahulu.`);
-      setTimeout(() => setError(null), 3000);
-      return;
-    }
-
-    setTranslating(true);
-    setError(null);
-    setSuccess(false);
-
+  onTranslate,
+  disabled = false,
+  label = "Terjemahkan ulang"
+}: {
+  onTranslate: () => Promise<void>;
+  disabled?: boolean;
+  label?: string;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function run() {
+    setBusy(true);
+    setError("");
     try {
-      const response = await window.axios.post(route("admin.translate"), {
-        from: sourceLang,
-        to: targetLang,
-        fields,
-      });
-
-      if (response.data?.translations) {
-        onSuccess(response.data.translations);
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 2500);
-      }
-    } catch (err: any) {
-      setError(err?.response?.data?.error || "Gagal menerjemahkan. Coba lagi.");
-      setTimeout(() => setError(null), 3500);
+      await onTranslate();
+    } catch {
+      setError("Antrean belum dapat diperbarui. Periksa status lalu coba lagi.");
     } finally {
-      setTranslating(false);
+      setBusy(false);
     }
   }
-
-  return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <button
-        type="button"
-        onClick={handleTranslate}
-        disabled={translating}
-        title={`Terjemahkan seluruh teks dari ${sourceLang === "id" ? "Indonesia" : "English"} ke ${targetLabel}`}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-gold-400/40 bg-gold-50/80 px-3 py-1.5 text-xs font-semibold text-espresso-900 transition-all hover:border-gold-500 hover:bg-gold-100/90 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
-      >
-        {translating ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-gold-700" />
-        ) : success ? (
-          <Check className="h-3.5 w-3.5 text-green-700" />
-        ) : (
-          <Languages className="h-3.5 w-3.5 text-gold-700" />
-        )}
-        <span>
-          {translating
-            ? "Menerjemahkan…"
-            : success
-            ? "Berhasil Diterjemahkan!"
-            : `Terjemahkan ke ${targetLabel}`}
-        </span>
-      </button>
-
-      {error ? (
-        <span className="text-xs text-red-600 animate-fadeIn">{error}</span>
-      ) : null}
-    </div>
-  );
+  return <div><button type="button" disabled={busy || disabled} onClick={() => void run()} className="btn-outline min-h-11 disabled:opacity-50">{busy ? <Loader2 size={16} className="motion-safe:animate-spin" aria-hidden="true" /> : <Languages size={16} aria-hidden="true" />}{busy ? "Menyiapkan antrean…" : label}</button>{error && <p role="alert" className="mt-2 text-xs text-red-700">{error}</p>}</div>;
 }

@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasContentTranslation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Product extends Model
 {
+    use HasContentTranslation;
+
+    protected $with = ['translationState'];
+
     protected $fillable = [
         'brand_id', 'slug', 'group', 'packaging',
         'name_id', 'name_en', 'short_id', 'short_en',

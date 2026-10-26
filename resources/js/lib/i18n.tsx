@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 export type Lang = "id" | "en";
 
@@ -606,7 +606,14 @@ type LangContextValue = {
 const LangContext = createContext<LangContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>("id");
+  const [lang, setLang] = useState<Lang>(() => {
+    if (typeof window === "undefined") return "id";
+    try { return window.localStorage.getItem("gpsfood.lang") === "en" ? "en" : "id"; } catch { return "id"; }
+  });
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    try { window.localStorage.setItem("gpsfood.lang", lang); } catch { /* Storage may be unavailable in private browsing. */ }
+  }, [lang]);
   return (
     <LangContext.Provider value={{ lang, setLang, t: dictionary[lang] }}>
       {children}

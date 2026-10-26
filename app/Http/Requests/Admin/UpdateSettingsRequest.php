@@ -17,6 +17,14 @@ class UpdateSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'translation_english_edits' => ['sometimes', 'array', 'max:120'],
+            'translation_english_edits.*' => ['string', 'max:100', 'distinct'],
+            'translation_revisions' => ['sometimes', 'array:site_title,meta_description_default,operating_hours'],
+            'translation_revisions.*' => ['nullable', 'uuid'],
+            'english' => ['sometimes', 'array:site_title,meta_description_default,operating_hours'],
+            'english.site_title' => ['nullable', 'string', 'max:255'],
+            'english.meta_description_default' => ['nullable', 'string', 'max:160'],
+            'english.operating_hours' => ['nullable', 'string', 'max:255'],
             'whatsapp' => ['required', 'string', 'max:50'],
             'email_primary' => ['required', 'email', 'max:255'],
             'email_secondary' => ['nullable', 'email', 'max:255'],

@@ -6,6 +6,7 @@ use App\Http\Resources\ProductResource;
 use App\Http\Resources\ProductSummaryResource;
 use App\Models\Brand;
 use App\Models\Product;
+use App\Support\LocalizedContent;
 use App\Support\Seo;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -57,8 +58,8 @@ class ProductController extends Controller
         return Inertia::render('Products/ProductDetail', [
             'product' => (new ProductResource($product))->resolve(),
             'related' => ProductSummaryResource::collection($related)->resolve(),
-            'seoEnglish' => ['title' => $product->seo_title_en ?: $product->name_en ?: $product->name_id,
-                'description' => $product->meta_description_en ?: $product->short_en ?: $product->short_id],
+            'seoEnglish' => ['title' => LocalizedContent::english($product, 'seo_title', LocalizedContent::english($product, 'name')),
+                'description' => LocalizedContent::english($product, 'meta_description', LocalizedContent::english($product, 'short'))],
             'seo' => (new Seo(
                 title: $product->seo_title_id ?: $product->name_id,
                 description: $product->meta_description_id ?: $product->short_id,
@@ -93,8 +94,8 @@ class ProductController extends Controller
         return Inertia::render('Products/ProductDetail', [
             'product' => (new ProductResource($product))->resolve(),
             'related' => ProductSummaryResource::collection($related)->resolve(),
-            'seoEnglish' => ['title' => $product->seo_title_en ?: $product->name_en ?: $product->name_id,
-                'description' => $product->meta_description_en ?: $product->short_en ?: $product->short_id],
+            'seoEnglish' => ['title' => LocalizedContent::english($product, 'seo_title', LocalizedContent::english($product, 'name')),
+                'description' => LocalizedContent::english($product, 'meta_description', LocalizedContent::english($product, 'short'))],
             'seo' => (new Seo(
                 title: $product->seo_title_id ?: $product->name_id,
                 description: $product->meta_description_id ?: $product->short_id,

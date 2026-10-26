@@ -1,3 +1,4 @@
+import { LocalizedText } from "@/lib/localized";
 import type { ReactElement } from "react";
 import { Link, Head, usePage } from "@inertiajs/react";
 import { useLang } from "@/lib/i18n";
@@ -52,11 +53,11 @@ function Overview({
                 className="h-12 w-auto sm:h-14"
               />
               <span className="text-sm font-semibold uppercase tracking-[0.18em] text-espresso-600">
-                {kuicip.tag[lang]}
+                <LocalizedText value={kuicip.tag} lang={lang}/>
               </span>
             </div>
             <p data-reveal className="mt-4 max-w-2xl text-base leading-relaxed text-espresso-600">
-              {kuicip.story[lang]}
+              <LocalizedText value={kuicip.story} lang={lang}/>
             </p>
             <p data-reveal className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-espresso-500">
               {t.productsPage.highlightsLabel}
@@ -88,12 +89,12 @@ function Overview({
                   {teko.name}
                 </h2>
                 <span className="text-sm font-semibold uppercase tracking-[0.18em] text-cream-200/70">
-                  {teko.tag[lang]}
+                  <LocalizedText value={teko.tag} lang={lang}/>
                 </span>
               </div>
             </div>
             <p data-reveal className="mt-4 max-w-2xl text-base leading-relaxed text-cream-200/85">
-              {teko.story[lang]}
+              <LocalizedText value={teko.story} lang={lang}/>
             </p>
             <p data-reveal className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-cream-200/60">
               {t.productsPage.highlightsLabel}

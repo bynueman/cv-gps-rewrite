@@ -73,6 +73,7 @@ class LocalPreview extends TestCase
         config(['app.env' => 'local', 'app.debug' => false, 'app.url' => 'http://127.0.0.1:8766',
             'app.key' => trim(file_get_contents($root.'/app-key')),
             'database.connections' => ['sqlite' => $connection('website'), 'stories' => $connection('stories')],
+            'queue.connections.database.connection' => 'sqlite', 'queue.failed.database' => 'sqlite',
             'session.driver' => 'file', 'session.cookie' => 'gpsfood_local_preview_session',
             'session.secure' => false, 'cache.default' => 'file',
             'stories.enabled' => true, 'stories.policies_approved' => true, 'stories.local_preview' => true,

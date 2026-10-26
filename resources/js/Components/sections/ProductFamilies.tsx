@@ -1,3 +1,4 @@
+import { localized } from "@/lib/localized";
 import { Link, usePage } from "@inertiajs/react";
 import { useLang, type Lang } from "@/lib/i18n";
 import { useReveal } from "@/hooks/useReveal";
@@ -48,12 +49,12 @@ export function ProductFamilies({
         <div className="relative my-4 flex items-end justify-center gap-1">
           {kuicip1?.image ? (
             <div className="relative z-0 h-56 w-44 -rotate-6 overflow-hidden rounded-[18px] drop-shadow-[0_20px_30px_oklch(27%_0.045_50_/_0.25)]">
-              <img src={kuicip1.image} alt={kuicip1.name[lang]} className="absolute inset-0 h-full w-full object-cover" />
+              <img src={kuicip1.image} alt={localized(kuicip1.name, lang)} className="absolute inset-0 h-full w-full object-cover" />
             </div>
           ) : null}
           {kuicip2?.image ? (
             <div className="relative z-10 -ml-10 h-48 w-40 rotate-6 overflow-hidden rounded-[18px] drop-shadow-[0_20px_30px_oklch(27%_0.045_50_/_0.25)]">
-              <img src={kuicip2.image} alt={kuicip2.name[lang]} className="absolute inset-0 h-full w-full object-cover" />
+              <img src={kuicip2.image} alt={localized(kuicip2.name, lang)} className="absolute inset-0 h-full w-full object-cover" />
             </div>
           ) : null}
         </div>
@@ -84,12 +85,12 @@ export function ProductFamilies({
         <div className="relative my-4 flex items-end justify-center gap-1">
           {teko1?.image ? (
             <div className="relative z-0 h-52 w-40 -rotate-6 overflow-hidden rounded-[18px] drop-shadow-[0_20px_30px_oklch(27%_0.045_50_/_0.25)]">
-              <img src={teko1.image} alt={teko1.name[lang]} className="absolute inset-0 h-full w-full object-cover" />
+              <img src={teko1.image} alt={localized(teko1.name, lang)} className="absolute inset-0 h-full w-full object-cover" />
             </div>
           ) : null}
           {teko2?.image ? (
             <div className="relative z-10 -ml-10 h-48 w-40 rotate-6 overflow-hidden rounded-[18px] drop-shadow-[0_20px_30px_oklch(27%_0.045_50_/_0.25)]">
-              <img src={teko2.image} alt={teko2.name[lang]} className="absolute inset-0 h-full w-full object-cover" />
+              <img src={teko2.image} alt={localized(teko2.name, lang)} className="absolute inset-0 h-full w-full object-cover" />
             </div>
           ) : null}
         </div>

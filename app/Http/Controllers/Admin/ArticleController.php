@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreArticleRequest;
 use App\Http\Requests\Admin\UpdateArticleRequest;
 use App\Models\Article;
+use App\Services\ContentTranslationWorkflow;
 use App\Services\ImageProcessor;
 use App\Support\ArticleCategory;
 use App\Support\ArticleHtmlSanitizer;
@@ -49,16 +50,16 @@ class ArticleController extends Controller
     {
         $data = $request->validated();
 
-        Article::create([
+        $article = app(ContentTranslationWorkflow::class)->save(new Article, [
             'slug' => Str::slug($data['slug'] ?: $data['title']['id']),
             'date' => $data['date'],
             'category_slug' => $data['category_slug'],
             'title_id' => $data['title']['id'],
-            'title_en' => $data['title']['en'],
+            'title_en' => $data['title']['en'] ?? '',
             'excerpt_id' => $data['excerpt']['id'],
-            'excerpt_en' => $data['excerpt']['en'],
+            'excerpt_en' => $data['excerpt']['en'] ?? '',
             'body_id' => ArticleHtmlSanitizer::clean($data['body']['id']),
-            'body_en' => ArticleHtmlSanitizer::clean($data['body']['en']),
+            'body_en' => ArticleHtmlSanitizer::clean($data['body']['en'] ?? ''),
             'tags_id' => $data['tags']['id'] ?? '',
             'tags_en' => $data['tags']['en'] ?? '',
             'image' => $data['image'] ?? null,
@@ -68,13 +69,14 @@ class ArticleController extends Controller
             'published' => (bool) ($data['published'] ?? false),
         ]);
 
-        return redirect()->route('admin.articles.index')->with('status', 'Artikel berhasil dibuat.');
+        return redirect()->route('admin.articles.index')->with('status', 'Artikel tersimpan. English diproses di antrean; tidak perlu menyimpan dua kali.');
     }
 
     public function edit(Article $article): Response
     {
         return Inertia::render('Admin/Articles/Form', [
             'mode' => 'edit',
+            'translation' => ContentTranslationWorkflow::view($article),
             'categories' => ArticleCategory::CATEGORIES,
             'article' => [
                 'id' => $article->id,
@@ -98,20 +100,18 @@ class ArticleController extends Controller
     {
         $data = $request->validated();
 
-        if ($article->image && $article->image !== ($data['image'] ?? null)) {
-            $this->imageProcessor->delete($article->image);
-        }
+        $oldImage = $article->image;
 
-        $article->update([
+        $article = app(ContentTranslationWorkflow::class)->save($article, [
             'slug' => Str::slug($data['slug'] ?: $data['title']['id']),
             'date' => $data['date'],
             'category_slug' => $data['category_slug'],
             'title_id' => $data['title']['id'],
-            'title_en' => $data['title']['en'],
+            'title_en' => $data['title']['en'] ?? '',
             'excerpt_id' => $data['excerpt']['id'],
-            'excerpt_en' => $data['excerpt']['en'],
+            'excerpt_en' => $data['excerpt']['en'] ?? '',
             'body_id' => ArticleHtmlSanitizer::clean($data['body']['id']),
-            'body_en' => ArticleHtmlSanitizer::clean($data['body']['en']),
+            'body_en' => ArticleHtmlSanitizer::clean($data['body']['en'] ?? ''),
             'tags_id' => $data['tags']['id'] ?? '',
             'tags_en' => $data['tags']['en'] ?? '',
             'image' => $data['image'] ?? null,
@@ -119,7 +119,10 @@ class ArticleController extends Controller
             'image_og' => $data['image_og'] ?? null,
             'featured' => (bool) ($data['featured'] ?? false),
             'published' => (bool) ($data['published'] ?? false),
-        ]);
+        ], $request->only(['translation_revision', 'translation_english_edits']));
+        if ($oldImage && $oldImage !== $article->image) {
+            $this->imageProcessor->delete($oldImage);
+        }
 
         return redirect()->route('admin.articles.index')->with('status', 'Artikel berhasil diperbarui.');
     }
