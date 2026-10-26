@@ -1,5 +1,7 @@
 # GPS FOOD V2 — Runbook rilis manual
 
+> Untuk aktivasi cerita dua tahap tanpa promosi, gunakan [runbook soft launch terbaru](GPSFOOD_STORIES_SOFT_LAUNCH.md). Instruksi cerita di dokumen V2 ini adalah riwayat; rilis soft launch menghapus jadwal prune otomatis.
+
 **Profil preview lokal:** scripts/local-preview* dan tests/Support adalah harness development saja. Jangan menyalin storage/app/private/gpsfood-local-preview (SQLite, app key, session, uploads) ke hosting/ZIP; tetap ignored. Jangan memakai bootstrap preview di produksi. Lihat [panduan lokal](GPSFOOD_LOCAL_PREVIEW.md). Default flags produksi tetap false.
 
 **Update splash 26 Oktober:** frontend/shell berubah setelah acceptance awal. ZIP kandidat tanggal25Oktober di bawah adalah artefak historis, belum memuat splash baru. Gunakan build terbaru lalu buat ZIP baru dari commit rilis final; sertakan kedua partial Blade baru pada source. Jangan memasangkan shell baru dengan ZIP lama. Detail terbaru di konteks bagian29.
@@ -144,7 +146,7 @@ php artisan up
 
 Periksa HTTP publik kembali setelah up. Jika gagal sebelum atau sesudah up, tetap/masuk maintenance dan ikuti pemulihan bagian8.
 
-Tidak perlu Node, SSR, Redis, Supabase, atau persistent worker baru di hosting. Cron Laravel yang sudah ada harus diverifikasi. stories:prune dijadwalkan 02:00 zona aplikasi saat enabled; menghapus maksimal 1000 cerita per run yang lebih tua dari retention, termasuk soft-deleted, beserta relasi cascade. Jangan mengaktifkan fitur sebelum retention dan backup disetujui. Ketika fitur disabled, command tidak menyentuh record.
+Tidak perlu Node, SSR, Redis, Supabase, atau persistent worker baru di hosting. Cron Laravel yang sudah ada harus diverifikasi. Pada baseline V2 historis, stories:prune dijadwalkan 02:00 saat enabled. Rilis soft launch menghapus jadwal itu: pruning hanya manual setelah pemilik mengesahkan retensi dan backup. Command menghapus maksimal1000 cerita per run lebih tua dari retention beserta relasi; ketika fitur disabled, command tidak menyentuh record. Lihat runbook soft launch untuk gate operasional terbaru.
 
 ## 6. Gate aktivasi Ruang Cerita
 

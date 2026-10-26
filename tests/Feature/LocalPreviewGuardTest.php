@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Support\StoryDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -36,6 +38,13 @@ class LocalPreviewGuardTest extends TestCase
                 'database.connections.stories' => ['driver' => 'sqlite', 'database' => $root.'/stories.sqlite']]);
             $this->assertTrue(StoryDatabase::isLocalPreview());
             StoryDatabase::ensureConfigured();
+            DB::purge('sqlite');
+            DB::purge('stories');
+            Schema::connection('stories')->create('isolation_probe', fn ($table) => $table->string('marker'));
+            DB::connection('stories')->table('isolation_probe')->insert(['marker' => 'temporary-test-only']);
+            DB::purge('stories');
+            $this->assertSame('temporary-test-only', DB::connection('stories')->table('isolation_probe')->value('marker'));
+            $this->assertFalse(Schema::connection('sqlite')->hasTable('isolation_probe'));
             config(['database.default' => 'stories']);
             $this->assertTrue(StoryDatabase::isLocalPreview());
             StoryDatabase::ensureConfigured();
@@ -56,6 +65,8 @@ class LocalPreviewGuardTest extends TestCase
             $this->app->useEnvironmentPath($this->testDirectory);
             $this->assertFalse(StoryDatabase::isLocalPreview());
         } finally {
+            DB::purge('sqlite');
+            DB::purge('stories');
             $this->app->setBasePath($base);
             $this->app->useEnvironmentPath($environment);
             $this->app->useStoragePath($storage);

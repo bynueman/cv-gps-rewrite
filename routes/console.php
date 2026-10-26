@@ -10,4 +10,4 @@ Artisan::command('inspire', function () {
 
 // Requires the server cron entry from DEPLOY.md: * * * * * php artisan schedule:run
 Schedule::command('app:aggregate-page-views')->dailyAt('01:00');
-Schedule::command('stories:prune')->dailyAt('02:00')->when(fn () => config('stories.enabled'));
+// Story retention is a manual, owner-approved operation during the soft launch.

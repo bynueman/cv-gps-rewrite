@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
-import { Link } from "@inertiajs/react";
-import { Search, ArrowUpRight } from "lucide-react";
+import { Search } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { ProductCard } from "@/Components/ProductCard";
 import type { Product } from "@/types";
 
-export function ProductCatalog({ products, brand }: { products: Product[]; brand: "kuicip" | "putri-teko" }) {
+export function ProductCatalog({ products }: { products: Product[]; brand: "kuicip" | "putri-teko" }) {
   const { lang, t } = useLang();
   const [query, setQuery] = useState("");
   const [packaging, setPackaging] = useState("");
@@ -27,7 +26,6 @@ export function ProductCatalog({ products, brand }: { products: Product[]; brand
         </div>
       </div>
       {filtered.length ? <ul className="grid gap-x-7 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">{filtered.map(p => <li key={p.slug}><ProductCard product={p} showShopLink/></li>)}</ul> : <div role="status" className="rounded-3xl border border-dashed border-espresso-900/25 px-6 py-20 text-center"><h2 className="font-display text-2xl">{id ? "Belum ketemu yang pas?" : "Nothing here just yet."}</h2><p className="mt-3 text-espresso-600">{id ? "Coba kata lain atau hapus filter." : "Try another name or clear your filters."}</p><button className="btn-outline mt-6" onClick={() => { setQuery(""); setPackaging(""); setGroup(""); }}>{id ? "Hapus filter" : "Clear filters"}</button></div>}
-      {brand === "kuicip" && <div className="mt-16 flex flex-wrap items-center justify-between gap-6 rounded-3xl bg-gold-300 p-8"><div><p className="kicker !text-espresso-800">Kuicip · Teman Ceritamu</p><h2 className="mt-2 font-display text-2xl">{id ? "Ada cerita di setiap jeda." : "Every little break has a story."}</h2></div><Link href="/kuicip/cerita" className="btn-dark">{id ? "Kenali Ruang Cerita" : "Discover Ruang Cerita"}<ArrowUpRight size={18}/></Link></div>}
     </div>
   </section>;
 }

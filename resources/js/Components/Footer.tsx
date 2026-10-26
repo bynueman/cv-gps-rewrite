@@ -14,7 +14,6 @@ export function Footer() {
     { href: "/export", label: t.nav.export },
     { href: "/news", label: t.nav.news },
     { href: "/contact", label: t.nav.contact },
-    { href: "/kuicip/cerita", label: lang === "id" ? "Kuicip — Ruang Cerita" : "Kuicip — Your Story" },
   ];
 
   return (

@@ -790,3 +790,16 @@ Shopee: config company.shopee_storefront memuat URL resmi persis https://shopee.
 Bukti pemeriksaan rilis dicatat pada laporan final: tes PHP terarah story/privacy/product/CMS/splash, frontend story/modal/splash/commerce, TypeScript noEmit, build, diff dan HTTP lokal. Browser visual/focus/scroll mobile belum terverifikasi karena konektor browser kosong. React rendering statis pada harness commerce bukan SSR produksi dan bukan bukti hidrasi browser.
 
 Produksi STORIES_ENABLED=false dan STORIES_POLICIES_APPROVED=false, tanpa DB/migration cerita. Runbook deployment diperbarui: backup -> maintenance dengan bypass privat operator -> fast-forward ke SHA release -> migration produk eksplisit -> ZIP sesuai SHA -> cache -> verifikasi dalam maintenance -> up. Lihat GPSFOOD_V2_DEPLOYMENT.md. Runtime SQLite/key/session/QA/ZIP tetap ignored, tidak masuk commit. SHA/push/ZIP/hash aktual harus diambil dari hasil operasi, bukan perkiraan.
+
+
+## Ruang Cerita — persiapan soft launch unlisted, 26 Oktober 2026
+
+Baseline bersih671ee9603dcc2da048cb821355e36a529494a91d; redesign V2.1 sudah dibatalkan dan tidak dimasukkan. Promosi homepage/footer/katalog Kuicip dilepas, tanpa mengubah desain korporat lainnya. Halaman cerita tetap memakai SiteLayout dan noindex,nofollow; sitemap tetap mengecualikannya. Sidebar superadmin yang sudah ada dipakai ulang.
+
+Stage A (enabled=true, policies_approved=false) sudah didukung middleware: admin tersedia setelah DB khusus siap, semua endpoint publik tertutup503. Gate halaman/API kini sama untuk versi produksi non-draft yang tidak kosong/maksimal80karakter. Retention days dari config dan kontak email privasi ditampilkan dalam panduan. Default flag tetap false; tidak ada policy approval produksi oleh agen.
+
+Guard DB diperbaiki karena Migrator sementara memakai default=stories: bandingkan nama DB dengan seluruh koneksi SQL website, bukan default sementara; DB_URL website juga diparse tanpa koneksi. Nama stories wajib berbeda secara konservatif termasuk alias host. Semua model/schema tetap memakai stories. Jadwal prune otomatis dihapus; retensi manual memerlukan persetujuan owner dan backup.
+
+Pengujian terfokus dan batas aktual dicantumkan dalam laporan akhir rilis. Tes meliputi Stage A, gate produksi, Turnstile error/replay, authorizations/moderation/consent/privacy, persistent temporary SQLite reconnect, no promo pada markup React dan sidebar role/flag. Tidak mengubah database/env/CMS nyata, tidak memakai SQLite demo untuk produksi. Browser connector kosong; QA visual, PHP8.2/MySQL, Turnstile asli dan operator acceptance produksi belum diverifikasi.
+
+Lihat [runbook soft launch](GPSFOOD_STORIES_SOFT_LAUNCH.md) untuk backup/preflight, privilege DB terbatas, source/build yang cocok, migration stories dengan path eksplisit, Stage A/B, policy/moderator gates dan emergency disable. Commit/push origin/main hanya untuk source yang lolos checks; tidak ada deployment otomatis.

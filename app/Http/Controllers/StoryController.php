@@ -8,6 +8,7 @@ use App\Models\StoryModerationEvent;
 use App\Services\StorySubmission;
 use App\Services\TurnstileVerifier;
 use App\Support\Seo;
+use App\Support\StoryAvailability;
 use App\Support\StoryIdentity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,9 +22,10 @@ class StoryController extends Controller
     public function index(): Response
     {
         return Inertia::render('Kuicip/Cerita', [
-            'enabled' => (bool) (config('stories.enabled') && config('stories.policies_approved')),
+            'enabled' => StoryAvailability::publicEnabled(),
             'siteKey' => config('stories.turnstile_site_key'),
             'policyVersion' => config('stories.policy_version'),
+            'retentionDays' => max(1, (int) config('stories.retention_days')),
             'categories' => Story::CATEGORIES,
             'seo' => (new Seo(title: 'Kuicip — Ruang Cerita',
                 description: 'Teman Ceritamu. Sebuah ruang berbagi cerita bersama Kuicip.', canonical: url('/kuicip/cerita')))->toArray(),

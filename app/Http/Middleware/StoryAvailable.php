@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\StoryAvailability;
 use App\Support\StoryDatabase;
 use Closure;
 use Illuminate\Database\QueryException;
@@ -19,8 +20,7 @@ class StoryAvailable
         }
         abort_unless(config('stories.enabled'), 404);
         if (! $request->is('admin/*')) {
-            abort_unless(config('stories.policies_approved'), 503, 'Ruang Cerita belum dibuka.');
-            abort_if(app()->environment('production') && str_starts_with((string) config('stories.policy_version'), 'draft'), 503, 'Panduan Ruang Cerita belum disahkan.');
+            abort_unless(StoryAvailability::publicEnabled(), 503, 'Ruang Cerita belum dibuka atau panduan belum disahkan.');
         }
         try {
             StoryDatabase::ensureConfigured();

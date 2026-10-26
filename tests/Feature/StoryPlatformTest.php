@@ -10,6 +10,8 @@ use App\Services\TurnstileVerifier;
 use App\Support\StoryDatabase;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Factory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
@@ -307,5 +309,37 @@ class StoryPlatformTest extends TestCase
             $this->postJson(route('stories.store'), [])->assertStatus($attempt < 5 ? 422 : 429);
         }
         $this->assertDatabaseCount('stories', 1, 'stories');
+    }
+
+    public function test_siteverify_rejects_wrong_hostname_action_http_failure_and_timeout(): void
+    {
+        foreach ([
+            [200, ['success' => true, 'hostname' => 'wrong.test', 'action' => 'story_submit']],
+            [200, ['success' => true, 'hostname' => 'gpsfood.test', 'action' => 'wrong_action']],
+            [200, ['success' => false, 'error-codes' => ['timeout-or-duplicate']]],
+            [503, ['success' => true, 'hostname' => 'gpsfood.test', 'action' => 'story_submit']],
+        ] as [$status, $body]) {
+            Http::swap(new Factory);
+            Http::preventStrayRequests();
+            Http::fake(['https://challenges.cloudflare.com/turnstile/v0/siteverify' => Http::response($body, $status)]);
+            $this->assertFalse(app(TurnstileVerifier::class)->verify('mock-token'));
+        }
+        Http::swap(new Factory);
+        Http::preventStrayRequests();
+        Http::fake(fn () => throw new ConnectionException('Simulated timeout'));
+        $this->assertFalse(app(TurnstileVerifier::class)->verify('mock-token'));
+    }
+
+    public function test_replayed_cloudflare_token_cannot_create_a_second_story(): void
+    {
+        Http::swap(new Factory);
+        Http::preventStrayRequests();
+        Http::fake(['https://challenges.cloudflare.com/turnstile/v0/siteverify' => Http::sequence()
+            ->push(['success' => true, 'hostname' => 'gpsfood.test', 'action' => 'story_submit'])
+            ->push(['success' => false, 'error-codes' => ['timeout-or-duplicate']])]);
+        $this->postJson(route('stories.store'), $this->payload())->assertStatus(202);
+        $this->postJson(route('stories.store'), $this->payload(['body' => 'Cerita sintetis lain untuk mencoba token yang sudah dipakai.']))->assertStatus(422);
+        $this->assertDatabaseCount('stories', 1, 'stories');
+        Http::assertSentCount(2);
     }
 }

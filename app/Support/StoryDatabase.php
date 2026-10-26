@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Support\ConfigurationUrlParser;
 use RuntimeException;
 
 class StoryDatabase
@@ -39,12 +40,20 @@ class StoryDatabase
             return;
         }
         if (! in_array($driver, ['mysql', 'mariadb'], true)
-            || empty($config['host']) || empty($config['database']) || empty($config['username'])
-            || (in_array(config('database.connections.'.config('database.default').'.driver'), ['mysql', 'mariadb'], true)
-                && $config['database'] === config('database.connections.'.config('database.default').'.database')
-                && $config['host'] === config('database.connections.'.config('database.default').'.host')
-                && (string) ($config['port'] ?? '3306') === (string) config('database.connections.'.config('database.default').'.port', '3306'))) {
+            || empty($config['host']) || empty($config['database']) || empty($config['username'])) {
             throw new RuntimeException('Configure the dedicated STORY_DB_* database; website database fallback is forbidden.');
+        }
+
+        // Migrator temporarily makes stories the default; compare every other SQL connection instead.
+        foreach (config('database.connections', []) as $name => $website) {
+            if ($name === 'stories' || ! is_array($website)) {
+                continue;
+            }
+            $website = (new ConfigurationUrlParser)->parseConfiguration($website);
+            if (in_array($website['driver'] ?? null, ['mysql', 'mariadb'], true)
+                && strcasecmp($config['database'], (string) ($website['database'] ?? '')) === 0) {
+                throw new RuntimeException('The story database name must differ from every website SQL database.');
+            }
         }
     }
 }
