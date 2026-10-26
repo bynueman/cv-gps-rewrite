@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreStoryRequest;
 use App\Models\Story;
 use App\Models\StoryModerationEvent;
+use App\Services\StoryAntispam;
 use App\Services\StorySubmission;
-use App\Services\TurnstileVerifier;
 use App\Support\Seo;
 use App\Support\StoryAvailability;
 use App\Support\StoryIdentity;
@@ -23,13 +23,19 @@ class StoryController extends Controller
     {
         return Inertia::render('Kuicip/Cerita', [
             'enabled' => StoryAvailability::publicEnabled(),
-            'siteKey' => config('stories.turnstile_site_key'),
+            'siteKey' => config('stories.antispam_provider') === 'turnstile' ? config('stories.turnstile_site_key') : null,
+            'antispamProvider' => config('stories.antispam_provider'),
             'policyVersion' => config('stories.policy_version'),
             'retentionDays' => max(1, (int) config('stories.retention_days')),
             'categories' => Story::CATEGORIES,
             'seo' => (new Seo(title: 'Kuicip — Ruang Cerita',
                 description: 'Teman Ceritamu. Sebuah ruang berbagi cerita bersama Kuicip.', canonical: url('/kuicip/cerita')))->toArray(),
         ]);
+    }
+
+    public function challenge(Request $request, StoryAntispam $antispam): JsonResponse
+    {
+        return response()->json($antispam->issue($request))->header('Cache-Control', 'no-store');
     }
 
     public function feed(Request $request): JsonResponse
@@ -44,9 +50,9 @@ class StoryController extends Controller
             'next' => $stories->count() > 6 ? $batch->last()->id : null])->header('Cache-Control', 'no-store');
     }
 
-    public function store(StoreStoryRequest $request, StorySubmission $submissions, TurnstileVerifier $turnstile): JsonResponse
+    public function store(StoreStoryRequest $request, StorySubmission $submissions, StoryAntispam $antispam): JsonResponse
     {
-        return response()->json($submissions->submit($request, $turnstile), 202)->header('Cache-Control', 'no-store');
+        return response()->json($submissions->submit($request, $antispam), 202)->header('Cache-Control', 'no-store');
     }
 
     public function react(Request $request, int $story): JsonResponse

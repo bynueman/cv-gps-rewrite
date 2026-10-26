@@ -119,3 +119,15 @@ Feed kini memakai preview lima baris, tanpa memotong data. Klik Baca selengkapny
 Setelah hardrefresh di http://127.0.0.1:8766/kuicip/cerita, periksa375×812,768×1024 dan1440×1000: campuran cerita pendek/panjang, dua cerita panjang berturut, ellipsis lima baris, action sejajar dan tidak ada overflow horizontal. Buka beberapa kartu bergantian; pastikan code/body yang tampil benar, paragraf utuh, isi panjang dapat di-scroll, serta header/close/actions tetap terjangkau. Tab/ShiftTab harus terperangkap di dialog, Escape/backdrop/X menutup, focus kembali ke CTA, dan halaman belakang tidak bergulir. Emulasikan reduced-motion dan periksa Console. Tekan Dukung/laporkan dalam modal, tutup dan buka lagi: counter/feedback harus sama dengan card. Network tidak boleh menambah request feed/detail/react hanya karena open/close. Filter dan load-more tetap bekerja setelah modal ditutup.
 
 Frontend Node5tests dan StoryPlatform23tests lulus; hasil frontend mencakup server markup/controlled props, bukan layout/focus DOM. Visual browser dan screenshot **NOT RUN**, karena tidak ada browser terhubung.
+
+
+
+## Upgrade verifikasi lokal — 26 Oktober 2026
+
+Profil localhost sekarang memilih stories.antispam_provider=local di memory. CAPTCHA halaman menggunakan soal penjumlahan nyata yang diverifikasi Laravel, bukan token fake Turnstile. Banner tetap menjelaskan data fiksi/kebijakan belum disahkan. Konfigurasi provider di .env produksi tidak disentuh.
+
+Gunakan server yang sudah ada di http://127.0.0.1:8766/kuicip/cerita; hard refresh sesudah build. Bila belum berjalan: rtk proxy C:\Users\chris\.config\herd\bin\php84\php.exe -S 127.0.0.1:8766 -t public scripts/local-preview-router.php . Tidak setup/reset/reseed database.
+
+Soal dimuat hanya pada form yang enabled di profil lokal. Isi cerita fiksi, consent dan jawaban, tunggu minimal2detik setelah soal terbit; jawaban/token berlaku5menit. Minta soal baru untuk renewal. Cerita/consent tidak dihapus saat verifikasi gagal. Untuk memeriksa gate A tanpa mengubah profil persisten gunakan StorySoftLaunchTest/StoryAntispamTest yang mengubah config hanya pada aplikasi testing terisolasi.
+
+Tests menguji SQL/cache/session dengan fixture/temp storage; tidak menulis atau menyalin database preview yang sudah ada. Jika memilih jalur Turnstile dalam harness preview terisolasi, fake verifier lama tetap khusus local/testing, bukan bypass production.

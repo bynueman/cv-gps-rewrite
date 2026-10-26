@@ -5,6 +5,7 @@ return [
     'policies_approved' => (bool) env('STORIES_POLICIES_APPROVED', false),
     'policy_version' => env('STORIES_POLICY_VERSION', 'draft-v1'),
     'abuse_key' => env('STORIES_ABUSE_KEY'),
+    'antispam_provider' => env('STORIES_ANTISPAM_PROVIDER', 'turnstile'),
     'daily_quota' => (int) env('STORIES_DAILY_QUOTA', 200),
     'cooldown_seconds' => (int) env('STORIES_COOLDOWN_SECONDS', 60),
     'retention_days' => (int) env('STORIES_RETENTION_DAYS', 90),

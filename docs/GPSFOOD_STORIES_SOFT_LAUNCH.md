@@ -1,6 +1,10 @@
 # Kuicip Ruang Cerita — runbook soft launch tanpa promosi
 
+> Local acceptance telah diterima pemilik. Untuk rilis source/build Stage A yang diotorisasi berikutnya, gunakan [runbook rilis Stage A](GPSFOOD_ANTISPAM_STAGE_A_RELEASE.md). Status “belum commit/push” di laporan implementasi ini merekam fase review sebelumnya; status rilis aktual ada pada laporan artefak final.
+
 26 Oktober 2026, Asia/Jakarta. Baseline website V2: `671ee9603dcc2da048cb821355e36a529494a91d`. Dokumen ini adalah rencana manual, **bukan bukti deployment atau persetujuan kebijakan**. Semua operasi server dilakukan pemilik, bukan agen. Ikuti dokumen ini untuk aktivasi cerita; instruksi cerita lama di GPSFOOD_V2_DEPLOYMENT.md adalah riwayat.
+
+> Upgrade anti-spam terbaru masih dalam review lokal. Produksi tetap Stage A; source backend dan frontend baru harus dirilis bersama setelah otorisasi terpisah. ZIP/e39cef2 lama tidak berisi provider local dan tidak boleh dicampur dengan frontend baru. Untuk instalasi Stage A yang sudah siap, ikuti bagian3 dan bagian upgrade di bawah; jangan mengulang migration stories.
 
 ## Keputusan dan ruang lingkup
 
@@ -88,25 +92,50 @@ Gunakan host/port yang diberi hosting, bukan mengasumsikan localhost bila penyed
 
 Buat abuse key lewat generator lokal tepercaya dan simpan sebagai secret; jangan pakai contoh/test key, jangan output ke laporan. Jangan merotasi APP_KEY sebagai bagian task ini. Perubahan abuse key mengubah hash deduplikasi dan mengganggu retry request lama; rotasi hanya melalui prosedur insiden.
 
-## 3. Turnstile nyata
+## 3. Provider anti-spam lokal (Turnstile opsional)
 
-Pemilik membuka Cloudflare Dashboard → Turnstile → Add widget, beri nama Kuicip Ruang Cerita production, pilih Managed dan tambahkan hostname **gpsfood.id**. Hostname dimasukkan tanpa scheme/path. Pre-clearance tidak diperlukan untuk implementasi ini.
+**Perubahan terbaru masih lokal dan belum di-commit/push.** Menurut pemilik, produksi sudah pada commit e39cef2896837675670bedd7b3622eae5c09e504, DB stories sudah siap dan /admin/stories dapat dibuka. Status itu berasal dari pemilik; agen tidak mengakses hosting. Upgrade ini tidak membutuhkan perubahan schema. Jangan mengulang setup DB/migration/seed pada Stage A yang sudah berfungsi.
 
-Salin site key dan secret ke editor .env privat:
+Setelah review dan otorisasi rilis baru, operator memilih mode secara eksplisit sambil mempertahankan Stage A:
 
 ```dotenv
-TURNSTILE_SITE_KEY=<SITE_KEY_WIDGET_PRODUKSI>
-TURNSTILE_SECRET_KEY=<SECRET_KEY_WIDGET_PRODUKSI>
-TURNSTILE_HOSTNAME=gpsfood.id
+STORIES_ENABLED=true
+STORIES_POLICIES_APPROVED=false
+STORIES_ANTISPAM_PROVIDER=local
 ```
 
-Jangan memakai test keys Cloudflare atau nilai preview lokal. Aplikasi memvalidasi hostname tunggal secara tepat; jika domain www juga melayani halaman tanpa canonical redirect, selesaikan konsistensi hostname sebelum B. Jangan memakai daftar comma-separated pada TURNSTILE_HOSTNAME.
+Tidak mengubah .env produksi pada task pengembangan ini. Tanpa nilai provider, kode tetap default turnstile agar deployment lama tidak diam-diam kehilangan pemeriksaan. Hanya local dan turnstile yang didukung; none, disabled, string kosong, typo atau nilai lain gagal tertutup503. Client tidak dapat mengganti provider melalui payload. Pada local, key Cloudflare tidak diperlukan, site key tidak dibagikan ke halaman dan script/widget/Siteverify tidak dipakai. Nilai TURNSTILE_* lama boleh tetap tersimpan privat untuk penggunaan mendatang, tanpa perlu dicetak atau disalin.
 
-Server memanggil Siteverify dengan timeout5detik dan menerima hanya HTTP sukses, success=true, hostname tepat serta action **story_submit**. Provider gagal, timeout, hostname/action salah atau secret kosong menolak kiriman. Cloudflare menerapkan expiry300detik dan single-use token; replay baru ditolak. Retry identik dengan UUID yang sudah tersimpan mengembalikan receipt tanpa token penghapusan baru, bukan menciptakan cerita baru.
+Cara kerja local:
 
-Tes lokal memalsukan Siteverify hanya dalam harness/testing atau profil preview yang dibatasi environment/path. Produksi menolak secret test umum dan preview SQLite. Tidak ada bypass produksi pada service.
+- POST /kuicip/cerita/challenge, dengan CSRF dan maksimal10request/menit perIP, hanya tersedia setelah gate publik disahkan. Stage A tetap503.
+- Penjumlahan mudah dengan operand acak1–9. Jawaban disimpan hanya pada cache server; JSON ke frontend hanya token, pertanyaan, expires_in dan wait_seconds.
+- Token terenkripsi dan ditandatangani MAC oleh Laravel memakai APP_KEY yang sudah ada. Purpose khusus, nonce acak128bit, waktu penerbitan server dan hash session mengikatnya pada form/visitor yang sama.
+- Berlaku300detik, umur minimal2detik menurut waktu server, maksimal3jawaban salah pernonce. UI memberi jeda singkat dan dapat memperbarui soal tanpa menghapus cerita atau consent.
+- Cache lock menghindari dua verifikasi bersamaan. Keberhasilan mengikat nonce ke satu UUID dan hash payload; nonce tidak dapat dipakai untuk kiriman baru. Retry identik untuk UUID/payload yang sama tetap idempotent selama challenge masih berlaku. Setelah expiry, minta soal baru dengan UUID/payload yang sama untuk mengambil receipt; tidak ada token penghapusan baru.
+- Honeypot contact_website harus kosong. Field hidden, tidak ada dalam navigasi keyboard/accessibility tree, dan divalidasi server.
+- Verifikasi local yang gagal ditolak sebelum query/write DB cerita atau pengambilan kuota. Batas POST submission5/menit, cooldown, quota global dan duplicate detection tetap berlaku setelah verifikasi lolos. Tidak mencatat body, jawaban, token atau session mentah dalam log.
 
-Rujukan resmi: [dashboard](https://developers.cloudflare.com/turnstile/get-started/widget-management/dashboard/), [hostname](https://developers.cloudflare.com/turnstile/additional-configuration/hostname-management/), [Siteverify](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/). Pemeriksaan provider nyata hanya oleh pemilik; jangan mengirim secret lewat curl argument atau merekam payload Siteverify dalam log.
+Cache dan session harus **persistent**. Di production, mode local hanya menerima session driver file/database dan cache driver file/database, termasuk atomic locks. array/null/failover ke array tidak diterima. Pertahankan konfigurasi file/database yang sudah berfungsi; jangan mengubah driver atau APP_KEY tanpa kebutuhan. Untuk database cache, tabel cache/cache_locks Laravel yang sudah ada harus tersedia. Jika tidak, berhenti dan perbaiki konfigurasi yang ada atau gunakan file cache yang writable; jangan migrate:fresh atau menjalankan seluruh migration secara membabi buta. Tidak ada migration baru untuk anti-spam maupun stories.
+
+Preflight server hanya setelah rilis sumber/build baru disetujui dan terpasang berpasangan:
+
+```bash
+php artisan tinker --execute='echo "provider=".config("stories.antispam_provider").PHP_EOL; echo "public_enabled=".(int)App\Support\StoryAvailability::publicEnabled().PHP_EOL; echo "session_supported=".(int)in_array(config("session.driver"), ["file", "database"], true).PHP_EOL; echo "cache_supported=".(int)in_array(config("cache.stores.".config("cache.default").".driver"), ["file", "database"], true).PHP_EOL;'
+php artisan tinker --execute='try { $ok = Illuminate\Support\Facades\Cache::lock("story-antispam-preflight", 5)->get(fn () => true); echo "cache_lock_ok=".(int)$ok.PHP_EOL; } catch (\Throwable) { fwrite(STDERR, "CACHE_PREFLIGHT_FAILED\n"); exit(1); }'
+```
+
+Stage A harus menghasilkan provider=local, public_enabled=0, session_supported=1, cache_supported=1 dan cache_lock_ok=1. Jangan dump config/secret/session ID. Pastikan .env yang benar sudah dimuat setelah cache refresh. Cookie session/CSRF harus berjalan pada HTTPS/same-origin; jangan menonaktifkan CSRF untuk menyelesaikan kesalahan419.
+
+Challenge state bersifat sementara dan tidak berisi teks cerita. Expiry cache dapat dibersihkan secara lazy oleh driver; TTL bukan janji file/row fisik langsung hilang. Pantau ruang cache/disk dan gunakan prosedur housekeeping cache hosting yang disetujui; jangan menambah job penghapusan cerita. Token kedaluwarsa, session berganti, cache dibersihkan atau APP_KEY berubah membutuhkan soal baru. Pergantian key dapat memutus session/token lain; **jangan menjalankan key:generate** pada aplikasi yang sudah berjalan.
+
+Aritmetika dan honeypot mudah diotomatisasi; ini proteksi berlapis ringan untuk cohort kecil yang dipantau, bukan pengganti kuat terhadap bot terarah. Batas perIP dapat berbagi bucket pada jaringan bersama; monitor false positives. Pantau laju request422/429, pending stories, duplikat dan kapasitas moderator tanpa mencatat isi/token. Bila ada spam/tekanan resource atau moderator tidak tersedia: set STORIES_POLICIES_APPROVED=false, rebuild config cache, verifikasi publik tertutup, dan biarkan STORIES_ENABLED=true agar admin tetap dapat bekerja.
+
+### Mengganti ke Turnstile nanti
+
+Tutup publik sementara dengan policies_approved=false. Buat widget produksi Managed untuk gpsfood.id dan isi TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY serta TURNSTILE_HOSTNAME=gpsfood.id di editor privat, lalu pilih STORIES_ANTISPAM_PROVIDER=turnstile. Refresh config, muat ulang halaman, uji provider yang dipilih dan perbarui persetujuan privasi bila dibutuhkan sebelum membuka publik kembali. Hostname tunggal harus cocok tepat dan action tetap story_submit. Key test/preview tidak boleh dipakai di production.
+
+TurnstileVerifier yang sudah ada dipertahankan: Siteverify server, hostname/action, timeout5detik dan fail-closed. Key Cloudflare hanya diperlukan untuk provider ini. Rujukan: [dashboard Cloudflare](https://developers.cloudflare.com/turnstile/get-started/widget-management/dashboard/) dan [Siteverify](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/). Mekanisme MAC dan lock lokal mengikuti [Laravel encryption](https://laravel.com/docs/12.x/encryption) dan [atomic locks](https://laravel.com/docs/12.x/cache#atomic-locks).
 
 ## 4. Update source dan build yang cocok
 
@@ -188,12 +217,12 @@ DB/schema/grants PHP8.2/MySQL dan UI produksi belum diuji oleh agen. Jika A gaga
 
 Pemilik wajib mencatat persetujuan nyata, termasuk versi/tanggal/penanggung jawab:
 
-1. Teks Indonesia/Inggris yang benar-benar tampil di halaman: komunitas, privasi, batas layanan, consent, hak penghapusan, kontak perusahaan dan periode retensi. Periksa pula praktik metadata hosting/Cloudflare. Draft internal/test fixture tidak dihitung sebagai kebijakan bisnis.
+1. Teks Indonesia/Inggris yang benar-benar tampil di halaman: komunitas, privasi, batas layanan, consent, hak penghapusan, kontak perusahaan dan periode retensi. Periksa pula praktik metadata hosting dan provider verifikasi yang dipilih. Draft internal/test fixture tidak dihitung sebagai kebijakan bisnis.
 2. Angka STORIES_RETENTION_DAYS yang disetujui; durasi cadangan, penanganan permintaan privasi dan penghapusan dari backup saat restore. Runtime tidak mengenkripsi body sendiri; akses DB/cadangan harus dibatasi dan perlindungan hosting diverifikasi.
 3. Moderator superadmin utama dan pengganti, jam pemeriksaan, respons laporan, konten berisiko/identitas pribadi, eskalasi dan kontak. Jangan menyalin data identitas/isi cerita ke alasan moderasi atau tools eksternal.
 4. Jadwal backup terpisah, restore test, RPO/RTO dan akses backup. Restore harus menerapkan kembali owner-removal/hide yang terjadi sesudah snapshot agar cerita terhapus tidak muncul lagi.
 5. Prosedur retensi manual dengan pemilik yang bertanggung jawab, cukup sering untuk memenuhi periode yang dinyatakan. Tidak ada cron penghapusan baru yang dibuat secara diam-diam.
-6. Turnstile widget asli, hostname, outbound HTTPS dan skenario failure terverifikasi melalui browser nyata.
+6. Provider local: soal benar/salah/expired/replay, CSRF, session/cookie dan kegagalan cache terverifikasi dalam browser nyata. Cloudflare/hostname/outbound HTTPS hanya wajib bila provider turnstile dipilih.
 7. Browser mobile/desktop, keyboard/modal/focus, CSRF, token receipt, console/network dan navigasi Inertia lolos. Unlisted bukan access control.
 
 Jika teks/periode/privasi belum disetujui, tetap A. Jika perlu mengubah isi kebijakan pada source, buat perubahan/release baru dan uji sebelum B; jangan menandai versi draft sebagai approved hanya untuk membuka form.
@@ -220,8 +249,8 @@ php artisan view:cache
 Uji penerimaan terkontrol, tanpa seeder dan tanpa testimonial palsu:
 
 1. Buka direct URL dalam browser guest. Navbar/footer perusahaan tetap ada; tidak muncul banner preview, fake CAPTCHA atau policy LOCAL-DEMO.
-2. Kirim cerita **jelas berlabel UJI OPERASIONAL — BUKAN TESTIMONI**, tanpa data pribadi, setelah menyelesaikan Turnstile nyata. Simpan kode/token di tempat privat tanpa memasukkannya ke URL.
-3. Receipt202; superadmin melihat pending. Guest feed belum memuatnya. Retry identik tidak menggandakan record dan tidak menampilkan token lagi. Token Turnstile yang dipakai dengan UUID baru harus gagal422.
+2. Kirim cerita **jelas berlabel UJI OPERASIONAL — BUKAN TESTIMONI**, tanpa data pribadi, setelah menyelesaikan verifikasi provider yang dipilih. Simpan kode/token di tempat privat tanpa memasukkannya ke URL.
+3. Receipt202; superadmin melihat pending. Guest feed belum memuatnya. Retry identik tidak menggandakan record dan tidak menampilkan token lagi. Token verifikasi yang dipakai dengan UUID baru harus gagal422.
 4. Setelah cooldown60detik (dan budget5submission/menit), kirim satu cerita privat berlabel uji. Consent sosial opsional; privat tidak boleh menjadi publik meskipun dimoderasi approved. Biarkan privat untuk memeriksa isolasi.
 5. Approve hanya cerita publik uji melalui admin dengan alasan yang aman. Feed hanya menampilkan approved public ber-consent; tidak pending/private/rejected/hidden. Di jaringan browser tidak ada body private dalam landing/feed.
 6. Periksa kategori, pagination bila ada cukup data nyata, clamp lima baris, modal teks lengkap, Escape/Tab/focus return, dukungan sekali per fingerprint harian, report dan daftar laporan. Jangan membuat banyak kiriman palsu hanya untuk memenuhi pagination.
@@ -272,19 +301,35 @@ Bila ada regresi source/build: maintenance, biarkan flags off, pulihkan **pasang
 
 ## 11. Bukti lokal dan batas
 
-Pengujian kode memakai SQLite in-memory dan file SQLite sementara terpisah yang dibuat TestCase, fake provider dan temp storage. Test baru memverifikasi Stage A, policy gate produksi, migrator-default guard, alias/DB_URL, persistent reconnect isolation, noindex/sitemap, no automatic prune; frontend merender home/catalog/detail/chrome nyata dan memeriksa link promosi tidak ada serta sidebar role/flag.
+Pengujian kode memakai SQLite in-memory dan file SQLite sementara terpisah yang dibuat TestCase, fake provider (khusus jalur Turnstile) dan temp storage. Test baru memverifikasi Stage A, policy gate produksi, migrator-default guard, alias/DB_URL, persistent reconnect isolation, noindex/sitemap, no automatic prune; frontend merender home/catalog/detail/chrome nyata dan memeriksa link promosi tidak ada serta sidebar role/flag.
 
 Command utama:
 
 ```powershell
 rtk proxy C:\Users\chris\.config\herd\bin\php84\php.exe vendor/bin/phpunit --do-not-cache-result tests/Feature/TestIsolationTest.php
-rtk proxy C:\Users\chris\.config\herd\bin\php84\php.exe vendor/bin/phpunit --do-not-cache-result tests/Feature/StorySoftLaunchTest.php tests/Feature/StoryPlatformTest.php tests/Feature/LocalPreviewGuardTest.php tests/Feature/ReleaseReadinessTest.php tests/Feature/SeoTest.php
+rtk proxy C:\Users\chris\.config\herd\bin\php84\php.exe vendor/bin/phpunit --do-not-cache-result tests/Feature/StoryAntispamTest.php tests/Feature/StorySoftLaunchTest.php tests/Feature/StoryPlatformTest.php tests/Feature/LocalPreviewGuardTest.php tests/Feature/ReleaseReadinessTest.php tests/Feature/SeoTest.php
 rtk proxy node --experimental-strip-types --test tests/frontend/story-soft-launch.test.mjs tests/frontend/story-cards.test.mjs tests/frontend/splash.test.mjs tests/frontend/commerce.test.mjs
 rtk proxy node node_modules/typescript/bin/tsc --noEmit
 rtk proxy npm run build
 rtk git diff --check
 ```
 
-Hasil lokal aktual: isolation guard2tests/13assertions PASS; focused Laravel49tests/496assertions PASS; frontend19tests PASS; TypeScript noEmit PASS; PHP syntax8file/Pint8file PASS; Vite3457modules/14,88detik PASS; git diff --check PASS. Warning build URL font absolut tetap ada; font dilayani dari public/fonts pada runtime. Harness commerce mempunyai warning useLayoutEffect pada server renderer, bukan bukti Console browser. Konektor browser mengembalikan daftar kosong. SHA commit, branch/push, ZIP dan SHA-256 dicatat pada laporan rilis akhir. Tidak mengklaim UI browser, MySQL migration, real Turnstile, live admin login atau backup produksi terverifikasi. VISUAL BROWSER QA NOT VERIFIED jika konektor browser tetap kosong.
+Hasil lokal aktual: isolation guard2tests/13assertions PASS; focused Laravel49tests/496assertions PASS; frontend19tests PASS; TypeScript noEmit PASS; PHP syntax8file/Pint8file PASS; Vite3457modules/14,88detik PASS; git diff --check PASS. Warning build URL font absolut tetap ada; font dilayani dari public/fonts pada runtime. Harness commerce mempunyai warning useLayoutEffect pada server renderer, bukan bukti Console browser. Konektor browser mengembalikan daftar kosong. SHA commit, branch/push, ZIP dan SHA-256 dicatat pada laporan rilis akhir. Tidak mengklaim UI browser, MySQL hosting, real Turnstile opsional, live admin login atau backup produksi terverifikasi. Hasil rilis e39 di paragraf sebelumnya adalah historis; hasil terbaru anti-spam dicatat di laporan review lokal. VISUAL BROWSER QA NOT VERIFIED jika konektor browser tetap kosong.
 
 Dokumen ini tidak menyalakan flag, menetapkan approved policy atau menjalankan perintah hosting. Stage B tetap NO-GO sampai pemilik melengkapi gate.
+
+
+## Upgrade dari Stage A e39 tanpa Cloudflare — manual setelah approval rilis baru
+
+1. Review dan otorisasi commit/push/paket rilis baru terlebih dahulu; task sekarang tidak melakukan ketiganya. Jangan memakai ZIP build lama sebagai pengganti backend baru.
+2. Backup pasangan source/build serta database seperti prosedur yang ada. Pertahankan Stage A (enabled=true, policies_approved=false).
+3. Maintenance, update source ke SHA baru yang benar-benar ditinjau, verifikasi hash ZIP baru dan extract build yang cocok, seperti bagian4. Tidak ada migration baru, tidak setup/seed/reset DB stories yang sudah siap.
+4. Isi STORIES_ANTISPAM_PROVIDER=local melalui editor .env privat; pertahankan DB/user, APP_KEY, abuse key dan session/cache persistent yang sudah ada. Key Cloudflare tidak wajib.
+5. Jalankan optimize:clear, config:cache, route:cache, view:cache, lalu up. Periksa preflight provider/cache-lock, admin superadmin, landing belum dibuka dan POST challenge/submission tetap503. Tidak ada link promosi baru.
+6. Owner masih harus menyetujui teks kebijakan/versi, retensi/cadangan/privasi, moderator dan response spam. Menghapus ketergantungan Cloudflare bukan persetujuan Stage B.
+7. Setelah seluruh gate disahkan, buka B dengan prosedur bagian8 dan uji soal lokal benar/salah, minimal waktu2detik, expiry5menit, tiga tebakan, renewal dan session berbeda. Cerita/consent harus tetap berada di form setelah gagal.
+8. Kirim satu cerita UJI OPERASIONAL tanpa data pribadi melalui browser nyata, periksa pending, private isolation, approve/hide/removal melalui workflow resmi, kemudian bersihkan data uji secara sah. Jangan menambah fixture/testimonial otomatis.
+9. Bila spam meningkat, segera policies_approved=false dan refresh config; admin tetap aktif selama enabled=true. Pertahankan DB/data. Provider opsional turnstile dapat dipilih kemudian melalui bagian3.
+
+
+Hasil review anti-spam terbaru: [laporan lokal](GPSFOOD_LOCAL_ANTISPAM_REVIEW.md) —64Laravel tests/705assertions,21frontend tests, TypeScript/Pint/PHPsyntax/build/diffcheck PASS; browser UI dan hosting belum diverifikasi. Tidak commit/push/deploy atau membuka Stage B pada task ini.

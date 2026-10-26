@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/kuicip/cerita', [StoryController::class, 'index'])->middleware('noindex')->name('stories.index');
 Route::middleware(['noindex', StoryAvailable::class])->prefix('kuicip/cerita')->name('stories.')->group(function () {
+    Route::post('/challenge', [StoryController::class, 'challenge'])->middleware('throttle:10,1,story-challenge')->name('challenge');
     Route::get('/feed', [StoryController::class, 'feed'])->middleware('throttle:60,1,story-feed')->name('feed');
     Route::post('/', [StoryController::class, 'store'])->middleware('throttle:5,1,story-submit')->name('store');
     Route::post('/removal', [StoryController::class, 'removal'])->middleware('throttle:5,1,story-removal')->name('removal');

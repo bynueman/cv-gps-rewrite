@@ -63,7 +63,7 @@ test('moderation sidebar entry is shown only to superadmins while story manageme
   }
 });
 test('direct story page keeps the corporate chrome and gates its form and feed in Stage A',()=>{
-  const base={siteKey:null,policyVersion:'draft-v1',retentionDays:90,categories:['kehidupan']};
+  const base={antispamProvider:'turnstile',siteKey:null,policyVersion:'draft-v1',retentionDays:90,categories:['kehidupan']};
   const closed=render('Cerita',{...base,enabled:false});
   assert.ok(closed.includes('Ruang Cerita belum dibuka.'));
   assert.ok(!closed.includes('<textarea'));
@@ -77,4 +77,25 @@ test('direct story page keeps the corporate chrome and gates its form and feed i
   assert.ok(open.includes('<footer'));
   assert.ok(open.includes('90'));
   assert.ok(open.includes('mailto:test@example.test'));
+});
+
+test('local verification needs no Turnstile key and its trap stays outside keyboard and accessibility navigation',()=>{
+  const html=render('Cerita',{enabled:true,antispamProvider:'local',siteKey:null,policyVersion:'approved-fixture',retentionDays:90,categories:['kehidupan']});
+  assert.ok(html.includes('Verifikasi sederhana'));
+  assert.ok(html.includes('Hitung dan tulis hasilnya'));
+  assert.ok(html.includes('Minta soal baru'));
+  assert.ok(html.includes('name="challenge_answer"'));
+  assert.ok(html.includes('inputMode="numeric"'));
+  assert.ok(html.includes('aria-describedby="story-verification-help"'));
+  assert.ok(html.includes('hidden="" aria-hidden="true"'));
+  assert.ok(/name="contact_website"[^>]*tabindex="-1"[^>]*autoComplete="off"/.test(html));
+  assert.ok(!html.includes('Verifikasi belum tersedia.'));
+  assert.ok(!html.includes('challenges.cloudflare.com'));
+  assert.ok(!html.includes('href="/kuicip/cerita"'));
+});
+test('an unknown provider renders no usable verification or send button',()=>{
+  const html=render('Cerita',{enabled:true,antispamProvider:'none',siteKey:null,policyVersion:'approved-fixture',retentionDays:90,categories:['kehidupan']});
+  assert.ok(html.includes('Verifikasi belum tersedia. Coba lagi nanti.'));
+  assert.ok(/<button disabled=""[^>]*>Kirim untuk ditinjau/.test(html));
+  assert.ok(!html.includes('name="challenge_answer"'));
 });

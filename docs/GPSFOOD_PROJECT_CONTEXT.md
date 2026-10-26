@@ -803,3 +803,15 @@ Guard DB diperbaiki karena Migrator sementara memakai default=stories: bandingka
 Pengujian terfokus dan batas aktual dicantumkan dalam laporan akhir rilis. Tes meliputi Stage A, gate produksi, Turnstile error/replay, authorizations/moderation/consent/privacy, persistent temporary SQLite reconnect, no promo pada markup React dan sidebar role/flag. Tidak mengubah database/env/CMS nyata, tidak memakai SQLite demo untuk produksi. Browser connector kosong; QA visual, PHP8.2/MySQL, Turnstile asli dan operator acceptance produksi belum diverifikasi.
 
 Lihat [runbook soft launch](GPSFOOD_STORIES_SOFT_LAUNCH.md) untuk backup/preflight, privilege DB terbatas, source/build yang cocok, migration stories dengan path eksplisit, Stage A/B, policy/moderator gates dan emergency disable. Commit/push origin/main hanya untuk source yang lolos checks; tidak ada deployment otomatis.
+
+
+
+## Anti-spam first-party untuk soft launch — lokal, 26 Oktober 2026
+
+Permintaan terbaru owner mengganti kewajiban Cloudflare dengan provider local eksplisit, tetap mempertahankan turnstile opsional dan menolak provider tidak dikenal. Baseline clean e39cef2896837675670bedd7b3622eae5c09e504. Produksi dilaporkan pemilik pada Stage A dengan DB/admin siap; agen tidak mengakses hosting atau mengubah flag/env/data.
+
+StoryAntispam mengeluarkan nonce/token MAC Laravel yang bound session, jawaban penjumlahan hanya pada cache server, TTL300detik, minimum age2detik, tiga tebakan, atomic cache lock, honeypot server dan throttle challenge10/menit. Local verification dijalankan sebelum query cerita; cache grant sesudah jawaban benar hanya menerima retry idempotent UUID/hash yang sama. Semua quota/cooldown/duplicate/moderation/consent/private/removal protections tetap.
+
+Provider default kode tetap turnstile untuk kompatibilitas; .env.example dan helper preview memilih local secara eksplisit. Production local memerlukan session/cache file atau database persistent dengan lock; tidak ada mode none/disabled atau migration baru. StoryVerification merender soal/renewal lokal atau widget opsional, tanpa mengubah card/modal/nav/home/footer/catalog.
+
+Tidak commit/push/deploy atau membuat ZIP rilis pada task ini. Build lokal dan targeted tests saja; panduan upgrade di GPSFOOD_STORIES_SOFT_LAUNCH.md menggantikan kewajiban Cloudflare untuk provider local. Retensi/prune tetap manual sesuai approval owner, dan Stage B tetap menunggu approval operasional.

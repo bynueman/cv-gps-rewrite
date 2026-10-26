@@ -76,6 +76,7 @@ class LocalPreview extends TestCase
             'session.driver' => 'file', 'session.cookie' => 'gpsfood_local_preview_session',
             'session.secure' => false, 'cache.default' => 'file',
             'stories.enabled' => true, 'stories.policies_approved' => true, 'stories.local_preview' => true,
+            'stories.antispam_provider' => 'local',
             'stories.policy_version' => 'LOCAL-DEMO-NOT-APPROVED',
             'stories.abuse_key' => hash('sha256', file_get_contents($root.'/app-key')),
             'stories.turnstile_secret' => 'local-preview-fake-verifier', 'stories.turnstile_hostname' => 'localhost']);

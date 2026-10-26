@@ -36,7 +36,7 @@ class StorySoftLaunchTest extends TestCase
             ->assertInertia(fn ($page) => $page->component('Admin/Stories/Index')->where('site.storyEnabled', true));
         $this->get('/kuicip/cerita')->assertOk()->assertInertia(fn ($page) => $page->where('enabled', false));
         $this->getJson('/kuicip/cerita/feed')->assertStatus(503);
-        foreach (['/kuicip/cerita', '/kuicip/cerita/removal', '/kuicip/cerita/1/react', '/kuicip/cerita/1/report'] as $uri) {
+        foreach (['/kuicip/cerita/challenge', '/kuicip/cerita', '/kuicip/cerita/removal', '/kuicip/cerita/1/react', '/kuicip/cerita/1/report'] as $uri) {
             $this->postJson($uri, [])->assertStatus(503);
         }
         $this->assertSame(0, Story::count());

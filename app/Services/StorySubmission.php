@@ -10,20 +10,26 @@ use Illuminate\Support\Facades\Log;
 
 class StorySubmission
 {
-    public function submit(StoreStoryRequest $request, TurnstileVerifier $turnstile): array
+    public function submit(StoreStoryRequest $request, StoryAntispam $antispam): array
     {
         $data = $request->validated();
         $publication = $data['visibility'] === 'public' && $request->boolean('publication_consent');
         $social = $data['visibility'] === 'public' && $request->boolean('social_consent');
         $hash = StoryIdentity::hash(json_encode([$data['category'], $data['body'], $data['visibility'],
             $publication, $social, config('stories.policy_version')], JSON_THROW_ON_ERROR));
+        $provider = $antispam->provider();
+        if ($provider === 'local') {
+            $antispam->verify($request, $hash);
+        }
         $existing = Story::withTrashed()->where('idempotency_key', $data['idempotency_key'])->first();
         if ($existing) {
             abort_unless(hash_equals($existing->request_hash, $hash), 409, 'Kode kiriman sudah digunakan.');
 
             return ['code' => $existing->displayCode(), 'accepted' => true];
         }
-        abort_unless($turnstile->verify($data['turnstile_token']), 422, 'Verifikasi keamanan gagal. Silakan coba kembali.');
+        if ($provider === 'turnstile') {
+            $antispam->verify($request, $hash);
+        }
         $fingerprint = StoryIdentity::fingerprint($request);
         $duplicate = StoryIdentity::hash(mb_strtolower(preg_replace('/\s+/u', ' ', $data['body'])));
         $connection = DB::connection('stories');

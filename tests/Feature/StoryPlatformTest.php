@@ -30,7 +30,7 @@ class StoryPlatformTest extends TestCase
         parent::setUp();
         config([
             'stories.enabled' => true, 'stories.policies_approved' => true, 'stories.policy_version' => 'reviewed-test-v1',
-            'stories.abuse_key' => str_repeat('test-only-', 5), 'stories.turnstile_secret' => 'mock-server-secret',
+            'stories.antispam_provider' => 'turnstile', 'stories.abuse_key' => str_repeat('test-only-', 5), 'stories.turnstile_secret' => 'mock-server-secret',
             'stories.turnstile_hostname' => 'gpsfood.test', 'stories.daily_quota' => 200, 'stories.cooldown_seconds' => 60,
             'database.connections.stories' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '', 'foreign_key_constraints' => true],
         ]);
