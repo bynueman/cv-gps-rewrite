@@ -17,6 +17,11 @@ class StoryPolicy
         return $user->isSuperadmin();
     }
 
+    public function redact(User $user, Story $story): bool
+    {
+        return $user->isSuperadmin();
+    }
+
     public function update(User $user, Story $story): bool
     {
         return $user->isSuperadmin();

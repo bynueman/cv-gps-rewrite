@@ -62,7 +62,7 @@ class ReleaseReadinessTest extends TestCase
         }
         $this->get('/kuicip/cerita')->assertOk()->assertInertia(fn ($page) => $page->where('enabled', false));
         $this->getJson('/kuicip/cerita/feed?enabled=1')->assertNotFound();
-        foreach (['/kuicip/cerita', '/kuicip/cerita/removal', '/kuicip/cerita/1/react', '/kuicip/cerita/1/report'] as $url) {
+        foreach (['/kuicip/cerita', '/kuicip/cerita/1/react', '/kuicip/cerita/1/report'] as $url) {
             $this->postJson($url, ['enabled' => true, 'STORIES_ENABLED' => true])->assertNotFound();
         }
         $this->actingAs(User::factory()->create(['role' => 'superadmin']));
@@ -174,14 +174,20 @@ class ReleaseReadinessTest extends TestCase
             'context' => 'products', 'variant' => 'standard'])->assertOk()->json();
         $product = Product::firstOrFail();
         $product->update(['image' => $media['image'], 'image_thumb' => $media['imageThumb'], 'image_og' => $media['imageOg']]);
-        $before = Arr::except($product->getRawOriginal(), ['updated_at', 'seo_title_id', 'meta_description_id', 'image_alt_id']);
+        $beforeLists = ['highlights' => $product->highlights, 'notes' => $product->notes];
+        $before = Arr::except($product->getRawOriginal(), ['updated_at', 'seo_title_id', 'meta_description_id', 'image_alt_id', 'highlights', 'notes']);
         $imagePath = public_path(ltrim($media['image'], '/'));
         $imageHash = hash_file('sha256', $imagePath);
         $payload = array_merge($this->formPayload($product), ['seo_title_id' => 'Judul terverifikasi sintetis',
             'meta_description_id' => 'Metadata fixture acceptance lokal.', 'image_alt_id' => 'Gambar fixture lokal']);
         $this->patch(route('admin.products.update', $product), $payload)
             ->assertSessionHasNoErrors()->assertRedirect(route('admin.products.index'));
-        $this->assertSame($before, Arr::except($product->fresh()->getRawOriginal(), ['updated_at', 'seo_title_id', 'meta_description_id', 'image_alt_id']));
+        $this->assertSame($before, Arr::except($product->fresh()->getRawOriginal(), ['updated_at', 'seo_title_id', 'meta_description_id', 'image_alt_id', 'highlights', 'notes']));
+        foreach ($beforeLists as $list => $items) {
+            $actual = $product->fresh()->$list;
+            $this->assertSame($items, array_map(fn ($item) => Arr::only($item, ['id', 'en']), $actual));
+            $this->assertCount(count($items), array_unique(array_column($actual, 'key')));
+        }
         $this->assertSame($imageHash, hash_file('sha256', $imagePath));
         $this->assertSame($payload['seo_title_id'], $product->fresh()->seo_title_id);
         Http::assertNothingSent();

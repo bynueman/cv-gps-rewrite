@@ -26,6 +26,8 @@ class StoreStoryRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'policy_version.required' => 'Panduan berubah. Muat ulang halaman dan tinjau persetujuan sebelum mengirim.',
+            'policy_version.in' => 'Panduan berubah. Muat ulang halaman dan tinjau persetujuan sebelum mengirim.',
             'contact_website.prohibited' => 'Verifikasi gagal. Silakan coba kembali.',
             'challenge_token.required' => 'Minta soal verifikasi terlebih dahulu.',
             'challenge_answer.required' => 'Isi jawaban verifikasi.',
@@ -36,6 +38,7 @@ class StoreStoryRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'policy_version' => ['required', 'string', 'max:80', Rule::in([config('stories.policy_version')])],
             'category' => ['required', Rule::in(Story::CATEGORIES)],
             'body' => ['required', 'string', 'min:20', 'max:1500', 'not_regex:/<[^>]+>/'],
             'visibility' => ['required', Rule::in(['public', 'private'])],

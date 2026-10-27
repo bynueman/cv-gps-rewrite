@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Story;
 use App\Models\User;
+use App\Support\StoryAvailability;
 use App\Support\StoryDatabase;
 use Database\Seeders\BrandSeeder;
 use Illuminate\Console\Scheduling\Schedule;
@@ -36,7 +37,7 @@ class StorySoftLaunchTest extends TestCase
             ->assertInertia(fn ($page) => $page->component('Admin/Stories/Index')->where('site.storyEnabled', true));
         $this->get('/kuicip/cerita')->assertOk()->assertInertia(fn ($page) => $page->where('enabled', false));
         $this->getJson('/kuicip/cerita/feed')->assertStatus(503);
-        foreach (['/kuicip/cerita/challenge', '/kuicip/cerita', '/kuicip/cerita/removal', '/kuicip/cerita/1/react', '/kuicip/cerita/1/report'] as $uri) {
+        foreach (['/kuicip/cerita/challenge', '/kuicip/cerita', '/kuicip/cerita/1/react', '/kuicip/cerita/1/report'] as $uri) {
             $this->postJson($uri, [])->assertStatus(503);
         }
         $this->assertSame(0, Story::count());
@@ -49,14 +50,14 @@ class StorySoftLaunchTest extends TestCase
         config(['stories.enabled' => true, 'stories.policies_approved' => true]);
         app()->detectEnvironment(fn () => 'production');
         try {
-            foreach (['draft-v1', ' DRAFT-v2 ', '', str_repeat('x', 81)] as $version) {
+            foreach (['draft-v1', ' DRAFT-v2 ', '', str_repeat('x', 81), 'owner-approved-example-v1', ' '.StoryAvailability::REQUIRED_POLICY_VERSION.' '] as $version) {
                 config(['stories.policy_version' => $version]);
                 $this->get('/kuicip/cerita')->assertOk()
                     ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
                     ->assertInertia(fn ($page) => $page->where('enabled', false)->where('site.localPreview', false));
                 $this->getJson('/kuicip/cerita/feed')->assertStatus(503);
             }
-            config(['stories.policy_version' => 'owner-approved-example-v1']);
+            config(['stories.policy_version' => StoryAvailability::REQUIRED_POLICY_VERSION]);
             $this->get('/kuicip/cerita')->assertOk()->assertInertia(fn ($page) => $page->where('enabled', true));
         } finally {
             app()->detectEnvironment(fn () => 'testing');

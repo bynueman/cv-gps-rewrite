@@ -24,11 +24,13 @@ await build({
       import {StoryCard,StoryActions} from '@/Components/StoryCard';
       import {StoryDetailModal,StoryText} from '@/Components/StoryDetailModal';
       import {StoryReceipt} from '@/Components/StoryReceipt';
-      import {StoryRemovalPanel} from '@/Components/StoryRemovalPanel';
       import {LanguageProvider} from '@/lib/i18n';
       export {StoryActions,StoryDetailModal,StoryText,Dialog,DialogTitle,Description};
-      export const receipt = receipt => renderToStaticMarkup(<LanguageProvider><StoryReceipt receipt={receipt}/></LanguageProvider>);
-      export const removal = () => renderToStaticMarkup(<LanguageProvider><StoryRemovalPanel onRemoved={()=>{}}/></LanguageProvider>);
+      function StoredLanguage({lang,children}) {
+        const previous=globalThis.window;globalThis.window={localStorage:{getItem:()=>lang}};
+        try{return LanguageProvider({children});}finally{if(previous===undefined)delete globalThis.window;else globalThis.window=previous;}
+      }
+      export const receipt = (receipt,lang='id') => renderToStaticMarkup(<StoredLanguage lang={lang}><StoryReceipt receipt={receipt} contactEmail="verified-contact@example.test"/></StoredLanguage>);
       export const text = props => renderToStaticMarkup(<StoryText {...props}/>);
       export const cards = stories => renderToStaticMarkup(<LanguageProvider>{stories.map(story => <StoryCard key={story.id} story={story}/>)}</LanguageProvider>);
       export const actions = props => renderToStaticMarkup(<StoryActions {...props}/>);
@@ -121,29 +123,30 @@ test('card and modal actions use controlled counts, pending state, and explicit 
   assert.equal(supports,1); assert.equal(reports,1);
 });
 
-test('accepted receipts distinguish the shareable code from the once-only private token', () => {
+test('receipts keep code-copy and reviewed support guidance without displaying even a legacy token', () => {
   const token = 'a'.repeat(64);
-  const html = ui.receipt({code: 'KC-0006', deletion_token: token});
-  assert.ok(html.includes('Ceritamu sudah diterima.'));
-  assert.ok(html.includes('kiriman tidak langsung tampil'));
-  assert.ok(html.includes('Salin kode cerita KC-0006'));
-  assert.equal((html.match(new RegExp(token, 'g')) || []).length, 1);
-  assert.ok(/<textarea[^>]*readonly=""/.test(html));
-  assert.ok(html.includes('hanya ditampilkan sekali'));
-  assert.ok(html.includes('Kode cerita saja tidak cukup'));
-  const replay = ui.receipt({code: 'KC-0006'});
-  assert.ok(!replay.includes('<textarea'));
-  assert.ok(replay.includes('tidak dapat ditampilkan ulang'));
+  for (const lang of ['id','en']) {
+    const html = ui.receipt({code: 'KC-0006', accepted: true, deletion_token: token}, lang);
+    assert.ok(html.includes('KC-0006'));
+    assert.ok(html.includes('mailto:verified-contact@example.test'));
+    assert.ok(!html.includes(token));
+    assert.ok(!html.includes('<textarea'));
+    assert.ok(!html.includes('name="token"'));
+    assert.ok(!html.includes('removal token'));
+    if (lang === 'id') {
+      assert.ok(html.includes('menunggu peninjauan'));
+      assert.ok(html.includes('Salin kode cerita KC-0006'));
+      assert.ok(html.includes('bukan bukti kepemilikan'));
+      assert.ok(html.includes('tidak dipenuhi secara otomatis'));
+    } else {
+      assert.ok(html.includes('awaiting review'));
+      assert.ok(html.includes('Copy story code KC-0006'));
+      assert.ok(html.includes('not proof of ownership'));
+      assert.ok(html.includes('not fulfilled automatically'));
+    }
+    const retry = ui.receipt({code: 'KC-0006'}, lang);
+    assert.ok(!retry.includes('shown again'));
+    assert.ok(!retry.includes('ditampilkan ulang'));
+  }
   assert.ok(ui.receipt({code: '<script>invalid</script>'}).includes('&lt;script&gt;'));
-});
-
-test('removal stays secondary and requires a paired story code and private token', () => {
-  const html = ui.removal();
-  assert.ok(html.startsWith('<details'));
-  assert.ok(!/<details[^>]* open/.test(html));
-  assert.ok(html.includes('kode saja tidak cukup'));
-  assert.ok(html.includes('name="code"'));
-  assert.ok(html.includes('name="token" type="password" autoComplete="off"'));
-  assert.ok(html.includes('pattern="[a-f0-9]{64}"'));
-  assert.ok(html.includes('pattern="KC-[0-9]{4,20}"'));
 });

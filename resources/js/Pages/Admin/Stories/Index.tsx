@@ -5,7 +5,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Pagination, type PaginationData } from "@/Components/admin/Pagination";
 import { storyStatusLabels, storyVisibilityLabels } from "@/lib/storyLabels";
 
-type Row = { id: number; code: string; excerpt: string; visibility: string; status: string };
+type Row = { id: number; code: string; excerpt: string; visibility: string; status: string; redacted?: boolean };
 type Filters = { status?: string; visibility?: string; reports?: boolean; code?: string };
 function Index({ stories, pendingReports, filters }: { stories: PaginationData & { data: Row[] }; pendingReports: number; filters: Filters }) {
   const tabs = [
@@ -32,7 +32,7 @@ function Index({ stories, pendingReports, filters }: { stories: PaginationData &
       <p className="w-full text-xs leading-5 text-espresso-600">Gunakan kode lengkap. Pencarian mengikuti filter yang dipilih.</p>
     </form>
     <div className="space-y-3">{stories.data.map(story => <Link key={story.id} href={route("admin.stories.show", story.id)} className="group block rounded-2xl border border-espresso-900/10 bg-cream-50 p-5 transition-colors hover:border-gold-700/50 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3"><span className="font-mono text-sm font-semibold">{story.code}</span><div className="flex flex-wrap gap-2 text-xs"><span className="rounded-full border border-espresso-900/15 px-3 py-1">{storyVisibilityLabels[story.visibility] ?? story.visibility}</span><span className={`rounded-full px-3 py-1 font-semibold ${story.status === "pending" ? "bg-gold-300/30" : "bg-cream-200"}`}>{storyStatusLabels[story.status] ?? story.status}</span></div></div>
+      <div className="flex flex-wrap items-center justify-between gap-3"><span className="font-mono text-sm font-semibold">{story.code}</span><div className="flex flex-wrap gap-2 text-xs"><span className="rounded-full border border-espresso-900/15 px-3 py-1">{storyVisibilityLabels[story.visibility] ?? story.visibility}</span><span className={`rounded-full px-3 py-1 font-semibold ${story.status === "pending" ? "bg-gold-300/30" : "bg-cream-200"}`}>{story.redacted ? "Diredaksi" : storyStatusLabels[story.status] ?? story.status}</span></div></div>
       <p className="my-4 line-clamp-3 whitespace-pre-wrap text-sm leading-relaxed text-espresso-700 [overflow-wrap:anywhere]">{story.excerpt}</p>
       <span className="inline-flex items-center gap-2 text-xs font-semibold">Tinjau cerita<ArrowUpRight size={15} aria-hidden="true"/></span>
     </Link>)}{!stories.data.length && <div role="status" className="rounded-2xl border border-dashed border-espresso-900/20 p-10 text-center"><p className="font-semibold">Tidak ada kiriman yang cocok.</p><p className="mt-2 text-sm text-espresso-600">Periksa kode lengkap atau pilih filter lain.</p></div>}</div>

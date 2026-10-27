@@ -7,6 +7,7 @@ use App\Models\StoryModerationEvent;
 use App\Models\StoryReport;
 use App\Models\User;
 use App\Services\TurnstileVerifier;
+use App\Support\StoryAvailability;
 use App\Support\StoryDatabase;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -42,7 +43,7 @@ class StoryPlatformTest extends TestCase
 
     private function payload(array $overrides = []): array
     {
-        return array_merge(['category' => 'kehidupan', 'body' => 'Hari ini saya belajar menikmati hal-hal kecil dalam kehidupan.',
+        return array_merge(['policy_version' => config('stories.policy_version'), 'category' => 'kehidupan', 'body' => 'Hari ini saya belajar menikmati hal-hal kecil dalam kehidupan.',
             'visibility' => 'public', 'terms_consent' => true, 'publication_consent' => true,
             'social_consent' => false, 'turnstile_token' => 'mock-token', 'idempotency_key' => (string) Str::uuid()], $overrides);
     }
@@ -156,7 +157,7 @@ class StoryPlatformTest extends TestCase
         $this->assertNotNull($user->fresh());
     }
 
-    public function test_guest_submission_is_pending_and_returns_an_owner_token_once(): void
+    public function test_guest_submission_is_pending_and_returns_only_the_story_code_and_acceptance(): void
     {
         $payload = $this->payload(['body' => "  Ini cerita sintetis yang cukup panjang.\r\nBaris kedua.  "]);
         $response = $this->postJson(route('stories.store'), $payload)->assertStatus(202);
@@ -164,8 +165,10 @@ class StoryPlatformTest extends TestCase
         $this->assertSame('pending', $story->status);
         $this->assertSame("Ini cerita sintetis yang cukup panjang.\nBaris kedua.", $story->body);
         $this->assertFalse($story->social_consent);
-        $this->assertSame(hash('sha256', $response->json('deletion_token')), $story->deletion_token_hash);
+        $response->assertJsonMissingPath('deletion_token');
+        $this->assertNull($story->deletion_token_hash);
         $this->assertSame('KC-0001', $response->json('code'));
+        $this->assertSame(['code', 'accepted'], array_keys($response->json()));
         $this->postJson(route('stories.store'), $payload)->assertStatus(202)->assertJsonMissingPath('deletion_token');
         $this->assertDatabaseCount('stories', 1, 'stories');
         $this->getJson(route('stories.feed'))->assertJsonCount(0, 'stories');
@@ -266,15 +269,21 @@ class StoryPlatformTest extends TestCase
         $this->assertSame('resolved', StoryReport::firstOrFail()->status);
     }
 
-    public function test_removal_requires_secret_token_and_redacts_the_story(): void
+    public function test_retired_removal_endpoint_never_queries_or_changes_historical_story_data(): void
     {
-        $response = $this->postJson(route('stories.store'), $this->payload())->assertStatus(202);
-        $this->postJson(route('stories.removal'), ['code' => $response->json('code'), 'token' => str_repeat('0', 64)])->assertStatus(202);
-        $this->assertDatabaseCount('stories', 1, 'stories');
-        $this->assertNull(Story::firstOrFail()->deleted_at);
-        $this->postJson(route('stories.removal'), ['code' => $response->json('code'), 'token' => $response->json('deletion_token')])->assertStatus(202);
-        $this->assertNull(Story::first());
-        $this->assertSame('[removed]', Story::withTrashed()->firstOrFail()->body);
+        $legacy = $this->story(['deletion_token_hash' => hash('sha256', str_repeat('a', 64)), 'policy_version' => 'legacy-policy-v1']);
+        $before = $legacy->fresh()->getRawOriginal();
+        DB::connection('stories')->enableQueryLog();
+        $known = $this->postJson(route('stories.removal'), ['code' => $legacy->displayCode(), 'token' => str_repeat('a', 64)])
+            ->assertStatus(410)->assertJsonMissingPath('deletion_token')->assertHeader('Cache-Control', 'no-store, private')->json();
+        $unknown = $this->postJson(route('stories.removal'), ['code' => 'KC-9999', 'token' => str_repeat('b', 64)])->assertStatus(410)->json();
+        $this->postJson(route('stories.removal'), [])->assertStatus(410);
+        $this->assertSame($known, $unknown);
+        $this->assertSame([], DB::connection('stories')->getQueryLog());
+        DB::connection('stories')->disableQueryLog();
+        $this->assertSame($before, $legacy->fresh()->getRawOriginal());
+        $this->assertDatabaseCount('story_moderation_events', 0, 'stories');
+        Http::assertNothingSent();
     }
 
     public function test_disabled_feature_blocks_public_and_moderation_mutations(): void
@@ -360,5 +369,110 @@ class StoryPlatformTest extends TestCase
         $this->postJson(route('stories.store'), $this->payload(['body' => 'Cerita sintetis lain untuk mencoba token yang sudah dipakai.']))->assertStatus(422);
         $this->assertDatabaseCount('stories', 1, 'stories');
         Http::assertSentCount(2);
+    }
+
+    public function test_admin_privacy_redaction_requires_review_and_preserves_history_consent_and_legacy_hash(): void
+    {
+        $story = $this->story(['deletion_token_hash' => str_repeat('e', 64), 'social_consent' => true]);
+        $before = $story->fresh()->getRawOriginal();
+        $event = StoryModerationEvent::create(['story_id' => $story->id, 'action' => 'moderated', 'from_status' => 'pending',
+            'to_status' => 'approved', 'reason' => 'Synthetic old note with story text']);
+        $report = StoryReport::create(['story_id' => $story->id, 'fingerprint' => str_repeat('f', 64),
+            'reason' => 'privacy', 'details' => 'Synthetic report text', 'status' => 'pending']);
+        $data = ['review_confirmed' => true, 'confirmation_code' => $story->displayCode(), 'request_reference' => 'PR-20261027-001'];
+        $this->postJson(route('admin.stories.redact', $story->id), $data)->assertUnauthorized();
+        $this->actingAs(User::factory()->create(['role' => 'editor']))
+            ->postJson(route('admin.stories.redact', $story->id), $data)->assertForbidden();
+        $admin = User::factory()->create(['role' => 'superadmin']);
+        $this->actingAs($admin);
+        $this->postJson(route('admin.stories.redact', $story->id), array_replace($data, ['review_confirmed' => false]))
+            ->assertUnprocessable()->assertJsonValidationErrors('review_confirmed');
+        $this->postJson(route('admin.stories.redact', $story->id), array_replace($data, ['confirmation_code' => 'KC-9999']))->assertUnprocessable();
+        $this->assertSame($before, $story->fresh()->getRawOriginal());
+        $this->post(route('admin.stories.redact', $story->id), $data)->assertRedirect(route('admin.stories.show', $story->id));
+        $after = Story::withTrashed()->findOrFail($story->id);
+        $this->assertSame('[removed]', $after->body);
+        $this->assertSame('hidden', $after->status);
+        $this->assertNull($after->published_at);
+        $this->assertNotNull($after->deleted_at);
+        foreach (['policy_version', 'consented_at', 'publication_consent', 'social_consent', 'deletion_token_hash', 'request_hash', 'idempotency_key'] as $field) {
+            $this->assertSame($before[$field], $after->getRawOriginal($field), $field);
+        }
+        $this->assertNull($event->fresh()->reason);
+        $this->assertNull($report->fresh()->details);
+        $this->assertSame('pending', $report->fresh()->status);
+        $audit = StoryModerationEvent::where('action', 'privacy_redacted')->firstOrFail();
+        $this->assertSame($admin->id, $audit->actor_id);
+        $this->assertStringContainsString('PR-20261027-001', $audit->reason);
+        $this->assertSame(2, StoryModerationEvent::where('story_id', $story->id)->count());
+        $this->post(route('admin.stories.redact', $story->id), $data)->assertRedirect();
+        $this->assertSame(2, StoryModerationEvent::where('story_id', $story->id)->count());
+        $this->get(route('admin.stories.index', ['code' => $story->displayCode()]))
+            ->assertOk()->assertInertia(fn ($page) => $page->where('stories.data.0.redacted', true)->where('stories.data.0.excerpt', '[removed]'));
+        $this->get(route('admin.stories.show', $story->id))->assertOk()
+            ->assertInertia(fn ($page) => $page->where('redacted', true)->where('story.body', '[removed]')->where('story.policy_version', $before['policy_version'])->has('history', 2));
+        $this->patch(route('admin.stories.update', $story->id), ['status' => 'approved', 'reason' => 'Cannot republish a tombstone'])->assertNotFound();
+        $this->getJson(route('stories.feed'))->assertJsonCount(0, 'stories');
+        $this->assertFalse(Schema::connection('sqlite')->hasTable('stories'));
+        Http::assertNothingSent();
+    }
+
+    public function test_privacy_redaction_rolls_back_text_scrubbing_when_audit_cannot_be_recorded(): void
+    {
+        $story = $this->story();
+        $event = StoryModerationEvent::create(['story_id' => $story->id, 'action' => 'moderated',
+            'from_status' => 'pending', 'to_status' => 'approved', 'reason' => 'Synthetic old audit note']);
+        $report = StoryReport::create(['story_id' => $story->id, 'fingerprint' => str_repeat('f', 64),
+            'reason' => 'privacy', 'details' => 'Synthetic report details', 'status' => 'pending']);
+        $before = $story->fresh()->getRawOriginal();
+        StoryModerationEvent::creating(fn () => throw new \RuntimeException('simulated audit failure'));
+        $this->actingAs(User::factory()->create(['role' => 'superadmin']))->withoutExceptionHandling();
+        try {
+            $this->post(route('admin.stories.redact', $story->id), ['review_confirmed' => true,
+                'confirmation_code' => $story->displayCode(), 'request_reference' => 'PR-20261027-002']);
+            $this->fail('Expected the audit write to fail.');
+        } catch (\RuntimeException $error) {
+            $this->assertSame('simulated audit failure', $error->getMessage());
+        }
+        $this->assertSame($before, $story->fresh()->getRawOriginal());
+        $this->assertSame('Synthetic old audit note', $event->fresh()->reason);
+        $this->assertSame('Synthetic report details', $report->fresh()->details);
+        $this->assertSame(1, StoryModerationEvent::where('story_id', $story->id)->count());
+    }
+
+    public function test_policy_bound_submission_rejects_stale_forms_and_preserves_historical_retry_receipts(): void
+    {
+        $this->postJson(route('stories.store'), $this->payload(['policy_version' => 'obsolete-form']))
+            ->assertUnprocessable()->assertJsonValidationErrors('policy_version');
+        Http::assertNothingSent();
+        $payload = $this->payload();
+        $receipt = $this->postJson(route('stories.store'), $payload)->assertStatus(202)->assertJsonMissingPath('deletion_token');
+        $before = Story::firstOrFail()->getRawOriginal();
+        config(['stories.policy_version' => StoryAvailability::REQUIRED_POLICY_VERSION]);
+        $payload['policy_version'] = config('stories.policy_version');
+        $this->postJson(route('stories.store'), $payload)->assertStatus(202)
+            ->assertJsonPath('code', $receipt->json('code'))->assertJsonMissingPath('deletion_token');
+        $this->assertSame($before, Story::firstOrFail()->getRawOriginal());
+        $this->travel(61)->seconds();
+        $this->postJson(route('stories.store'), $this->payload(['body' => 'Cerita fiksi lain setelah panduan yang baru ditinjau.', 'turnstile_token' => 'fresh-test-token']))
+            ->assertStatus(202)->assertJsonMissingPath('deletion_token');
+        $new = Story::orderByDesc('id')->firstOrFail();
+        $this->assertSame(config('stories.policy_version'), $new->policy_version);
+        $this->assertNull($new->deletion_token_hash);
+        $this->assertSame('reviewed-test-v1', Story::findOrFail(1)->policy_version);
+    }
+
+    public function test_admin_privacy_redaction_keeps_csrf_protection(): void
+    {
+        $story = $this->story();
+        $this->actingAs(User::factory()->create(['role' => 'superadmin']));
+        $middleware = Mockery::mock(ValidateCsrfToken::class, [$this->app, $this->app['encrypter']])
+            ->makePartial()->shouldAllowMockingProtectedMethods();
+        $middleware->shouldReceive('runningUnitTests')->andReturn(false);
+        $this->app->instance(ValidateCsrfToken::class, $middleware);
+        $this->postJson(route('admin.stories.redact', $story->id), ['review_confirmed' => true,
+            'confirmation_code' => $story->displayCode(), 'request_reference' => 'PR-20261027-003'])->assertStatus(419);
+        $this->assertSame($story->body, $story->fresh()->body);
+        $this->assertDatabaseCount('story_moderation_events', 0, 'stories');
     }
 }

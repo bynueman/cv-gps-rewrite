@@ -1,5 +1,7 @@
 # Kuicip Ruang Cerita — runbook soft launch tanpa promosi
 
+> Instruksi penghapusan dan policy lama di dokumen historis ini digantikan oleh [rilis gabungan V3 + privasi](GPSFOOD_FINAL_V3_STORY_REMOVAL_RELEASE.md). Jangan membuka form produksi sebelum pemilik menyetujui panduan ID/EN baru dan versi kuicip-v3-support-removal-2026-10-27. Tidak ada persetujuan kebijakan yang diasumsikan oleh agen.
+
 > **Dokumen historis.** Pemilik menyatakan Ruang Cerita produksi sudah terbuka. Untuk rilis UI/UX beserta promosi homepage dan navbar, gunakan [runbook Ruang Cerita V2 terbaru](GPSFOOD_RUANG_CERITA_V2_RELEASE.md). Jangan menerapkan ulang aktivasi Stage A, inisialisasi DB, atau penutupan promosi dari dokumen ini.
 
 > Local acceptance telah diterima pemilik. Untuk rilis source/build Stage A yang diotorisasi berikutnya, gunakan [runbook rilis Stage A](GPSFOOD_ANTISPAM_STAGE_A_RELEASE.md). Status “belum commit/push” di laporan implementasi ini merekam fase review sebelumnya; status rilis aktual ada pada laporan artefak final.
@@ -28,7 +30,7 @@ Tidak ada desain V2.1. Slogan/identitas Kuicip, homepage V2 selain blok promosi 
 - Submission anonim20–1500 karakter plain text, kategori, pilihan public/private, terms, consent publikasi tersendiri dan reuse sosial opsional.
 - New story selalu pending. Feed hanya public+approved+publication_consent+published_at, tanpa soft-deleted;6 per halaman, cursor dan kategori.
 - Kartu preview lima baris dan modal Headless UI untuk teks lengkap; dukungan/laporan berbagi handlers/state.
-- Token penghapusan acak256bit ditampilkan sekali; DB menyimpan hash. Kode cerita saja tidak cukup. Penghapusan pemilik meredaksi body, mencabut consent/publikasi dan soft-delete.
+- Submission baru hanya menerima kode cerita/accepted, tanpa token penghapusan. Endpoint removal lama menjawab410 tanpa lookup cerita. Permintaan privasi melalui kontak resmi ditinjau operator; hanya superadmin dapat mengonfirmasi redaksi. Hash/consent/versi historis dipertahankan.
 - Superadmin saja: daftar20 per halaman, filter status/visibility/reports, detail privat, approve/reject/hide, review laporan dan riwayat audit terbatas/paginasi.
 - CSRF, middleware auth/superadmin/noindex dan policy tetap aktif.
 - Semua model cerita memakai koneksi stories. Tidak ada join FK lintas DB; actor_id mengacu secara logis ke user website.
@@ -114,7 +116,7 @@ Cara kerja local:
 - Penjumlahan mudah dengan operand acak1–9. Jawaban disimpan hanya pada cache server; JSON ke frontend hanya token, pertanyaan, expires_in dan wait_seconds.
 - Token terenkripsi dan ditandatangani MAC oleh Laravel memakai APP_KEY yang sudah ada. Purpose khusus, nonce acak128bit, waktu penerbitan server dan hash session mengikatnya pada form/visitor yang sama.
 - Berlaku300detik, umur minimal2detik menurut waktu server, maksimal3jawaban salah pernonce. UI memberi jeda singkat dan dapat memperbarui soal tanpa menghapus cerita atau consent.
-- Cache lock menghindari dua verifikasi bersamaan. Keberhasilan mengikat nonce ke satu UUID dan hash payload; nonce tidak dapat dipakai untuk kiriman baru. Retry identik untuk UUID/payload yang sama tetap idempotent selama challenge masih berlaku. Setelah expiry, minta soal baru dengan UUID/payload yang sama untuk mengambil receipt; tidak ada token penghapusan baru.
+- Cache lock menghindari dua verifikasi bersamaan. Keberhasilan mengikat nonce ke satu UUID dan hash payload; nonce tidak dapat dipakai untuk kiriman baru. Retry identik untuk UUID/payload yang sama tetap idempotent selama challenge masih berlaku. Setelah expiry, minta soal baru dengan UUID/payload yang sama untuk mengambil receipt kode cerita tanpa duplikasi.
 - Honeypot contact_website harus kosong. Field hidden, tidak ada dalam navigasi keyboard/accessibility tree, dan divalidasi server.
 - Verifikasi local yang gagal ditolak sebelum query/write DB cerita atau pengambilan kuota. Batas POST submission5/menit, cooldown, quota global dan duplicate detection tetap berlaku setelah verifikasi lolos. Tidak mencatat body, jawaban, token atau session mentah dalam log.
 
@@ -256,7 +258,7 @@ Uji penerimaan terkontrol, tanpa seeder dan tanpa testimonial palsu:
 4. Setelah cooldown60detik (dan budget5submission/menit), kirim satu cerita privat berlabel uji. Consent sosial opsional; privat tidak boleh menjadi publik meskipun dimoderasi approved. Biarkan privat untuk memeriksa isolasi.
 5. Approve hanya cerita publik uji melalui admin dengan alasan yang aman. Feed hanya menampilkan approved public ber-consent; tidak pending/private/rejected/hidden. Di jaringan browser tidak ada body private dalam landing/feed.
 6. Periksa kategori, pagination bila ada cukup data nyata, clamp lima baris, modal teks lengkap, Escape/Tab/focus return, dukungan sekali per fingerprint harian, report dan daftar laporan. Jangan membuat banyak kiriman palsu hanya untuk memenuhi pagination.
-7. Review laporan melalui admin, hide cerita uji publik; ia segera hilang dari feed. Gunakan token removal untuk kedua cerita uji bila perlu; token salah tidak menghapus. User workflow removal meredaksi body dan soft-delete, bukan DROP tabel.
+7. Review laporan melalui admin, hide cerita uji publik; ia segera hilang dari feed. Untuk redaksi data uji yang telah ditinjau, gunakan workflow privasi superadmin dengan referensi kasus dan konfirmasi. Endpoint removal publik lama selalu410. Jangan memakai kode saja sebagai bukti kewenangan.
 8. Periksa header noindex,nofollow, sitemap exclusion, no promotion pada home/nav/footer/catalog, serta website/company/product routes tetap normal.
 9. Simpan hasil uji tanpa data/token sensitif. Hanya bagikan direct URL kepada kelompok review yang dipilih pemilik; tidak mengirim announcement publik otomatis.
 
@@ -330,7 +332,7 @@ Dokumen ini tidak menyalakan flag, menetapkan approved policy atau menjalankan p
 5. Jalankan optimize:clear, config:cache, route:cache, view:cache, lalu up. Periksa preflight provider/cache-lock, admin superadmin, landing belum dibuka dan POST challenge/submission tetap503. Tidak ada link promosi baru.
 6. Owner masih harus menyetujui teks kebijakan/versi, retensi/cadangan/privasi, moderator dan response spam. Menghapus ketergantungan Cloudflare bukan persetujuan Stage B.
 7. Setelah seluruh gate disahkan, buka B dengan prosedur bagian8 dan uji soal lokal benar/salah, minimal waktu2detik, expiry5menit, tiga tebakan, renewal dan session berbeda. Cerita/consent harus tetap berada di form setelah gagal.
-8. Kirim satu cerita UJI OPERASIONAL tanpa data pribadi melalui browser nyata, periksa pending, private isolation, approve/hide/removal melalui workflow resmi, kemudian bersihkan data uji secara sah. Jangan menambah fixture/testimonial otomatis.
+8. Kirim satu cerita UJI OPERASIONAL tanpa data pribadi melalui browser nyata, periksa pending, private isolation, approve/hide dan redaksi privasi superadmin melalui workflow yang ditinjau, kemudian bersihkan data uji secara sah. Jangan menambah fixture/testimonial otomatis.
 9. Bila spam meningkat, segera policies_approved=false dan refresh config; admin tetap aktif selama enabled=true. Pertahankan DB/data. Provider opsional turnstile dapat dipilih kemudian melalui bagian3.
 
 

@@ -106,14 +106,16 @@ test('moderation sidebar entry is shown only to superadmins while story manageme
 test('direct story page keeps the corporate chrome and gates its form and feed in Stage A',()=>{
   const base={antispamProvider:'turnstile',siteKey:null,policyVersion:'draft-v1',retentionDays:90,categories:['kehidupan']};
   const closed=render('Cerita',{...base,enabled:false});
-  assert.ok(closed.includes('Ruang Cerita belum dibuka.'));
+  assert.ok(closed.includes('Ruang Cerita sementara belum menerima kiriman.'));
+  assert.ok(closed.includes('Cerita yang sudah ada tetap tersimpan.'));
+  assert.ok(!closed.includes('Belum ada kiriman yang diterima'));
   assert.ok(!closed.includes('<textarea'));
   const open=render('Cerita',{...base,enabled:true,siteKey:'fixture-site-key',policyVersion:'approved-fixture'});
   assert.ok(open.includes('<textarea'));
   assert.ok(open.includes('name="publication_consent"'));
   assert.ok(open.includes('name="social_consent"'));
   assert.ok(open.includes('name="terms_consent"'));
-  assert.ok(open.includes('name="token" type="password"'));
+  assert.ok(!open.includes('name="token" type="password"'));
   assert.ok(open.includes('<header'));
   assert.ok(open.includes('<footer'));
   assert.ok(open.includes('90'));
@@ -178,4 +180,28 @@ test('submission groups preserve consent requirements and block sending before v
   assert.ok(html.includes('aria-describedby="story-body-help story-character-count"'));
   assert.ok(html.includes('Cara kerjanya'));
   assert.ok(html.includes('Kamu tidak sendiri.'));
+});
+
+test('public story page retires the token form and points to the configured support channel',()=>{
+  const html=render('Cerita',{enabled:true,antispamProvider:'local',siteKey:null,policyVersion:'approved-fixture',retentionDays:90,categories:['kehidupan']});
+  assert.ok(html.includes('mailto:test@example.test'));
+  assert.ok(html.includes('bukan bukti kepemilikan'));
+  assert.ok(html.includes('Tim akan meninjau permintaan'));
+  for(const old of ['Hapus ceritamu dengan token','Simpan token penghapusan','name="token"','name="code"','story-removal-receipt','deletion_token'])assert.ok(!html.includes(old),old);
+  assert.ok(html.includes('name="terms_consent"'));
+  assert.ok(html.includes('name="publication_consent"'));
+  assert.ok(html.includes('name="social_consent"'));
+});
+
+test('redacted admin tombstones preserve audit access and expose no moderation or removal action',()=>{
+  const pagination={current_page:1,last_page:1,per_page:20,total:0,from:null,to:null,links:[]};
+  const html=render('StoryShow',{auth:{user:{id:1,name:'Test operator',role:'superadmin'}},redacted:true,
+    story:{id:6,body:'[removed]',category:'kehidupan',visibility:'private',status:'hidden',publication_consent:false,social_consent:false,policy_version:'historical-policy'},
+    code:'KC-0006',history:[{id:1,actor_id:1,action:'privacy_redacted',from_status:'approved',to_status:'hidden',reason:'Operator reviewed privacy request PR-20261027-001',created_at:'2026-10-27'}],reports:{...pagination,data:[]}});
+  assert.ok(html.includes('historical-policy'));
+  assert.ok(html.includes('PR-20261027-001'));
+  assert.ok(html.includes('tidak dapat dipublikasikan kembali'));
+  assert.ok(!html.includes('Keputusan moderasi'));
+  assert.ok(!html.includes('Tindak lanjuti permintaan privasi'));
+  assert.ok(!html.includes('Sembunyikan segera'));
 });

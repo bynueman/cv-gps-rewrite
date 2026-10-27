@@ -25,12 +25,12 @@ use App\Http\Middleware\StoryAvailable;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::post('/kuicip/cerita/removal', [StoryController::class, 'removal'])->middleware(['noindex', 'throttle:5,1,story-removal'])->name('stories.removal');
 Route::get('/kuicip/cerita', [StoryController::class, 'index'])->middleware('noindex')->name('stories.index');
 Route::middleware(['noindex', StoryAvailable::class])->prefix('kuicip/cerita')->name('stories.')->group(function () {
     Route::post('/challenge', [StoryController::class, 'challenge'])->middleware('throttle:10,1,story-challenge')->name('challenge');
     Route::get('/feed', [StoryController::class, 'feed'])->middleware('throttle:60,1,story-feed')->name('feed');
     Route::post('/', [StoryController::class, 'store'])->middleware('throttle:5,1,story-submit')->name('store');
-    Route::post('/removal', [StoryController::class, 'removal'])->middleware('throttle:5,1,story-removal')->name('removal');
     Route::post('/{story}/react', [StoryController::class, 'react'])->whereNumber('story')->middleware('throttle:20,1,story-reaction')->name('react');
     Route::post('/{story}/report', [StoryController::class, 'report'])->whereNumber('story')->middleware('throttle:5,1,story-report')->name('report');
 });
@@ -101,6 +101,7 @@ Route::middleware(['auth', 'noindex'])->prefix('admin')->name('admin.')->group(f
     Route::middleware('superadmin')->group(function () {
         Route::middleware(StoryAvailable::class)->group(function () {
             Route::get('/stories', [AdminStoryController::class, 'index'])->name('stories.index');
+            Route::post('/stories/{story}/redact', [AdminStoryController::class, 'redact'])->whereNumber('story')->middleware('throttle:5,1,story-admin-redact')->name('stories.redact');
             Route::get('/stories/{story}', [AdminStoryController::class, 'show'])->whereNumber('story')->name('stories.show');
             Route::patch('/stories/{story}', [AdminStoryController::class, 'update'])->whereNumber('story')->name('stories.update');
             Route::patch('/story-reports/{report}', [AdminStoryController::class, 'reviewReport'])->whereNumber('report')->name('stories.reports.update');

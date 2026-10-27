@@ -22,16 +22,16 @@ class StoryController extends Controller
         $data = $request->validate(['status' => ['nullable', Rule::in(['pending', 'approved', 'rejected', 'hidden'])],
             'visibility' => ['nullable', Rule::in(['public', 'private'])], 'reports' => ['nullable', 'boolean'],
             'code' => ['nullable', 'string', 'regex:/^KC-[0-9]{4,20}$/']]);
-        $query = Story::query()->when($data['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
+        $query = Story::withTrashed()->when($data['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
             ->when($data['visibility'] ?? null, fn ($q, $visibility) => $q->where('visibility', $visibility))
             ->when($data['code'] ?? null, fn ($q, $code) => $q->whereKey(ltrim(substr($code, 3), '0') ?: '0'));
         if ($request->boolean('reports')) {
-            $query->whereIn('id', StoryReport::where('status', 'pending')->select('story_id'));
+            $query->whereNull('deleted_at')->whereIn('id', StoryReport::where('status', 'pending')->select('story_id'));
         }
 
         return Inertia::render('Admin/Stories/Index', ['stories' => $query->orderByDesc('id')->paginate(20)->withQueryString()
             ->through(fn (Story $story) => ['id' => $story->id, 'code' => $story->displayCode(),
-                'excerpt' => mb_substr($story->body, 0, 180), 'visibility' => $story->visibility, 'status' => $story->status]),
+                'excerpt' => mb_substr($story->body, 0, 180), 'redacted' => $story->trashed(), 'visibility' => $story->visibility, 'status' => $story->status]),
             'filters' => $data,
             'pendingReports' => StoryReport::where('status', 'pending')->whereIn('story_id', Story::select('id'))->count()]);
     }
@@ -39,12 +39,13 @@ class StoryController extends Controller
     public function show(int $story): Response
     {
         Gate::authorize('viewAny', Story::class);
-        $target = Story::findOrFail($story);
+        $target = Story::withTrashed()->findOrFail($story);
         Gate::authorize('view', $target);
 
         return Inertia::render('Admin/Stories/Show', [
             'story' => $target->only(['id', 'body', 'category', 'visibility', 'status', 'publication_consent', 'social_consent', 'policy_version', 'created_at']),
             'code' => $target->displayCode(),
+            'redacted' => $target->trashed(),
             'history' => StoryModerationEvent::where('story_id', $target->id)->orderByDesc('id')->limit(50)
                 ->get(['id', 'actor_id', 'action', 'from_status', 'to_status', 'reason', 'created_at']),
             'reports' => StoryReport::where('story_id', $target->id)->orderByDesc('id')->paginate(20, ['id', 'reason', 'details', 'status', 'created_at']),
@@ -66,6 +67,35 @@ class StoryController extends Controller
         });
 
         return back()->with('status', 'Keputusan moderasi disimpan. Visibility dan consent tidak diubah.');
+    }
+
+    public function redact(Request $request, int $story): RedirectResponse
+    {
+        Gate::authorize('viewAny', Story::class);
+        $data = $request->validate([
+            'review_confirmed' => ['required', 'accepted'],
+            'confirmation_code' => ['required', 'string', 'regex:/^KC-[0-9]{4,20}$/'],
+            'request_reference' => ['required', 'string', 'regex:/^PR-[A-Z0-9-]{6,30}$/'],
+        ]);
+        DB::connection('stories')->transaction(function () use ($request, $story, $data): void {
+            $target = Story::withTrashed()->lockForUpdate()->findOrFail($story);
+            Gate::authorize('redact', $target);
+            abort_unless(hash_equals($target->displayCode(), $data['confirmation_code']), 422, 'Konfirmasi kode tidak sesuai.');
+            if ($target->trashed()) {
+                return;
+            }
+            // Remove free-text copies; keep the event/report identities and decision history.
+            StoryModerationEvent::where('story_id', $target->id)->update(['reason' => null]);
+            StoryReport::where('story_id', $target->id)->update(['details' => null]);
+            StoryModerationEvent::create(['story_id' => $target->id, 'actor_id' => $request->user()->id,
+                'action' => 'privacy_redacted', 'from_status' => $target->status, 'to_status' => 'hidden',
+                'reason' => 'Operator reviewed privacy request '.$data['request_reference']]);
+            // Historical policy, consent and legacy hashes remain intact; the tombstone cannot be republished.
+            $target->update(['body' => '[removed]', 'status' => 'hidden', 'published_at' => null]);
+            $target->delete();
+        });
+
+        return redirect()->route('admin.stories.show', $story)->with('status', 'Isi cerita diredaksi dan disembunyikan. Riwayat keputusan tetap tersedia.');
     }
 
     public function reviewReport(Request $request, int $report): RedirectResponse

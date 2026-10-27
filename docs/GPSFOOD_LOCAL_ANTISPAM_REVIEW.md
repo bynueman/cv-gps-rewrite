@@ -40,7 +40,7 @@ Hanya dua provider: local dan turnstile. Unknown/none/disabled/typo gagal tertut
 
 Pada local, challenge diterbitkan melalui POST /kuicip/cerita/challenge setelah CSRF, throttle dan gate publik lolos. Penjumlahan acak operand1–9 disertai nonce acak128bit, purpose, waktu penerbitan server serta hash session. Token dilindungi encryption+MAC Laravel memakai APP_KEY yang sudah ada; jawaban hanya ada di cache server, bukan prop/token frontend. JSON hanya token, question, expires_in dan wait_seconds.
 
-Batas tetap: berlaku300detik, minimal umur2detik menurut waktu server, maksimal3jawaban salah pernonce. Signature tamper, session berbeda, expired/future token, trap terisi atau missing/malformed fields ditolak. Cache lock mengendalikan verifikasi serentak. Setelah benar, cache menyimpan UUID/hash payload, bukan jawaban; hanya retry identik yang boleh memakai grant itu, tidak kiriman baru. Grant tidak memperpanjang expiry awal. Setelah expired, soal baru dapat dipakai dengan UUID/payload yang sama untuk retry tanpa duplikasi atau token penghapusan baru.
+Batas tetap: berlaku300detik, minimal umur2detik menurut waktu server, maksimal3jawaban salah pernonce. Signature tamper, session berbeda, expired/future token, trap terisi atau missing/malformed fields ditolak. Cache lock mengendalikan verifikasi serentak. Setelah benar, cache menyimpan UUID/hash payload, bukan jawaban; hanya retry identik yang boleh memakai grant itu, tidak kiriman baru. Grant tidak memperpanjang expiry awal. Setelah expired, soal baru dapat dipakai dengan UUID/payload yang sama untuk retry tanpa duplikasi; receipt terbaru hanya berisi kode/accepted.
 
 Honeypot contact_website harus kosong; field hidden, tabindex=-1, autocomplete off dan aria-hidden, tanpa interaksi bagi pengunjung/assistive technology. Timing tidak mempercayai timestamp browser. UI memberi waktu siap singkat, mendeteksi expiry, menyediakan tombol soal baru dan mempertahankan cerita/consent pada kegagalan. Hanya sukses202 yang mereset body/consent.
 
@@ -58,7 +58,7 @@ Tidak mencatat jawaban, token, body, session ID atau credential dalam log baru. 
 
 ## 4. Fitur yang dipertahankan
 
-CSRF (termasuk endpoint issuance), auth/superadmin/policies/noindex, policy approval gate, kuota harian persistent200, cooldown60detik, duplicate detection, idempotency, pending-default, independent consent, public/private separation, social reuse opt-in, deletion-token hash/receipt, report/reaction dan moderation audit tetap aktif. Legacy TurnstileVerifier tidak diubah dan jalur yang dipilih eksplisit tetap lulus tes.
+CSRF (termasuk endpoint issuance), auth/superadmin/policies/noindex, policy approval gate, kuota harian persistent200, cooldown60detik, duplicate detection, idempotency, pending-default, independent consent, public/private separation, social reuse opt-in, receipt kode cerita (penerbitan token dihentikan pada rilis privasi terbaru; hash lama tidak dibersihkan), report/reaction dan moderation audit tetap aktif. Legacy TurnstileVerifier tidak diubah dan jalur yang dipilih eksplisit tetap lulus tes.
 
 No promotion tetap berlaku. Tidak ada perubahan desain homepage, navbar/footer, katalog atau card/modal. Tidak ada seeding data, tambahan schema atau penjadwalan prune.
 

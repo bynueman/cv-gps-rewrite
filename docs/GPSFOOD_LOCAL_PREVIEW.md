@@ -1,5 +1,7 @@
 # GPS FOOD — persistent local preview
 
+> Instruksi penghapusan dan policy lama di dokumen historis ini digantikan oleh [rilis gabungan V3 + privasi](GPSFOOD_FINAL_V3_STORY_REMOVAL_RELEASE.md). Jangan membuka form produksi sebelum pemilik menyetujui panduan ID/EN baru dan versi kuicip-v3-support-removal-2026-10-27. Tidak ada persetujuan kebijakan yang diasumsikan oleh agen.
+
 26 Oktober 2026. Ini profil **localhost saja**, terpisah dari .env/database/media utama. Produksi tetap stories disabled. Kebijakan LOCAL-DEMO-NOT-APPROVED adalah konfigurasi pengujian, bukan persetujuan legal/bisnis.
 
 ## Status pemulihan
@@ -45,10 +47,10 @@ Login pemilik **belum diuji** karena password ditentukan pemilik. Jalur login ap
 ## Alur manual
 
 1. Buka http://127.0.0.1:8766/kuicip/cerita . Banner harus mengatakan PREVIEW LOKAL, data fiksi, CAPTCHA simulasi dan kebijakan belum disahkan.
-2. Tulis cerita fiksi20–1500 karakter, pilih kategori dan visibility. Setujui terms serta publication consent bila publik; social reuse opsional. Klik Kirim untuk ditinjau. Simpan token penghapusan pribadi yang tampil sekali. Jeda kirim60detik dan rate limits tetap berlaku.
+2. Tulis cerita fiksi20–1500 karakter, pilih kategori dan visibility. Setujui terms serta publication consent bila publik; social reuse opsional. Klik Kirim untuk ditinjau. Simpan kode cerita sebagai referensi; pengajuan privasi melalui email resmi memerlukan peninjauan. Jeda kirim60detik dan rate limits tetap berlaku.
 3. Buat akun dengan command di atas; buka http://127.0.0.1:8766/admin/login . Login dengan password pilihan sendiri.
 4. Buka http://127.0.0.1:8766/admin/stories . Pilih pending story, isi alasan dan approve.
-5. Refresh feed. Public approved muncul; approval private tidak memublikasikannya. Filter kategori/load more, Dukung, laporan, hide, dan removal token dapat dicoba dengan data fiksi.
+5. Refresh feed. Public approved muncul; approval private tidak memublikasikannya. Filter kategori/load more, Dukung, laporan, hide, dan redaksi privasi oleh superadmin dapat dicoba dengan data fiksi yang ditinjau.
 6. Buka CMS products/articles/partners/certifications/messages/users/settings/profile. Semua memakai login yang sama, tanpa autologin. Editor tetap tidak bisa mengakses moderasi/private.
 
 Homepage: http://127.0.0.1:8766/ . Gunakan hardrefresh untuk memastikan asset terbaru dan splash putih. Profil ini menerima mutations yang normal, berbeda dari harness GET-only lama.
@@ -61,7 +63,7 @@ Frontend hanya pada profil valid menggunakan token demo; server TurnstileVerifie
 
 ## Hasil HTTP dan perbaikan
 
-Alur real backend persisten lulus: CSRF419, fake-verifier wrong-token422, valid submission202 pending, idempotent retry tanpa token ulang, cooldown429, guest401/API, login superadmin dan editor, editor403,17 halaman CMS200, approval->feed, atomic/dedup reactions, reporting, private404/never-public, removal token->redaction dan hilang dari feed. Story IDs/feed bertahan setelah proses server dihentikan dan dijalankan ulang.
+Alur real backend persisten lulus: CSRF419, fake-verifier wrong-token422, valid submission202 pending, idempotent retry tanpa token ulang, cooldown429, guest401/API, login superadmin dan editor, editor403,17 halaman CMS200, approval->feed, atomic/dedup reactions, reporting, private404/never-public, uji historis token (sekarang dipensiunkan; gunakan workflow privasi superadmin pada rilis terbaru). Story IDs/feed bertahan setelah proses server dihentikan dan dijalankan ulang.
 
 Dua bug terkonfirmasi diperbaiki: route throttle numerik sebelumnya berbagi bucket domain/IP sehingga feed menghabiskan kuota submission; kini masing-masing jenis endpoint cerita mempunyai prefix sendiri dengan batas angka tetap. Counter pending report sekarang mengecualikan cerita soft-deleted sehingga tidak menunjukkan laporan yang tidak bisa ditinjau. Tambahan regression tests melindungi keduanya.
 

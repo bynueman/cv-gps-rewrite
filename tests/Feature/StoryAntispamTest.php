@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Story;
 use App\Models\User;
 use App\Services\StoryAntispam;
+use App\Support\StoryAvailability;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
@@ -49,7 +50,7 @@ class StoryAntispamTest extends TestCase
 
     private function payload(array $challenge, array $overrides = []): array
     {
-        return array_merge(['category' => 'kehidupan', 'body' => 'Cerita fiksi cukup panjang untuk pengujian verifikasi lokal.',
+        return array_merge(['policy_version' => config('stories.policy_version'), 'category' => 'kehidupan', 'body' => 'Cerita fiksi cukup panjang untuk pengujian verifikasi lokal.',
             'visibility' => 'public', 'terms_consent' => true, 'publication_consent' => true, 'social_consent' => false,
             'idempotency_key' => (string) Str::uuid(), 'contact_website' => '',
             'challenge_token' => $challenge['token'], 'challenge_answer' => $challenge['answer']], $overrides);
@@ -62,7 +63,8 @@ class StoryAntispamTest extends TestCase
         $response = $this->postJson(route('stories.store'), $this->payload($challenge))->assertStatus(202);
         $story = Story::firstOrFail();
         $this->assertSame('pending', $story->status);
-        $this->assertSame(hash('sha256', $response->json('deletion_token')), $story->deletion_token_hash);
+        $response->assertJsonMissingPath('deletion_token');
+        $this->assertNull($story->deletion_token_hash);
         $this->getJson(route('stories.feed'))->assertJsonCount(0, 'stories');
         Http::assertNothingSent();
     }
@@ -98,7 +100,7 @@ class StoryAntispamTest extends TestCase
         $challenge = $this->challenge();
         $this->travel(2)->seconds();
         $payload = $this->payload($challenge);
-        $this->postJson(route('stories.store'), $payload)->assertStatus(202)->assertJsonStructure(['deletion_token']);
+        $this->postJson(route('stories.store'), $payload)->assertStatus(202)->assertJsonMissingPath('deletion_token');
         $this->postJson(route('stories.store'), $payload)->assertStatus(202)->assertJsonMissingPath('deletion_token');
         $this->postJson(route('stories.store'), $this->payload($challenge))->assertUnprocessable();
         $this->postJson(route('stories.store'), array_merge($payload, ['body' => 'Isi yang diubah tetap tidak boleh memakai UUID kiriman lama.']))->assertStatus(409);
@@ -174,7 +176,7 @@ class StoryAntispamTest extends TestCase
         $this->assertDatabaseCount('stories', 1, 'stories');
     }
 
-    public function test_private_moderation_and_owner_deletion_remain_intact_in_local_mode(): void
+    public function test_private_moderation_and_retired_removal_remain_safe_in_local_mode(): void
     {
         $challenge = $this->challenge();
         $this->travel(2)->seconds();
@@ -187,9 +189,9 @@ class StoryAntispamTest extends TestCase
             ->patch(route('admin.stories.update', $story->id), ['status' => 'approved', 'reason' => 'Review privat uji.'])->assertRedirect();
         $this->assertNull($story->fresh()->published_at);
         $this->getJson(route('stories.feed'))->assertJsonCount(0, 'stories');
-        $this->postJson(route('stories.removal'), ['code' => $receipt->json('code'), 'token' => $receipt->json('deletion_token')])->assertStatus(202);
-        $this->assertSame('[removed]', Story::withTrashed()->firstOrFail()->body);
-        $this->assertNull(Story::first());
+        $this->postJson(route('stories.removal'), ['code' => $receipt->json('code')])->assertStatus(410);
+        $this->assertSame($story->body, Story::firstOrFail()->body);
+        $this->assertNull(Story::firstOrFail()->deletion_token_hash);
     }
 
     public function test_unknown_provider_and_stage_a_fail_closed(): void
@@ -255,6 +257,25 @@ class StoryAntispamTest extends TestCase
         $payload = $this->payload(['token' => '', 'answer' => '1'], ['antispam_provider' => 'turnstile', 'turnstile_token' => 'pretend-valid']);
         $this->postJson(route('stories.store'), $payload)->assertUnprocessable()->assertJsonValidationErrors('challenge_token');
         $this->assertDatabaseCount('stories', 0, 'stories');
+        Http::assertNothingSent();
+    }
+
+    public function test_local_retry_after_policy_change_uses_a_fresh_challenge_without_rewriting_old_consent(): void
+    {
+        $first = $this->challenge();
+        $this->travel(2)->seconds();
+        $payload = $this->payload($first);
+        $receipt = $this->postJson(route('stories.store'), $payload)->assertStatus(202)->assertJsonMissingPath('deletion_token');
+        $before = Story::firstOrFail()->getRawOriginal();
+        config(['stories.policy_version' => StoryAvailability::REQUIRED_POLICY_VERSION]);
+        $this->postJson(route('stories.store'), array_replace($payload, ['policy_version' => config('stories.policy_version')]))->assertStatus(409);
+        $renewed = $this->challenge();
+        $this->travel(2)->seconds();
+        $retry = $this->payload($renewed, ['idempotency_key' => $payload['idempotency_key']]);
+        $this->postJson(route('stories.store'), $retry)->assertStatus(202)
+            ->assertJsonPath('code', $receipt->json('code'))->assertJsonMissingPath('deletion_token');
+        $this->assertSame($before, Story::firstOrFail()->getRawOriginal());
+        $this->assertDatabaseCount('stories', 1, 'stories');
         Http::assertNothingSent();
     }
 }

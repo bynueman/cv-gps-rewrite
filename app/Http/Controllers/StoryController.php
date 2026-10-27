@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStoryRequest;
 use App\Models\Story;
-use App\Models\StoryModerationEvent;
 use App\Services\StoryAntispam;
 use App\Services\StorySubmission;
 use App\Support\Seo;
@@ -25,7 +24,7 @@ class StoryController extends Controller
             'enabled' => StoryAvailability::publicEnabled(),
             'siteKey' => config('stories.antispam_provider') === 'turnstile' ? config('stories.turnstile_site_key') : null,
             'antispamProvider' => config('stories.antispam_provider'),
-            'policyVersion' => config('stories.policy_version'),
+            'policyVersion' => app()->environment('production') ? StoryAvailability::REQUIRED_POLICY_VERSION : config('stories.policy_version'),
             'retentionDays' => max(1, (int) config('stories.retention_days')),
             'categories' => Story::CATEGORIES,
             'seo' => (new Seo(title: 'Kuicip — Ruang Cerita',
@@ -85,21 +84,10 @@ class StoryController extends Controller
         return response()->json(['received' => true], 202)->header('Cache-Control', 'no-store');
     }
 
-    public function removal(Request $request): JsonResponse
+    public function removal(): JsonResponse
     {
-        $data = $request->validate(['code' => ['required', 'regex:/^KC-[0-9]{4,20}$/'], 'token' => ['required', 'string', 'regex:/^[a-f0-9]{64}$/']]);
-        DB::connection('stories')->transaction(function () use ($data): void {
-            $story = Story::whereKey((int) substr($data['code'], 3))
-                ->where('deletion_token_hash', hash('sha256', $data['token']))->lockForUpdate()->first();
-            if ($story) {
-                StoryModerationEvent::create(['story_id' => $story->id, 'action' => 'owner_removed',
-                    'from_status' => $story->status, 'to_status' => 'hidden']);
-                $story->update(['body' => '[removed]', 'status' => 'hidden', 'published_at' => null,
-                    'deletion_token_hash' => null, 'social_consent' => false, 'publication_consent' => false]);
-                $story->delete();
-            }
-        });
-
-        return response()->json(['received' => true], 202)->header('Cache-Control', 'no-store');
+        return response()->json(['retired' => true,
+            'message' => 'Penghapusan mandiri telah dihentikan. Hubungi GPS FOOD melalui kontak resmi untuk peninjauan permintaan.'], 410)
+            ->header('Cache-Control', 'no-store');
     }
 }

@@ -1,5 +1,7 @@
 # GPS FOOD — Ruang Cerita V2: promosi dan rilis manual
 
+> Instruksi penghapusan dan policy lama di dokumen historis ini digantikan oleh [rilis gabungan V3 + privasi](GPSFOOD_FINAL_V3_STORY_REMOVAL_RELEASE.md). Jangan membuka form produksi sebelum pemilik menyetujui panduan ID/EN baru dan versi kuicip-v3-support-removal-2026-10-27. Tidak ada persetujuan kebijakan yang diasumsikan oleh agen.
+
 Dokumen rilis ini menggantikan instruksi untuk menyembunyikan seluruh promosi dan instruksi aktivasi Stage A pada dokumen historis. Tidak menyatakan deployment sudah dilakukan oleh agen.
 
 ## Status dan cakupan
