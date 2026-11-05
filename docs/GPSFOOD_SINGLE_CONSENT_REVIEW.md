@@ -1,8 +1,13 @@
 # Ruang Cerita Kuicip — satu persetujuan (5 November 2026)
 
-Perubahan lokal pada `main`, melanjutkan retirement token dalam commit
-`0c6a82664e8b13127fd799d12e232b301766ddc9`. Tidak ada akses/deployment produksi,
-commit/push, perubahan `.env`, migration, atau pembaruan massal data.
+Perubahan pada `main`, melanjutkan retirement token dalam commit
+`0c6a82664e8b13127fd799d12e232b301766ddc9`. Implementasi telah dipush sebagai
+`ef5b949d37d81801b1d780b08b631b935b81de71`. Pemilik menyatakan persetujuan
+visual lokal dalam instruksi persiapan rilis final pada 5 November 2026.
+Tidak ada akses/deployment produksi, perubahan `.env`, migration baru,
+atau pembaruan massal data. Panduan deployment final menggunakan template
+`GPSFOOD_STORY_CONSENT_FINAL_RUNBOOK.template.md`; artefak dengan SHA/hash
+aktual disiapkan di `storage/app/private/releases/` setelah push.
 
 ## Perilaku dan bukti consent
 
@@ -65,6 +70,13 @@ perubahan ini, tetapi tidak membuktikan release mana yang sudah terpasang.
 
 ## Validasi
 
+Validasi ulang persiapan rilis final (5 November 2026): filter Laravel
+`Story|ReleaseReadiness|SmartBilingualCms|TranslationTest` exit 0, 95 tes,
+1.147 assertion, tanpa kegagalan (95 warning `.env` sementara yang sama).
+Frontend 34/34, TypeScript, Pint, build produksi, diff check lulus.
+Sintaks Bash runbook dan dua helper PHP juga diperiksa lokal, tanpa menjalankan
+deployment. Build artefak final diulang sesudah push dan diverifikasi terpisah.
+
 Hasil pengujian lokal:
 
 - `php artisan test --filter="Story|ReleaseReadiness"`: exit 0, 65 tes,
@@ -86,7 +98,9 @@ historis, retirement token, redaksi, policy gate dan antispam. Tes frontend
 merender form ID/EN dan memastikan satu checkbox wajib, dua link kebijakan,
 radio visibility serta receipt tanpa token.
 
-Browser host lokal tidak tersedia pada sesi ini. Uji visual 320/360/390 px,
+Browser host agen tidak tersedia pada sesi implementasi. Pemilik kemudian
+menyetujui tampilan lokal; agen tidak mengklaim menjalankan browser QA.
+Uji visual terukur 320/360/390 px,
 pengukuran scrollWidth, klik tautan kebijakan, dan interaksi expired-CAPTCHA
 masih perlu review browser lokal oleh pemilik. Pemeriksaan kode memastikan
 target label minimum 44 px, checkbox 20 px, wrapping teks dan grid mobile satu
