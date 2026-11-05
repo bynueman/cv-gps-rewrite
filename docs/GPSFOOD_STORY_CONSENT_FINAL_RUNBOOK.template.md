@@ -130,7 +130,8 @@ if($q['driver']!=='database'||($q['connection']?:$main)!==$main||(int)$q['retry_
 $v3=[$schema->hasTable('content_translations'),$schema->hasColumn('settings','value_en'),$db->table('migrations')->where('migration','2026_10_26_110000_create_content_translations_table')->exists()];
 if(count(array_unique($v3))!==1)exit(1);
 $invariants=['database'=>config('database'),'stories'=>array_diff_key(config('stories'),['policy_version'=>true]),'queue'=>config('queue'),'cache'=>config('cache'),'session'=>config('session')];
-echo json_encode(['main_connection'=>$main,'v3_installed'=>$v3[0],'queue_default'=>config('queue.default'),'translation_connection'=>'database','translation_queue'=>'translations','retry_after'=>$q['retry_after'],'configured_policy'=>config('stories.policy_version'),'required_policy'=>App\Support\StoryAvailability::REQUIRED_POLICY_VERSION,'story_enabled'=>config('stories.enabled'),'policies_approved'=>config('stories.policies_approved'),'provider'=>config('stories.antispam_provider'),'public_enabled'=>App\Support\StoryAvailability::publicEnabled(),'invariant_hash'=>hash('sha256',json_encode($invariants))],JSON_PRETTY_PRINT).PHP_EOL;
+$required=defined(App\Support\StoryAvailability::class.'::REQUIRED_POLICY_VERSION') ? constant(App\Support\StoryAvailability::class.'::REQUIRED_POLICY_VERSION') : null;
+echo json_encode(['main_connection'=>$main,'v3_installed'=>$v3[0],'queue_default'=>config('queue.default'),'translation_connection'=>'database','translation_queue'=>'translations','retry_after'=>$q['retry_after'],'configured_policy'=>config('stories.policy_version'),'required_policy'=>$required,'story_enabled'=>config('stories.enabled'),'policies_approved'=>config('stories.policies_approved'),'provider'=>config('stories.antispam_provider'),'public_enabled'=>App\Support\StoryAvailability::publicEnabled(),'invariant_hash'=>hash('sha256',json_encode($invariants))],JSON_PRETTY_PRINT).PHP_EOL;
 PHP
 "$PHP" "$BACKUP/check.php" | tee "$BACKUP/before.json"
 MAIN_CONNECTION=$("$PHP" -r 'require "vendor/autoload.php";$a=require "bootstrap/app.php";$a->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();echo config("database.default");')
@@ -141,6 +142,10 @@ test -s "$ZIP"
 printf '%s  %s\n' "$ZIP_SHA" "$ZIP" | sha256sum -c -
 unzip -t "$ZIP"
 ```
+
+`required_policy=null` pada sumber lama berarti konstanta versi belum tersedia
+sebelum retirement token; setelah pull konstanta wajib ada dan cocok dengan v4.
+Ini bukan alasan menganggap versi konfigurasi lama sudah menyetujui wording baru.
 
 Upload ZIP ke lokasi privat tersebut sebelum verifikasi. Pastikan konfigurasi
 sebelum/sesudah tidak berubah kecuali policy_version yang disetujui. Verifikasi
