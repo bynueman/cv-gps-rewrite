@@ -50,7 +50,8 @@ class StorySoftLaunchTest extends TestCase
         config(['stories.enabled' => true, 'stories.policies_approved' => true]);
         app()->detectEnvironment(fn () => 'production');
         try {
-            foreach (['draft-v1', ' DRAFT-v2 ', '', str_repeat('x', 81), 'owner-approved-example-v1', ' '.StoryAvailability::REQUIRED_POLICY_VERSION.' '] as $version) {
+            foreach (['draft-v1', ' DRAFT-v2 ', '', str_repeat('x', 81), 'owner-approved-example-v1',
+                'kuicip-v3-support-removal-2026-10-27', ' '.StoryAvailability::REQUIRED_POLICY_VERSION.' '] as $version) {
                 config(['stories.policy_version' => $version]);
                 $this->get('/kuicip/cerita')->assertOk()
                     ->assertHeader('X-Robots-Tag', 'noindex, nofollow')

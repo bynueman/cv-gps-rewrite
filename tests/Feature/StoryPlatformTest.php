@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\TurnstileVerifier;
 use App\Support\StoryAvailability;
 use App\Support\StoryDatabase;
+use App\Support\StoryIdentity;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
@@ -45,7 +46,7 @@ class StoryPlatformTest extends TestCase
     {
         return array_merge(['policy_version' => config('stories.policy_version'), 'category' => 'kehidupan', 'body' => 'Hari ini saya belajar menikmati hal-hal kecil dalam kehidupan.',
             'visibility' => 'public', 'terms_consent' => true, 'publication_consent' => true,
-            'social_consent' => false, 'turnstile_token' => 'mock-token', 'idempotency_key' => (string) Str::uuid()], $overrides);
+            'turnstile_token' => 'mock-token', 'idempotency_key' => (string) Str::uuid()], $overrides);
     }
 
     private function story(array $overrides = []): Story
@@ -182,6 +183,70 @@ class StoryPlatformTest extends TestCase
         $payload['visibility'] = 'private';
         $this->postJson(route('stories.store'), $payload)->assertStatus(409);
         $this->assertDatabaseCount('stories', 1, 'stories');
+    }
+
+    public function test_new_public_submission_ignores_social_reuse_payload_and_preserves_historical_consent(): void
+    {
+        $legacy = $this->story(['social_consent' => true, 'policy_version' => 'historical-policy',
+            'deletion_token_hash' => str_repeat('e', 64)]);
+        $before = $legacy->fresh()->getRawOriginal();
+        $payload = $this->payload(['social_consent' => true]);
+        $this->postJson(route('stories.store'), $payload)->assertStatus(202)->assertExactJson([
+            'code' => 'KC-0002', 'accepted' => true,
+        ]);
+        $story = Story::latest('id')->firstOrFail();
+        $this->assertTrue($story->publication_consent);
+        $this->assertFalse($story->social_consent);
+        $this->assertNull($story->deletion_token_hash);
+        $this->assertNotNull($story->consented_at);
+        $this->assertSame(config('stories.policy_version'), $story->policy_version);
+        $this->postJson(route('stories.store'), $payload)->assertStatus(202)->assertJsonPath('code', 'KC-0002');
+        $this->assertSame($before, $legacy->fresh()->getRawOriginal());
+    }
+
+    public function test_required_consent_and_publication_permission_cannot_be_omitted(): void
+    {
+        foreach (['terms_consent', 'publication_consent'] as $field) {
+            $payload = $this->payload();
+            unset($payload[$field]);
+            $this->postJson(route('stories.store'), $payload)->assertUnprocessable()->assertJsonValidationErrors($field);
+        }
+        $this->postJson(route('stories.store'), $this->payload(['visibility' => 'private', 'terms_consent' => false]))
+            ->assertUnprocessable()->assertJsonValidationErrors('terms_consent');
+        Http::assertNothingSent();
+        $this->assertDatabaseCount('stories', 0, 'stories');
+    }
+
+    public function test_retry_of_historical_social_consent_returns_only_code_without_rewriting_the_record(): void
+    {
+        $payload = $this->payload();
+        unset($payload['social_consent']);
+        $legacy = $this->story(['category' => $payload['category'], 'body' => $payload['body'],
+            'social_consent' => true, 'policy_version' => 'historical-policy',
+            'idempotency_key' => $payload['idempotency_key'], 'deletion_token_hash' => str_repeat('d', 64),
+            'request_hash' => StoryIdentity::hash(json_encode([$payload['category'], $payload['body'],
+                'public', true, true, 'historical-policy'], JSON_THROW_ON_ERROR))]);
+        $before = $legacy->fresh()->getRawOriginal();
+        $this->postJson(route('stories.store'), $payload)->assertStatus(202)
+            ->assertExactJson(['code' => $legacy->displayCode(), 'accepted' => true]);
+        $this->assertSame($before, $legacy->fresh()->getRawOriginal());
+        Http::assertNothingSent();
+    }
+
+    public function test_private_submission_without_publication_permission_remains_private_after_admin_approval(): void
+    {
+        $payload = $this->payload(['visibility' => 'private']);
+        unset($payload['publication_consent'], $payload['social_consent']);
+        $this->postJson(route('stories.store'), $payload)->assertStatus(202);
+        $story = Story::firstOrFail();
+        $this->actingAs(User::factory()->create(['role' => 'superadmin']))
+            ->patch(route('admin.stories.update', $story->id), ['status' => 'approved', 'reason' => 'Ditinjau privat'])->assertRedirect();
+        $story->refresh();
+        $this->assertSame('private', $story->visibility);
+        $this->assertFalse($story->publication_consent);
+        $this->assertFalse($story->social_consent);
+        $this->assertNull($story->published_at);
+        $this->getJson(route('stories.feed'))->assertJsonCount(0, 'stories');
     }
 
     public function test_consent_plain_text_and_length_are_validated_before_http(): void

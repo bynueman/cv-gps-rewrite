@@ -44,7 +44,6 @@ class StoreStoryRequest extends FormRequest
             'visibility' => ['required', Rule::in(['public', 'private'])],
             'terms_consent' => ['required', 'accepted'],
             'publication_consent' => ['required_if:visibility,public', 'boolean', 'accepted_if:visibility,public'],
-            'social_consent' => ['sometimes', 'boolean'],
             'idempotency_key' => ['required', 'uuid'],
             'contact_website' => ['prohibited'],
             'challenge_token' => [Rule::requiredIf(config('stories.antispam_provider') === 'local'), 'nullable', 'string', 'max:2048'],

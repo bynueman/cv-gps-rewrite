@@ -25,6 +25,14 @@ await build({
     import {Header} from '@/Components/Header';
     import {LanguageProvider,dictionary} from '@/lib/i18n';
     export {dictionary};
+    function StoredLanguage({lang,children}){
+      const previous=globalThis.window;globalThis.window={localStorage:{getItem:()=>lang}};
+      try{return LanguageProvider({children});}finally{if(previous===undefined)delete globalThis.window;else globalThis.window=previous;}
+    }
+    export function consent(props,lang){
+      function Wrapped(values){return <StoredLanguage lang={lang}><Cerita {...values}/></StoredLanguage>;}
+      return renderToStaticMarkup(<App initialPage={{component:'Cerita',url:'/',version:null,props}} initialComponent={Wrapped} resolveComponent={()=>Wrapped}/>);
+    }
     function HeaderFixture(){return <LanguageProvider><Header/></LanguageProvider>;}
     import {Sidebar} from '@/Components/admin/Sidebar';
     export function render(component,props,url="/"){
@@ -112,8 +120,8 @@ test('direct story page keeps the corporate chrome and gates its form and feed i
   assert.ok(!closed.includes('<textarea'));
   const open=render('Cerita',{...base,enabled:true,siteKey:'fixture-site-key',policyVersion:'approved-fixture'});
   assert.ok(open.includes('<textarea'));
-  assert.ok(open.includes('name="publication_consent"'));
-  assert.ok(open.includes('name="social_consent"'));
+  assert.ok(!open.includes('name="publication_consent"'));
+  assert.ok(!open.includes('name="social_consent"'));
   assert.ok(open.includes('name="terms_consent"'));
   assert.ok(!open.includes('name="token" type="password"'));
   assert.ok(open.includes('<header'));
@@ -171,7 +179,7 @@ test('submission groups preserve consent requirements and block sending before v
   assert.ok(/<input(?=[^>]*name="visibility")(?=[^>]*value="public")(?=[^>]*checked="")[^>]*>/.test(html));
   assert.ok(/<input(?=[^>]*name="visibility")(?=[^>]*value="private")[^>]*>/.test(html));
   assert.ok(/name="terms_consent" type="checkbox" required=""/.test(html));
-  assert.ok(/name="publication_consent" type="checkbox" required=""/.test(html));
+  assert.equal((html.match(/type="checkbox"/g)||[]).length,1);
   assert.ok(!/name="social_consent"[^>]*required/.test(html));
   assert.ok(/<button disabled=""[^>]*>Kirim untuk ditinjau/.test(html));
   assert.ok(html.indexOf('name="category"') < html.indexOf('id="story-body"'));
@@ -189,8 +197,8 @@ test('public story page retires the token form and points to the configured supp
   assert.ok(html.includes('Tim akan meninjau permintaan'));
   for(const old of ['Hapus ceritamu dengan token','Simpan token penghapusan','name="token"','name="code"','story-removal-receipt','deletion_token'])assert.ok(!html.includes(old),old);
   assert.ok(html.includes('name="terms_consent"'));
-  assert.ok(html.includes('name="publication_consent"'));
-  assert.ok(html.includes('name="social_consent"'));
+  assert.ok(!html.includes('name="publication_consent"'));
+  assert.ok(!html.includes('name="social_consent"'));
 });
 
 test('redacted admin tombstones preserve audit access and expose no moderation or removal action',()=>{
@@ -204,4 +212,20 @@ test('redacted admin tombstones preserve audit access and expose no moderation o
   assert.ok(!html.includes('Keputusan moderasi'));
   assert.ok(!html.includes('Tindak lanjuti permintaan privasi'));
   assert.ok(!html.includes('Sembunyikan segera'));
+});
+
+test('single consent and publication choices explain their scope in Indonesian and English',()=>{
+  for(const lang of ['id','en']){
+    const html=ui.consent({...props,enabled:true,antispamProvider:'local',siteKey:null,policyVersion:'reviewed-v4',retentionDays:90,categories:['kehidupan']},lang);
+    assert.equal((html.match(/type="checkbox"/g)||[]).length,1);
+    assert.ok(html.includes('href="#story-community-guidelines"'));
+    assert.ok(html.includes('href="#story-privacy-notice"'));
+    assert.ok(html.includes('id="story-community-guidelines"'));
+    assert.ok(html.includes('id="story-privacy-notice"'));
+    const text=html.replace(/<[^>]+>/g,'');
+    assert.ok(text.includes(lang==='id'?'Saya telah membaca dan menyetujui Panduan Komunitas dan Pemberitahuan Privasi Ruang Cerita Kuicip.':'I have read and agree to the Kuicip Story Space Community Guidelines and Privacy Notice.'));
+    assert.ok(text.includes(lang==='id'?'Saya mengizinkan publikasi hanya setelah persetujuan admin.':'I consent to publication only after admin approval.'));
+    assert.ok(text.includes(lang==='id'?'Tidak pernah dipublikasikan.':'Never published.'));
+    assert.ok(text.includes(lang==='id'?'izin terpisah yang sah':'separate valid authorization'));
+  }
 });

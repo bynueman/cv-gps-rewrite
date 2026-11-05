@@ -136,13 +136,13 @@ test('receipts keep code-copy and reviewed support guidance without displaying e
     if (lang === 'id') {
       assert.ok(html.includes('menunggu peninjauan'));
       assert.ok(html.includes('Salin kode cerita KC-0006'));
-      assert.ok(html.includes('bukan bukti kepemilikan'));
-      assert.ok(html.includes('tidak dipenuhi secara otomatis'));
+      assert.ok(html.includes('kontak resmi GPS FOOD'));
+      assert.ok(html.includes('cerita privat tidak dipublikasikan'));
     } else {
       assert.ok(html.includes('awaiting review'));
       assert.ok(html.includes('Copy story code KC-0006'));
-      assert.ok(html.includes('not proof of ownership'));
-      assert.ok(html.includes('not fulfilled automatically'));
+      assert.ok(html.includes('official GPS FOOD contact'));
+      assert.ok(html.includes('private stories are never published'));
     }
     const retry = ui.receipt({code: 'KC-0006'}, lang);
     assert.ok(!retry.includes('shown again'));

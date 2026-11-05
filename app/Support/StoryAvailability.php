@@ -4,7 +4,7 @@ namespace App\Support;
 
 class StoryAvailability
 {
-    public const REQUIRED_POLICY_VERSION = 'kuicip-v3-support-removal-2026-10-27';
+    public const REQUIRED_POLICY_VERSION = 'kuicip-v4-single-consent-2026-11-05';
 
     public static function publicEnabled(): bool
     {
