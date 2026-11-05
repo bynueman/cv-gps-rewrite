@@ -55,12 +55,12 @@ class StoryController extends Controller
     public function update(Request $request, int $story): RedirectResponse
     {
         Gate::authorize('viewAny', Story::class);
-        $data = $request->validate(['status' => ['required', Rule::in(['approved', 'rejected', 'hidden'])], 'reason' => ['required', 'string', 'max:300']]);
+        $data = $request->validate(['status' => ['required', Rule::in(['approved', 'rejected', 'hidden'])], 'reason' => ['nullable', 'string', 'max:300']]);
         DB::connection('stories')->transaction(function () use ($request, $story, $data): void {
             $target = Story::lockForUpdate()->findOrFail($story);
             Gate::authorize('update', $target);
             StoryModerationEvent::create(['story_id' => $target->id, 'actor_id' => $request->user()->id,
-                'action' => 'moderated', 'from_status' => $target->status, 'to_status' => $data['status'], 'reason' => $data['reason']]);
+                'action' => 'moderated', 'from_status' => $target->status, 'to_status' => $data['status'], 'reason' => $data['reason'] ?? null]);
             $target->update(['status' => $data['status'],
                 'published_at' => $data['status'] === 'approved' && $target->visibility === 'public' && $target->publication_consent
                     ? ($target->published_at ?? now()) : null]);

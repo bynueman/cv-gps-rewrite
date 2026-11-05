@@ -21,10 +21,12 @@ await build({
     import Detail from '@/Pages/Products/ProductDetail';
     import Cerita from '@/Pages/Kuicip/Cerita';
     import StoryIndex from '@/Pages/Admin/Stories/Index';
-    import StoryShow from '@/Pages/Admin/Stories/Show';
+    import StoryShow,{ModerationDecisions} from '@/Pages/Admin/Stories/Show';
     import {Header} from '@/Components/Header';
     import {LanguageProvider,dictionary} from '@/lib/i18n';
     export {dictionary};
+    export {ModerationDecisions};
+    export const decisions=props=>renderToStaticMarkup(<ModerationDecisions {...props}/>);
     function StoredLanguage({lang,children}){
       const previous=globalThis.window;globalThis.window={localStorage:{getItem:()=>lang}};
       try{return LanguageProvider({children});}finally{if(previous===undefined)delete globalThis.window;else globalThis.window=previous;}
@@ -228,4 +230,35 @@ test('single consent and publication choices explain their scope in Indonesian a
     assert.ok(text.includes(lang==='id'?'Tidak pernah dipublikasikan.':'Never published.'));
     assert.ok(text.includes(lang==='id'?'izin terpisah yang sah':'separate valid authorization'));
   }
+});
+
+test('moderation cards expose three native radio choices and selection never submits',()=>{
+  function nodes(node){if(Array.isArray(node))return node.flatMap(nodes);if(!node?.props)return[];return[node,...nodes(node.props.children)];}
+  for(const selected of ['approved','rejected','hidden']){
+    const changes=[];
+    const values={value:selected,onChange:value=>changes.push(value),disabled:false};
+    const html=ui.decisions(values);
+    assert.equal((html.match(/type="radio"/g)||[]).length,3);
+    assert.equal((html.match(/checked=""/g)||[]).length,1);
+    assert.ok(new RegExp('<input(?=[^>]*value="'+selected+'")(?=[^>]*checked="")[^>]*>').test(html));
+    assert.ok(html.includes('peer-focus-visible:outline'));
+    assert.ok(!html.includes('<select'));
+    assert.ok(!html.includes('<button'));
+    assert.ok(html.includes(selected==='approved'?'border-herbal bg-herbal/10':selected==='rejected'?'border-red-700 bg-red-50':'border-espresso-900 bg-espresso-900/5'));
+    const radios=nodes(ui.ModerationDecisions(values)).filter(node=>node.type==='input');
+    assert.deepEqual(radios.map(node=>node.props.value),['approved','rejected','hidden']);
+    for(const radio of radios)radio.props.onChange();
+    assert.deepEqual(changes,['approved','rejected','hidden']);
+  }
+  assert.ok(ui.decisions({value:'approved',onChange:()=>{},disabled:true}).includes('<fieldset disabled=""'));
+});
+
+test('moderation has one explicit save button, optional note and separate emergency hide',()=>{
+  const html=render('StoryShow',{auth:{user:{id:1,name:'Moderator',role:'superadmin'}},story:{id:6,body:'Cerita sintetis untuk moderasi.',category:'kehidupan',visibility:'private',status:'pending',publication_consent:false,social_consent:false,policy_version:'approved-fixture'},code:'KC-0006',history:[],reports:{...pagination,data:[]}});
+  assert.ok(html.includes('Alasan / catatan (opsional)'));
+  const note=html.match(/<textarea[^>]*name="reason"[^>]*>/)[0];
+  assert.ok(note.includes('maxLength="300"'));
+  assert.ok(!note.includes('required'));
+  assert.equal((html.match(/>Simpan Keputusan<\/button>/g)||[]).length,1);
+  assert.ok(html.includes('Sembunyikan segera'));
 });

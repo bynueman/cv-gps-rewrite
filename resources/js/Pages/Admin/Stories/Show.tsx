@@ -6,11 +6,25 @@ import { Pagination, type PaginationData } from "@/Components/admin/Pagination";
 import { CopyStoryCode } from "@/Components/CopyStoryCode";
 import { StoryText } from "@/Components/StoryDetailModal";
 import { storyCategoryName, storyStatusLabels, storyVisibilityLabels } from "@/lib/storyLabels";
+import { CheckCircle2, XCircle, EyeOff } from "lucide-react";
 
 type Story = { id: number; body: string; category: string; visibility: string; status: string; publication_consent: boolean; social_consent: boolean; policy_version: string };
 type Event = { id: number; action: string; from_status: string | null; to_status: string; reason: string | null; actor_id: number | null; created_at: string };
 type Report = { id: number; reason: string; details: string | null; status: string };
 const field = "mt-2 w-full rounded-xl border border-espresso-900/20 bg-cream-50 p-3 text-sm";
+export function ModerationDecisions({ value, onChange, disabled }: { value: string; onChange: (value: string) => void; disabled: boolean }) {
+  const options = [
+    { value: "approved", label: "Disetujui / selesai ditinjau", icon: CheckCircle2, style: "border-herbal bg-herbal/10", color: "text-herbal" },
+    { value: "rejected", label: "Ditolak", icon: XCircle, style: "border-red-700 bg-red-50", color: "text-red-700" },
+    { value: "hidden", label: "Disembunyikan", icon: EyeOff, style: "border-espresso-900 bg-espresso-900/5", color: "text-espresso-600" },
+  ];
+  return <fieldset disabled={disabled} className="mt-5"><legend className="text-sm font-semibold">Status</legend>
+    <div className="mt-2 grid gap-2 sm:grid-cols-3 lg:grid-cols-1 2xl:grid-cols-3">{options.map(option => <label key={option.value} className="min-w-0 cursor-pointer">
+      <input type="radio" name="status" value={option.value} checked={value === option.value} onChange={() => onChange(option.value)} className="peer sr-only"/>
+      <span className={`flex h-full min-h-12 items-center gap-2 rounded-xl border-2 p-3 text-xs font-semibold peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-espresso-900 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 ${value === option.value ? option.style : "border-espresso-900/15"}`}><option.icon size={18} aria-hidden="true" className={`shrink-0 ${option.color}`}/><span className="min-w-0 [overflow-wrap:anywhere]">{option.label}</span></span>
+    </label>)}</div>
+  </fieldset>;
+}
 function ReviewReport({ report, readOnly = false }: { report: Report; readOnly?: boolean }) {
   const { data, setData, patch, processing, errors } = useForm({ status: "resolved", reason: "" });
   function submit(event: FormEvent) { event.preventDefault(); patch(route("admin.stories.reports.update", report.id), { preserveScroll: true }); }
@@ -60,11 +74,11 @@ function Show({ story, code, history, reports, redacted = false }: { redacted?: 
       </section>
       <section className="min-w-0">
         {!redacted && <form onSubmit={submit} className="rounded-3xl border border-espresso-900/15 bg-cream-50 p-5 sm:p-6" aria-busy={processing}>
-          <h2 className="font-display text-xl">Keputusan moderasi</h2><p className="mt-2 text-xs leading-relaxed text-espresso-600">Periksa data pribadi, konteks, dan izin publikasi. Setiap keputusan dicatat beserta alasannya.</p>
-          <label className="mt-5 block text-sm font-semibold">Status<select value={data.status} onChange={event => setData("status", event.target.value)} className={field}><option value="approved">Disetujui / selesai ditinjau</option><option value="rejected">Ditolak</option><option value="hidden">Disembunyikan</option></select></label>
-          <label className="mt-4 block text-sm font-semibold">Alasan<textarea required maxLength={300} value={data.reason} onChange={event => setData("reason", event.target.value)} className={field} rows={3}/></label>
+          <h2 className="font-display text-xl">Keputusan moderasi</h2><p className="mt-2 text-xs leading-relaxed text-espresso-600">Periksa data pribadi, konteks, dan izin publikasi. Setiap keputusan dicatat. Catatan dapat ditambahkan bila diperlukan.</p>
+          <ModerationDecisions value={data.status} onChange={value => setData("status", value)} disabled={processing || hide.processing}/>
+          <label className="mt-4 block text-sm font-semibold">Alasan / catatan (opsional)<textarea name="reason" maxLength={300} value={data.reason} onChange={event => setData("reason", event.target.value)} className={field} rows={3}/></label>
           {Object.values(errors).map((error, i) => <p role="alert" key={i} className="mt-2 text-sm text-red-700">{error}</p>)}
-          <button disabled={processing || hide.processing} className="btn-primary mt-4 w-full disabled:opacity-50">{processing ? "Menyimpan…" : "Simpan keputusan"}</button>
+          <button disabled={processing || hide.processing} className="btn-primary mt-4 w-full disabled:opacity-50">{processing ? "Menyimpan…" : "Simpan Keputusan"}</button>
         </form>}
         {redacted ? <p role="status" className="rounded-2xl border border-espresso-900/15 bg-cream-50 p-5 text-sm">Cerita telah diredaksi dan tidak dapat dipublikasikan kembali. Riwayat keputusan dipertahankan.</p> : <PrivacyRedaction storyId={story.id} code={code}/>}
         <h2 className="mt-8 font-display text-xl">Laporan komunitas</h2>

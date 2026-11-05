@@ -311,6 +311,64 @@ class StoryPlatformTest extends TestCase
         $this->assertDatabaseCount('story_moderation_events', 2, 'stories');
     }
 
+    public function test_all_moderation_decisions_accept_optional_notes_and_preserve_audit_and_visibility(): void
+    {
+        $this->freezeTime();
+        $admin = User::factory()->create(['role' => 'superadmin']);
+        $this->actingAs($admin);
+        foreach (['public', 'private'] as $visibility) {
+            foreach (['approved', 'rejected', 'hidden'] as $status) {
+                foreach ([[], ['reason' => null], ['reason' => ''], ['reason' => "Catatan staf.\nBaris kedua."]] as $note) {
+                    $story = $this->story(['visibility' => $visibility, 'status' => 'pending', 'published_at' => null,
+                        'publication_consent' => $visibility === 'public']);
+                    $before = $story->fresh()->only(['visibility', 'publication_consent', 'social_consent', 'policy_version', 'consented_at', 'body', 'deletion_token_hash']);
+                    $this->patch(route('admin.stories.update', $story->id), ['status' => $status] + $note)->assertRedirect();
+                    $story->refresh();
+                    $this->assertSame($status, $story->status);
+                    $this->assertSame($before, $story->only(array_keys($before)));
+                    $this->assertSame($status === 'approved' && $visibility === 'public', $story->published_at !== null);
+                    $event = StoryModerationEvent::where('story_id', $story->id)->sole();
+                    $this->assertSame($admin->id, $event->actor_id);
+                    $this->assertSame('moderated', $event->action);
+                    $this->assertSame('pending', $event->from_status);
+                    $this->assertSame($status, $event->to_status);
+                    $this->assertSame(($note['reason'] ?? null) ?: null, $event->reason);
+                    $this->assertSame(now()->toDateTimeString(), $event->created_at->toDateTimeString());
+                    $this->assertSame($status === 'approved' && $visibility === 'public', Story::publicFeed()->whereKey($story->id)->exists());
+                }
+            }
+        }
+    }
+
+    public function test_optional_moderation_note_still_validates_type_length_status_and_publication_consent(): void
+    {
+        $story = $this->story(['status' => 'pending', 'published_at' => null, 'publication_consent' => false]);
+        $this->actingAs(User::factory()->create(['role' => 'superadmin']));
+        foreach ([['status' => 'pending'], ['status' => 'approved', 'reason' => str_repeat('x', 301)],
+            ['status' => 'approved', 'reason' => ['invalid']]] as $payload) {
+            $this->patchJson(route('admin.stories.update', $story->id), $payload)->assertUnprocessable();
+        }
+        $this->assertDatabaseCount('story_moderation_events', 0, 'stories');
+        $this->patch(route('admin.stories.update', $story->id), ['status' => 'approved', 'reason' => str_repeat('x', 300)])->assertRedirect();
+        $this->assertSame(str_repeat('x', 300), StoryModerationEvent::sole()->reason);
+        $this->assertNull($story->fresh()->published_at);
+        $this->assertFalse(Story::publicFeed()->whereKey($story->id)->exists());
+        $this->patch(route('admin.stories.update', $story->id), ['status' => 'hidden', 'reason' => 'Disembunyikan segera untuk peninjauan'])->assertRedirect();
+        $this->assertSame('hidden', $story->fresh()->status);
+        $this->assertSame('Disembunyikan segera untuk peninjauan', StoryModerationEvent::latest('id')->firstOrFail()->reason);
+        $this->assertDatabaseCount('story_moderation_events', 2, 'stories');
+    }
+
+    public function test_missing_moderation_reason_does_not_bypass_authorization(): void
+    {
+        $story = $this->story(['status' => 'pending', 'published_at' => null]);
+        $this->patch(route('admin.stories.update', $story->id), ['status' => 'approved'])->assertRedirect(route('admin.login'));
+        $this->actingAs(User::factory()->create(['role' => 'editor']))
+            ->patch(route('admin.stories.update', $story->id), ['status' => 'approved'])->assertForbidden();
+        $this->assertSame('pending', $story->fresh()->status);
+        $this->assertDatabaseCount('story_moderation_events', 0, 'stories');
+    }
+
     public function test_private_targets_cannot_be_reported_or_reacted_to(): void
     {
         $story = $this->story(['visibility' => 'private']);
